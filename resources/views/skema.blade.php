@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil - LSP Pustaka Ilmiah Elektronik</title>
+    <title>Skema Sertifikasi - LSP Pustaka Ilmiah Elektronik</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
@@ -28,9 +28,9 @@
                     </div>
                     <nav class="hidden md:flex items-center gap-8">
                         <a class="text-sm font-medium hover:text-blue-600" href="/">Beranda</a>
-                        <a class="text-sm font-bold text-blue-900" href="/profile">Profil</a>
+                        <a class="text-sm font-medium hover:text-blue-600" href="/profile">Profil</a>
                         <a class="text-sm font-medium hover:text-blue-600" href="/struktur-organisasi">Struktur Organisasi</a>
-                        <a class="text-sm font-medium hover:text-blue-600" href="/skema">Skema</a>
+                        <a class="text-sm font-bold text-blue-900" href="/skema">Skema</a>
                         <a class="text-sm font-medium hover:text-blue-600" href="/contact">Hubungi Kami</a>
                     </nav>
                     <div class="flex items-center gap-2">
@@ -47,73 +47,54 @@
 
         <!-- Main Content -->
         <main class="flex-grow">
-            <div class="px-4 md:px-10 lg:px-20 xl:px-40 flex flex-1 justify-center py-5">
-                <div class="flex flex-col max-w-[960px] flex-1">
-                    <div class="flex flex-col gap-8 md:gap-12 py-8 md:py-12">
-                        <div class="flex flex-wrap justify-between gap-3 p-4">
-                            <div class="flex w-full flex-col gap-3 text-center">
-                                <p class="text-gray-900 text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em]">Profil LSP Pustaka Ilmiah Elektronik</p>
-                                <p class="text-blue-800 text-base font-normal leading-normal">LSP P3 Asosiasi Industri/Profesi</p>
+            <div class="px-4 md:px-10 lg:px-20 xl:px-40 flex flex-1 justify-center py-12 md:py-16">
+                <div class="flex flex-col max-w-[1200px] w-full">
+                    <div class="mb-12 text-center">
+                        <h1 class="text-4xl md:text-5xl font-bold text-blue-900 mb-2">Skema Sertifikasi</h1>
+                        <p class="text-lg text-gray-600">Temukan skema sertifikasi yang sesuai dengan bidang keahlian Anda.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        <!-- Card 1 -->
+                        <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col overflow-hidden border border-gray-200">
+                            <div class="p-6 flex-grow flex flex-col">
+                                <div class="flex items-start space-x-4 mb-4">
+                                    <div class="bg-blue-100 p-3 rounded-lg flex-shrink-0">
+                                        <span class="material-symbols-outlined text-blue-900 text-3xl">article</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900 leading-tight">Penerapan IT Untuk Artikel Ilmiah</h3>
+                                        <p class="text-sm text-gray-500 mt-1">Application IT for Scientific Article</p>
+                                    </div>
+                                </div>
+                                <p class="text-base text-gray-600 mb-4 flex-grow">Bidang Perpustakaan (Library)</p>
+                                <span class="inline-block bg-blue-100 text-blue-900 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider self-start">KKNI (LEVEL 3)</span>
+                            </div>
+                            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                                <a class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg w-full text-center inline-block transition duration-300" href="/skema/penerapan-it-artikel-ilmiah">Lihat Detail</a>
                             </div>
                         </div>
-                        <div class="px-4">
-                            <div class="w-full h-64 md:h-96 overflow-hidden rounded-xl border border-gray-200">
-                                <img alt="Professional meeting in a modern office" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYyDev19jmiXPhDFiBKBZRNgrI_CRMdoRbtJDeT88WVH7SyV7rw3Xtz3v8-8A0naV2H6BdEKbRYHAxQMglTCU6n87RzZfFR7FHaTfgH8u9EuEU3M8ty1zyeppXNHe2ZniXMrTCvZJeBIBrFutSTuS-HzRrfKHuwMj6J4V7orQh9c7qTdqGCdndPeI4YLafVvZVNQoRNu-HZ2UR5GaSpxr4_arm0lsavaT_zhZKN-3Oy3e9fehl3a5GBfX_VxKM8e_YF0uSc8REWLEl"/>
+
+                        <!-- Card 2 -->
+                        <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col overflow-hidden border border-gray-200">
+                            <div class="p-6 flex-grow flex flex-col">
+                                <div class="flex items-start space-x-4 mb-4">
+                                    <div class="bg-blue-100 p-3 rounded-lg flex-shrink-0">
+                                        <span class="material-symbols-outlined text-blue-900 text-3xl">menu_book</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900 leading-tight">Pengelolaan Jurnal Elektronik</h3>
+                                        <p class="text-sm text-gray-500 mt-1">Electronic Journal Management</p>
+                                    </div>
+                                </div>
+                                <p class="text-base text-gray-600 mb-4 flex-grow">Bidang Perpustakaan (Library)</p>
+                                <span class="inline-block bg-blue-100 text-blue-900 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider self-start">KKNI (LEVEL 3)</span>
                             </div>
-                        </div>
-                        <div class="px-4 pt-8 md:pt-4">
-                            <p class="text-gray-800 text-base font-normal leading-relaxed text-center max-w-4xl mx-auto">LSP-PIE adalah lembaga sertifikasi resmi yang berfokus pada peningkatan kompetensi sumber daya manusia di bidang pengelolaan pustaka ilmiah, khususnya jurnal ilmiah elektronik. Kami hadir untuk memastikan para profesional di bidang pengelolaan jurnal seperti editor, reviewer, manajer jurnal, dan teknisi penerbitan elektronik memiliki standar kompetensi yang sesuai dengan kebutuhan industri dan perkembangan teknologi informasi. Sertifikasi yang kami selenggarakan mengacu pada Standar Kompetensi Kerja Nasional Indonesia (SKKNI) dan dirancang untuk mendukung kualitas publikasi ilmiah Indonesia yang berdaya saing global.</p>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-                            <div class="flex flex-col gap-6 md:col-span-2">
-                                <div class="flex flex-col sm:flex-row gap-6 rounded-xl border border-gray-200 bg-white p-6">
-                                    <div class="flex items-center justify-center size-12 rounded-full bg-blue-100 text-blue-900 flex-shrink-0">
-                                        <span class="material-symbols-outlined">satellite</span>
-                                    </div>
-                                    <div class="flex flex-col gap-2 text-center sm:text-left">
-                                        <h2 class="text-gray-900 text-xl font-bold leading-tight">Visi</h2>
-                                        <p class="text-gray-600 text-base font-normal leading-relaxed">Menjadi Lembaga Sertifikasi Profesi yang Unggul, Profesional, dan Kompeten dalam Bidang Perpustakaan dan Terbitan Ilmiah dalam skala Nasional maupun Internasional.</p>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col sm:flex-row gap-6 rounded-xl border border-gray-200 bg-white p-6">
-                                    <div class="flex items-center justify-center size-12 rounded-full bg-blue-100 text-blue-900 flex-shrink-0">
-                                        <span class="material-symbols-outlined">flutter_dash</span>
-                                    </div>
-                                    <div class="flex flex-col gap-2 text-center sm:text-left">
-                                        <h2 class="text-gray-900 text-xl font-bold leading-tight">Misi</h2>
-                                        <ul class="text-gray-600 text-base font-normal leading-relaxed list-disc pl-5 space-y-2 text-left">
-                                            <li>Memberikan Pelayanan Uji Sertifikasi Kompetensi yang mengutamakan mutu dan kepuasan pelanggan.</li>
-                                            <li>Memberikan jaminan bahwa proses Uji Sertifikasi dilaksanakan dengan kejujuran, teliti, tepat, akurat, effisien, dan efektif.</li>
-                                            <li>Mengembangkan tersedianya tenaga kerja yang kompeten, profesional dan kompetitif di bidang Perpustakaan dan Terbitan Ilmiah.</li>
-                                            <li>Mengembangkan Sarana dan Prasarana standar Kompetensi Kerja di bidang Perpustakaan dan Terbitan Ilmiah secara konsisten dan berkesinambungan sesuai dengan perkembangan dan kebutuhan industri ataupun profesi.</li>
-                                            <li>Mengembangkan tata kelola tenaga Asesor kompetensi yang berkualifikasi dan bersertifikat sesuai dengan ruang lingkup sertifikasi LSP Pustaka Ilmiah Elektronik.</li>
-                                            <li>Mengembangkan perangkat asesmen.</li>
-                                            <li>Mengembangkan sistem pendukung berbasis teknologi dan informasi.</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-6 rounded-xl border border-gray-200 bg-white p-6">
-                                <div class="flex items-center justify-center size-12 rounded-full bg-blue-100 text-blue-900 flex-shrink-0">
-                                    <span class="material-symbols-outlined">trending_up</span>
-                                </div>
-                                <div class="flex flex-col gap-2 text-center">
-                                    <h2 class="text-gray-900 text-xl font-bold leading-tight">Target</h2>
-                                    <p class="text-gray-600 text-base font-normal leading-relaxed">100 asesi per tahun</p>
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-6 rounded-xl border border-gray-200 bg-white p-6">
-                                <div class="flex items-center justify-center size-12 rounded-full bg-blue-100 text-blue-900 flex-shrink-0">
-                                    <span class="material-symbols-outlined">emoji_events</span>
-                                </div>
-                                <div class="flex flex-col gap-2 text-center">
-                                    <h2 class="text-gray-900 text-xl font-bold leading-tight">Tujuan</h2>
-                                    <p class="text-gray-600 text-base font-normal leading-relaxed">Menciptakan sumber daya manusia yang kompeten dan memiliki karakteristik unggul serta profesional di dunia terbitan berkala ilmiah.</p>
-                                </div>
+                            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                                <a class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg w-full text-center inline-block transition duration-300" href="/skema/pengelolaan-jurnal-elektronik">Lihat Detail</a>
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
         </main>
 

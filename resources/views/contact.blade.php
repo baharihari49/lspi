@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil - LSP Pustaka Ilmiah Elektronik</title>
+    <title>Hubungi Kami - LSP Pustaka Ilmiah Elektronik</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
@@ -28,10 +28,10 @@
                     </div>
                     <nav class="hidden md:flex items-center gap-8">
                         <a class="text-sm font-medium hover:text-blue-600" href="/">Beranda</a>
-                        <a class="text-sm font-bold text-blue-900" href="/profile">Profil</a>
+                        <a class="text-sm font-medium hover:text-blue-600" href="/profile">Profil</a>
                         <a class="text-sm font-medium hover:text-blue-600" href="/struktur-organisasi">Struktur Organisasi</a>
                         <a class="text-sm font-medium hover:text-blue-600" href="/skema">Skema</a>
-                        <a class="text-sm font-medium hover:text-blue-600" href="/contact">Hubungi Kami</a>
+                        <a class="text-sm font-bold text-blue-900" href="/contact">Hubungi Kami</a>
                     </nav>
                     <div class="flex items-center gap-2">
                         <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 text-gray-900 text-sm font-bold tracking-wide hover:bg-gray-300">
@@ -47,70 +47,105 @@
 
         <!-- Main Content -->
         <main class="flex-grow">
-            <div class="px-4 md:px-10 lg:px-20 xl:px-40 flex flex-1 justify-center py-5">
-                <div class="flex flex-col max-w-[960px] flex-1">
-                    <div class="flex flex-col gap-8 md:gap-12 py-8 md:py-12">
-                        <div class="flex flex-wrap justify-between gap-3 p-4">
-                            <div class="flex w-full flex-col gap-3 text-center">
-                                <p class="text-gray-900 text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em]">Profil LSP Pustaka Ilmiah Elektronik</p>
-                                <p class="text-blue-800 text-base font-normal leading-normal">LSP P3 Asosiasi Industri/Profesi</p>
+            <div class="px-4 md:px-10 lg:px-20 xl:px-40 flex flex-1 justify-center py-12 md:py-16">
+                <div class="flex flex-col max-w-[1200px] w-full">
+                    <!-- Page Heading -->
+                    <div class="mb-12 text-center">
+                        <h1 class="text-4xl md:text-5xl font-bold text-blue-900 mb-3">Hubungi Kami</h1>
+                        <p class="text-lg text-gray-600">
+                            Kami siap membantu Anda. Silakan hubungi kami melalui detail di bawah ini atau kirimkan pesan melalui formulir.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Left Column: Contact Info -->
+                        <div class="flex flex-col gap-6">
+                            <h2 class="text-2xl font-bold text-blue-900">LSP Pihak Ketiga</h2>
+                            <p class="text-lg text-gray-700 -mt-2">LSP Pustaka Ilmiah Elektronik</p>
+
+                            <div class="flex flex-col gap-6 mt-4">
+                                <!-- Email -->
+                                <div class="flex items-start gap-4">
+                                    <div class="flex items-center justify-center rounded-lg bg-blue-100 shrink-0 w-12 h-12">
+                                        <span class="material-symbols-outlined text-blue-900">mail</span>
+                                    </div>
+                                    <div class="flex flex-col justify-center">
+                                        <p class="text-base font-semibold text-gray-900">Email</p>
+                                        <p class="text-sm text-gray-600">lsp@relawanjurnal.id</p>
+                                    </div>
+                                </div>
+
+                                <!-- Telepon -->
+                                <div class="flex items-start gap-4">
+                                    <div class="flex items-center justify-center rounded-lg bg-blue-100 shrink-0 w-12 h-12">
+                                        <span class="material-symbols-outlined text-blue-900">phone</span>
+                                    </div>
+                                    <div class="flex flex-col justify-center">
+                                        <p class="text-base font-semibold text-gray-900">Telepon</p>
+                                        <p class="text-sm text-gray-600">081339595151</p>
+                                    </div>
+                                </div>
+
+                                <!-- Alamat -->
+                                <div class="flex items-start gap-4">
+                                    <div class="flex items-center justify-center rounded-lg bg-blue-100 shrink-0 w-12 h-12">
+                                        <span class="material-symbols-outlined text-blue-900">location_on</span>
+                                    </div>
+                                    <div class="flex flex-col justify-center">
+                                        <p class="text-base font-semibold text-gray-900">Alamat</p>
+                                        <p class="text-sm text-gray-600">Jalan Raya Bibis, Ngentak, Bangunjiwo, Kel. Tamantirto, Kec. Kasihan, Kabupaten Bantul, Daerah Istimewa Yogyakarta</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="px-4">
-                            <div class="w-full h-64 md:h-96 overflow-hidden rounded-xl border border-gray-200">
-                                <img alt="Professional meeting in a modern office" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYyDev19jmiXPhDFiBKBZRNgrI_CRMdoRbtJDeT88WVH7SyV7rw3Xtz3v8-8A0naV2H6BdEKbRYHAxQMglTCU6n87RzZfFR7FHaTfgH8u9EuEU3M8ty1zyeppXNHe2ZniXMrTCvZJeBIBrFutSTuS-HzRrfKHuwMj6J4V7orQh9c7qTdqGCdndPeI4YLafVvZVNQoRNu-HZ2UR5GaSpxr4_arm0lsavaT_zhZKN-3Oy3e9fehl3a5GBfX_VxKM8e_YF0uSc8REWLEl"/>
-                            </div>
+
+                        <!-- Right Column: Contact Form -->
+                        <div class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200">
+                            <h2 class="text-xl font-bold text-blue-900 mb-6">Kirimkan Pesan Anda</h2>
+                            <form action="#" method="POST" class="space-y-6">
+                                <div>
+                                    <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">Nama</label>
+                                    <input type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap Anda" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                                </div>
+
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email" id="email" name="email" placeholder="contoh@email.com" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                                </div>
+
+                                <div>
+                                    <label for="subjek" class="block text-sm font-medium text-gray-700 mb-2">Subjek</label>
+                                    <input type="text" id="subjek" name="subjek" placeholder="Tuliskan subjek pesan Anda" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                                </div>
+
+                                <div>
+                                    <label for="pesan" class="block text-sm font-medium text-gray-700 mb-2">Pesan</label>
+                                    <textarea id="pesan" name="pesan" rows="4" placeholder="Tuliskan pesan Anda di sini..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"></textarea>
+                                </div>
+
+                                <div>
+                                    <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-lg text-sm font-bold text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-300">
+                                        Kirim Pesan
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="px-4 pt-8 md:pt-4">
-                            <p class="text-gray-800 text-base font-normal leading-relaxed text-center max-w-4xl mx-auto">LSP-PIE adalah lembaga sertifikasi resmi yang berfokus pada peningkatan kompetensi sumber daya manusia di bidang pengelolaan pustaka ilmiah, khususnya jurnal ilmiah elektronik. Kami hadir untuk memastikan para profesional di bidang pengelolaan jurnal seperti editor, reviewer, manajer jurnal, dan teknisi penerbitan elektronik memiliki standar kompetensi yang sesuai dengan kebutuhan industri dan perkembangan teknologi informasi. Sertifikasi yang kami selenggarakan mengacu pada Standar Kompetensi Kerja Nasional Indonesia (SKKNI) dan dirancang untuk mendukung kualitas publikasi ilmiah Indonesia yang berdaya saing global.</p>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-                            <div class="flex flex-col gap-6 md:col-span-2">
-                                <div class="flex flex-col sm:flex-row gap-6 rounded-xl border border-gray-200 bg-white p-6">
-                                    <div class="flex items-center justify-center size-12 rounded-full bg-blue-100 text-blue-900 flex-shrink-0">
-                                        <span class="material-symbols-outlined">satellite</span>
-                                    </div>
-                                    <div class="flex flex-col gap-2 text-center sm:text-left">
-                                        <h2 class="text-gray-900 text-xl font-bold leading-tight">Visi</h2>
-                                        <p class="text-gray-600 text-base font-normal leading-relaxed">Menjadi Lembaga Sertifikasi Profesi yang Unggul, Profesional, dan Kompeten dalam Bidang Perpustakaan dan Terbitan Ilmiah dalam skala Nasional maupun Internasional.</p>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col sm:flex-row gap-6 rounded-xl border border-gray-200 bg-white p-6">
-                                    <div class="flex items-center justify-center size-12 rounded-full bg-blue-100 text-blue-900 flex-shrink-0">
-                                        <span class="material-symbols-outlined">flutter_dash</span>
-                                    </div>
-                                    <div class="flex flex-col gap-2 text-center sm:text-left">
-                                        <h2 class="text-gray-900 text-xl font-bold leading-tight">Misi</h2>
-                                        <ul class="text-gray-600 text-base font-normal leading-relaxed list-disc pl-5 space-y-2 text-left">
-                                            <li>Memberikan Pelayanan Uji Sertifikasi Kompetensi yang mengutamakan mutu dan kepuasan pelanggan.</li>
-                                            <li>Memberikan jaminan bahwa proses Uji Sertifikasi dilaksanakan dengan kejujuran, teliti, tepat, akurat, effisien, dan efektif.</li>
-                                            <li>Mengembangkan tersedianya tenaga kerja yang kompeten, profesional dan kompetitif di bidang Perpustakaan dan Terbitan Ilmiah.</li>
-                                            <li>Mengembangkan Sarana dan Prasarana standar Kompetensi Kerja di bidang Perpustakaan dan Terbitan Ilmiah secara konsisten dan berkesinambungan sesuai dengan perkembangan dan kebutuhan industri ataupun profesi.</li>
-                                            <li>Mengembangkan tata kelola tenaga Asesor kompetensi yang berkualifikasi dan bersertifikat sesuai dengan ruang lingkup sertifikasi LSP Pustaka Ilmiah Elektronik.</li>
-                                            <li>Mengembangkan perangkat asesmen.</li>
-                                            <li>Mengembangkan sistem pendukung berbasis teknologi dan informasi.</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-6 rounded-xl border border-gray-200 bg-white p-6">
-                                <div class="flex items-center justify-center size-12 rounded-full bg-blue-100 text-blue-900 flex-shrink-0">
-                                    <span class="material-symbols-outlined">trending_up</span>
-                                </div>
-                                <div class="flex flex-col gap-2 text-center">
-                                    <h2 class="text-gray-900 text-xl font-bold leading-tight">Target</h2>
-                                    <p class="text-gray-600 text-base font-normal leading-relaxed">100 asesi per tahun</p>
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-6 rounded-xl border border-gray-200 bg-white p-6">
-                                <div class="flex items-center justify-center size-12 rounded-full bg-blue-100 text-blue-900 flex-shrink-0">
-                                    <span class="material-symbols-outlined">emoji_events</span>
-                                </div>
-                                <div class="flex flex-col gap-2 text-center">
-                                    <h2 class="text-gray-900 text-xl font-bold leading-tight">Tujuan</h2>
-                                    <p class="text-gray-600 text-base font-normal leading-relaxed">Menciptakan sumber daya manusia yang kompeten dan memiliki karakteristik unggul serta profesional di dunia terbitan berkala ilmiah.</p>
-                                </div>
-                            </div>
+                    </div>
+
+                    <!-- Map Section -->
+                    <div class="mt-12">
+                        <h2 class="text-2xl font-bold text-blue-900 mb-6">Lokasi Kami</h2>
+                        <div class="rounded-xl overflow-hidden shadow-lg border border-gray-200">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.2887894651746!2d110.32841531477736!3d-7.838397994379047!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a5788b8c4c3f3%3A0x5c6a6e9e8b9e4c8c!2sJl.%20Raya%20Bibis%2C%20Ngentak%2C%20Bangunjiwo%2C%20Kec.%20Kasihan%2C%20Kabupaten%20Bantul%2C%20Daerah%20Istimewa%20Yogyakarta!5e0!3m2!1sid!2sid!4v1620000000000!5m2!1sid!2sid"
+                                width="100%"
+                                height="450"
+                                style="border:0;"
+                                allowfullscreen=""
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                                class="w-full">
+                            </iframe>
                         </div>
                     </div>
                 </div>

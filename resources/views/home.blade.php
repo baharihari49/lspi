@@ -29,8 +29,9 @@
                     <nav class="hidden md:flex items-center gap-8">
                         <a class="text-sm font-medium hover:text-blue-600" href="/">Beranda</a>
                         <a class="text-sm font-medium hover:text-blue-600" href="/profile">Profil</a>
-                        <a class="text-sm font-medium hover:text-blue-600" href="#">Struktur Organisasi</a>
-                        <a class="text-sm font-medium hover:text-blue-600" href="#">Skema</a>
+                        <a class="text-sm font-medium hover:text-blue-600" href="/struktur-organisasi">Struktur Organisasi</a>
+                        <a class="text-sm font-medium hover:text-blue-600" href="/skema">Skema</a>
+                        <a class="text-sm font-medium hover:text-blue-600" href="/contact">Hubungi Kami</a>
                     </nav>
                     <div class="flex items-center gap-2">
                         <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 text-gray-900 text-sm font-bold tracking-wide hover:bg-gray-300">
@@ -225,8 +226,9 @@
                         <h3 class="font-semibold tracking-wider uppercase">Menu</h3>
                         <ul class="mt-4 space-y-2 text-sm">
                             <li><a class="text-gray-300 hover:text-white" href="/profile">Profil</a></li>
-                            <li><a class="text-gray-300 hover:text-white" href="#">Struktur Organisasi</a></li>
-                            <li><a class="text-gray-300 hover:text-white" href="#">Skema</a></li>
+                            <li><a class="text-gray-300 hover:text-white" href="/struktur-organisasi">Struktur Organisasi</a></li>
+                            <li><a class="text-gray-300 hover:text-white" href="/skema">Skema</a></li>
+                            <li><a class="text-gray-300 hover:text-white" href="/contact">Hubungi Kami</a></li>
                         </ul>
                     </div>
                     <div class="mt-2">
