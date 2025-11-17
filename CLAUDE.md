@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Laravel 12 application using PHP 8.2+ with Tailwind CSS v4 for frontend styling. The project uses SQLite as the default database and includes Vite for asset bundling.
+This is a Laravel 12 application for **LSP-PIE** (Lembaga Sertifikasi Profesi - Pustaka Ilmiah Elektronik), a professional certification body for electronic scholarly library management in Indonesia. The application uses PHP 8.2+, Tailwind CSS v4 for styling, and Vite for asset bundling. SQLite is the default database.
 
 ## Development Commands
 
@@ -70,20 +70,57 @@ php artisan config:clear         # Clear cached config
 
 ## Architecture
 
-### MVC Structure
-- **Models**: `app/Models/` - Eloquent ORM models (currently only User model exists)
-- **Controllers**: `app/Http/Controllers/` - HTTP request handlers (only base Controller exists currently)
-- **Views**: `resources/views/` - Blade templates
-- **Routes**:
-  - `routes/web.php` - Web routes (currently single welcome route)
-  - `routes/console.php` - Artisan console commands
+### Blade Templating System
+This project uses Laravel Blade's component and layout system to eliminate code duplication:
 
-### Database
-- **Migrations**: `database/migrations/` - Schema definitions (users, cache, jobs tables)
-- **Factories**: `database/factories/` - Model factories for testing
-- **Seeders**: `database/seeders/` - Database seeders
+**Layout Structure**:
+- `resources/views/layouts/app.blade.php` - Main layout template containing HTML structure, head, navbar, footer
+- `resources/views/components/navbar.blade.php` - Reusable navbar with dynamic active state
+- `resources/views/components/footer.blade.php` - Reusable footer component
 
-Default configuration uses SQLite (`database/database.sqlite`). Database connection, cache, sessions, and queue all use database by default.
+**Page Template Pattern**:
+All page views follow this consistent pattern:
+```php
+@extends('layouts.app')
+@section('title', 'Page Title')
+@php
+    $active = 'menu-name';  // For navbar highlighting
+@endphp
+@section('content')
+    <!-- Page-specific content only -->
+@endsection
+```
+
+The `$active` variable determines which menu item is highlighted in the navbar. Valid values: `beranda`, `profile`, `struktur-organisasi`, `skema`, `news`, `pengumuman`, `contact`.
+
+### Routes and Pages
+Current application routes (all closure-based, no controllers):
+- `/` - Home page (landing page with hero section)
+- `/profile` - Organization profile
+- `/struktur-organisasi` - Organizational structure (includes custom CSS for org chart)
+- `/skema` - Certification schemes listing
+- `/skema/penerapan-it-artikel-ilmiah` - IT Application for Scholarly Articles scheme details
+- `/skema/pengelolaan-jurnal-elektronik` - Electronic Journal Management scheme details
+- `/news` - News articles and educational content (grid layout with gradient icons)
+- `/pengumuman` - Official announcements (card-based layout for exam schedules, regulations, etc.)
+- `/contact` - Contact information
+
+### Design System
+**Color Palette**:
+- Primary: `blue-900` (navbar, headings, primary CTAs)
+- Accent: `red-700` (secondary buttons, highlights)
+- Gray scale: Used for text, borders, backgrounds
+
+**Typography**:
+- Font: Public Sans from Google Fonts
+- Icon System: Material Symbols Outlined
+
+**UI Patterns**:
+- Responsive breakpoints: `md:` (768px), `lg:` (1024px), `xl:` (1280px)
+- Sticky navbar with backdrop blur
+- Mobile menu toggle (handled by inline JavaScript in navbar component)
+- Consistent button styles: `bg-red-700` for primary actions, `bg-gray-200` for secondary
+- Card-based layouts with hover effects (`hover:shadow-xl`)
 
 ### Frontend Assets
 - **Entry Points**:
@@ -91,20 +128,39 @@ Default configuration uses SQLite (`database/database.sqlite`). Database connect
   - `resources/css/app.css` - Main CSS entry (Tailwind)
 - **Build Tool**: Vite with Laravel plugin and Tailwind CSS v4
 - **Output**: `public/build/` (generated)
+- **Dependencies**: Axios for HTTP requests, Tailwind handled via `@tailwindcss/vite` plugin
 
-Axios is included for HTTP requests. Tailwind configuration is handled through `@tailwindcss/vite` plugin.
+### MVC Structure
+- **Models**: `app/Models/` - Only User model exists (authentication not yet implemented)
+- **Controllers**: `app/Http/Controllers/` - Only base Controller (no custom controllers yet)
+- **Views**: `resources/views/` - Blade templates organized by page/feature
+- **Routes**: `routes/web.php` - All web routes using closure-based handlers
 
-### Service Providers
-- `app/Providers/AppServiceProvider.php` - Application service provider for service container bindings
+### Database
+Default configuration uses SQLite (`database/database.sqlite`). Database connection, cache, sessions, and queue all use database by default.
+
+## Development Conventions
+
+### Adding New Pages
+When creating new pages:
+1. Create Blade view in `resources/views/` following the template pattern
+2. Set appropriate `$active` value for navbar highlighting
+3. Add route in `routes/web.php` (currently using closure-based routes)
+4. If adding a new menu item, update both:
+   - `resources/views/components/navbar.blade.php` (desktop and mobile menu)
+   - `resources/views/components/footer.blade.php` (footer menu)
+
+### Modifying Navigation
+- **Navbar changes**: Edit `resources/views/components/navbar.blade.php` (changes apply to all pages)
+- **Footer changes**: Edit `resources/views/components/footer.blade.php` (changes apply to all pages)
+- **Active states**: Use conditional classes with `$active` variable (see navbar component for examples)
+
+### Content Separation
+- **News (`/news`)**: Articles, tips & tricks, industry trends - uses grid layout with gradient icon backgrounds
+- **Announcements (`/pengumuman`)**: Official announcements, exam schedules, regulations - uses card-based list layout
 
 ### Configuration
-All configuration files in `config/` directory. Key configs:
-- `config/app.php` - Application settings
-- `config/database.php` - Database connections
-- `config/cache.php` - Cache stores
-- `config/queue.php` - Queue connections
-
-Environment variables in `.env` file (copy from `.env.example` if missing).
+Environment variables in `.env` file (copy from `.env.example` if missing). Key configuration files in `config/` directory.
 
 ## Queue System
 
@@ -122,9 +178,19 @@ php artisan queue:listen --tries=1
 - Always run `php artisan config:clear` before tests to avoid config cache issues
 - Use factories defined in `database/factories/` for test data generation
 
-## Important Notes
+## Project Status
 
-- This is a fresh Laravel 12 installation with minimal customization
-- No authentication scaffolding is installed yet
-- No API routes configured (only web routes)
-- The project uses modern Laravel features including the new application structure
+**Current Implementation**:
+- Static informational website with 9 pages
+- Blade templating system fully implemented (layouts, components)
+- Responsive design with Tailwind CSS v4
+- No authentication or user management yet
+- No database-driven content (all content is static in views)
+- No API routes configured
+
+**Technology Stack**:
+- Laravel 12 with PHP 8.2+
+- Tailwind CSS v4 via Vite
+- SQLite database (configured but not actively used for content)
+- Material Symbols Outlined for icons
+- Public Sans font

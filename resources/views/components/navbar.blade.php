@@ -13,6 +13,7 @@
                 <a class="text-sm font-{{ $active === 'struktur-organisasi' ? 'bold text-blue-900' : 'medium hover:text-blue-600' }}" href="/struktur-organisasi">Struktur Organisasi</a>
                 <a class="text-sm font-{{ $active === 'skema' ? 'bold text-blue-900' : 'medium hover:text-blue-600' }}" href="/skema">Skema</a>
                 <a class="text-sm font-{{ $active === 'news' ? 'bold text-blue-900' : 'medium hover:text-blue-600' }}" href="/news">Berita</a>
+                <a class="text-sm font-{{ $active === 'pengumuman' ? 'bold text-blue-900' : 'medium hover:text-blue-600' }}" href="/pengumuman">Pengumuman</a>
                 <a class="text-sm font-{{ $active === 'contact' ? 'bold text-blue-900' : 'medium hover:text-blue-600' }}" href="/contact">Hubungi Kami</a>
             </nav>
             <div class="hidden md:flex items-center gap-2">
@@ -37,6 +38,7 @@
             <a class="block text-sm font-{{ $active === 'struktur-organisasi' ? 'bold text-blue-900' : 'medium text-gray-900 hover:text-blue-600' }} py-2" href="/struktur-organisasi">Struktur Organisasi</a>
             <a class="block text-sm font-{{ $active === 'skema' ? 'bold text-blue-900' : 'medium text-gray-900 hover:text-blue-600' }} py-2" href="/skema">Skema</a>
             <a class="block text-sm font-{{ $active === 'news' ? 'bold text-blue-900' : 'medium text-gray-900 hover:text-blue-600' }} py-2" href="/news">Berita</a>
+            <a class="block text-sm font-{{ $active === 'pengumuman' ? 'bold text-blue-900' : 'medium text-gray-900 hover:text-blue-600' }} py-2" href="/pengumuman">Pengumuman</a>
             <a class="block text-sm font-{{ $active === 'contact' ? 'bold text-blue-900' : 'medium text-gray-900 hover:text-blue-600' }} py-2" href="/contact">Hubungi Kami</a>
             <div class="pt-3 space-y-2">
                 <button class="w-full flex cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-gray-200 text-gray-900 text-sm font-bold tracking-wide hover:bg-gray-300">

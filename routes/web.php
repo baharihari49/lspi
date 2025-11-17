@@ -33,3 +33,7 @@ Route::get('/contact', function () {
 Route::get('/news', function () {
     return view('news');
 });
+
+Route::get('/pengumuman', function () {
+    return view('announcements');
+});

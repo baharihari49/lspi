@@ -15,6 +15,7 @@
                     <li><a class="text-gray-300 hover:text-white" href="/struktur-organisasi">Struktur Organisasi</a></li>
                     <li><a class="text-gray-300 hover:text-white" href="/skema">Skema</a></li>
                     <li><a class="text-gray-300 hover:text-white" href="/news">Berita</a></li>
+                    <li><a class="text-gray-300 hover:text-white" href="/pengumuman">Pengumuman</a></li>
                     <li><a class="text-gray-300 hover:text-white" href="/contact">Hubungi Kami</a></li>
                 </ul>
             </div>
