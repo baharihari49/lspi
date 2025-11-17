@@ -17,12 +17,24 @@
                 <a class="text-sm font-{{ $active === 'contact' ? 'bold text-blue-900' : 'medium hover:text-blue-600' }}" href="/contact">Hubungi Kami</a>
             </nav>
             <div class="hidden md:flex items-center gap-2">
-                <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 text-gray-900 text-sm font-bold tracking-wide hover:bg-gray-300">
-                    <span class="truncate">Masuk</span>
-                </button>
-                <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold tracking-wide hover:bg-red-800">
-                    <span class="truncate">Daftar</span>
-                </button>
+                @auth
+                    <a href="/admin/dashboard" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-blue-900 text-white text-sm font-bold tracking-wide hover:bg-blue-800">
+                        <span class="truncate">Dashboard</span>
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 text-gray-900 text-sm font-bold tracking-wide hover:bg-gray-300">
+                            <span class="truncate">Keluar</span>
+                        </button>
+                    </form>
+                @else
+                    <a href="/login" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 text-gray-900 text-sm font-bold tracking-wide hover:bg-gray-300">
+                        <span class="truncate">Masuk</span>
+                    </a>
+                    <a href="/register" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold tracking-wide hover:bg-red-800">
+                        <span class="truncate">Daftar</span>
+                    </a>
+                @endauth
             </div>
             <!-- Mobile menu button -->
             <button id="mobile-menu-button" class="md:hidden text-blue-900 p-2">
@@ -41,12 +53,24 @@
             <a class="block text-sm font-{{ $active === 'pengumuman' ? 'bold text-blue-900' : 'medium text-gray-900 hover:text-blue-600' }} py-2" href="/pengumuman">Pengumuman</a>
             <a class="block text-sm font-{{ $active === 'contact' ? 'bold text-blue-900' : 'medium text-gray-900 hover:text-blue-600' }} py-2" href="/contact">Hubungi Kami</a>
             <div class="pt-3 space-y-2">
-                <button class="w-full flex cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-gray-200 text-gray-900 text-sm font-bold tracking-wide hover:bg-gray-300">
-                    <span class="truncate">Masuk</span>
-                </button>
-                <button class="w-full flex cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold tracking-wide hover:bg-red-800">
-                    <span class="truncate">Daftar</span>
-                </button>
+                @auth
+                    <a href="/admin/dashboard" class="w-full flex cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-blue-900 text-white text-sm font-bold tracking-wide hover:bg-blue-800">
+                        <span class="truncate">Dashboard</span>
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full flex cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-gray-200 text-gray-900 text-sm font-bold tracking-wide hover:bg-gray-300">
+                            <span class="truncate">Keluar</span>
+                        </button>
+                    </form>
+                @else
+                    <a href="/login" class="w-full flex cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-gray-200 text-gray-900 text-sm font-bold tracking-wide hover:bg-gray-300">
+                        <span class="truncate">Masuk</span>
+                    </a>
+                    <a href="/register" class="w-full flex cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold tracking-wide hover:bg-red-800">
+                        <span class="truncate">Daftar</span>
+                    </a>
+                @endauth
             </div>
         </div>
     </div>

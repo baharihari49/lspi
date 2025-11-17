@@ -37,3 +37,21 @@ Route::get('/news', function () {
 Route::get('/pengumuman', function () {
     return view('announcements');
 });
+
+// Authentication Routes
+Route::get('/login', [App\Http\Controllers\AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
+Route::get('/register', [App\Http\Controllers\AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [App\Http\Controllers\AuthController::class, 'register']);
+Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
+
+// Admin Routes (protected by auth middleware)
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+
+    // News Management
+    Route::resource('news', App\Http\Controllers\Admin\NewsController::class);
+
+    // Announcements Management
+    Route::resource('announcements', App\Http\Controllers\Admin\AnnouncementController::class);
+});
