@@ -29,3 +29,7 @@ Route::get('/skema/pengelolaan-jurnal-elektronik', function () {
 Route::get('/contact', function () {
     return view('contact');
 });
+
+Route::get('/news', function () {
+    return view('news');
+});
