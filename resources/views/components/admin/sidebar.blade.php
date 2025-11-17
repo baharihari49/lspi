@@ -37,6 +37,12 @@
             <span class="font-medium">Pengumuman</span>
         </a>
 
+        <!-- Organizational Structure Management -->
+        <a href="{{ route('admin.organizational-structure.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'organizational-structure' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">account_tree</span>
+            <span class="font-medium">Struktur Organisasi</span>
+        </a>
+
         <!-- Divider -->
         <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>

@@ -11,7 +11,8 @@ Route::get('/profile', function () {
 });
 
 Route::get('/struktur-organisasi', function () {
-    return view('struktur-organisasi');
+    $positions = App\Models\OrganizationalPosition::active()->with('children')->rootLevel()->get();
+    return view('struktur-organisasi', compact('positions'));
 });
 
 Route::get('/skema', function () {
@@ -58,4 +59,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Announcements Management
     Route::resource('announcements', App\Http\Controllers\Admin\AnnouncementController::class);
+
+    // Organizational Structure Management
+    Route::resource('organizational-structure', App\Http\Controllers\Admin\OrganizationalStructureController::class);
 });
