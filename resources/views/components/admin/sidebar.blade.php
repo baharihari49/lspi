@@ -39,6 +39,17 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
+        </div>
+
+        <!-- Profile -->
+        <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'profile' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="font-medium">Pengaturan Profil</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Lainnya</p>
         </div>
 
@@ -52,7 +63,7 @@
     <!-- User Info & Logout -->
     <div class="px-3 py-4 border-t border-blue-800">
         <div class="px-4 py-3 rounded-lg bg-blue-800">
-            <div class="flex items-center gap-3 mb-3">
+            <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 mb-3 hover:bg-blue-700 p-2 rounded-lg transition">
                 <div class="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center">
                     <span class="material-symbols-outlined">person</span>
                 </div>
@@ -60,7 +71,8 @@
                     <p class="text-sm font-semibold truncate">{{ Auth::user()->name }}</p>
                     <p class="text-xs text-blue-200 truncate">{{ Auth::user()->email }}</p>
                 </div>
-            </div>
+                <span class="material-symbols-outlined text-blue-300 text-sm">arrow_forward</span>
+            </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition text-sm font-semibold">
