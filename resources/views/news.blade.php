@@ -46,23 +46,27 @@
                 @forelse($news as $item)
                     <div class="flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
                         <!-- Featured Image or Icon -->
-                        @if($item->image)
-                            <div class="w-full aspect-video overflow-hidden">
-                                <img src="{{ $item->image }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
-                            </div>
-                        @else
-                            <div class="w-full aspect-video bg-gradient-to-br from-{{ $item->icon_color }}-500 to-{{ $item->icon_color }}-700 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-white text-6xl">{{ $item->icon }}</span>
-                            </div>
-                        @endif
+                        <a href="{{ url('/news/' . $item->slug) }}" class="block">
+                            @if($item->image)
+                                <div class="w-full aspect-video overflow-hidden">
+                                    <img src="{{ $item->image }}" alt="{{ $item->title }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                                </div>
+                            @else
+                                <div class="w-full aspect-video bg-gradient-to-br from-{{ $item->icon_color }}-500 to-{{ $item->icon_color }}-700 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-white text-6xl">{{ $item->icon }}</span>
+                                </div>
+                            @endif
+                        </a>
 
                         <div class="flex flex-1 flex-col p-6 gap-4">
                             <div class="flex flex-col gap-2">
                                 <p class="text-sm text-gray-500">{{ $item->category }} • {{ $item->published_at->format('d M Y') }}</p>
-                                <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ $item->title }}</h3>
+                                <a href="{{ url('/news/' . $item->slug) }}" class="hover:text-blue-900 transition">
+                                    <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ $item->title }}</h3>
+                                </a>
                                 <p class="text-sm text-gray-600 leading-relaxed">{{ $item->excerpt }}</p>
                             </div>
-                            <a href="#" class="flex items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition w-fit">
+                            <a href="{{ url('/news/' . $item->slug) }}" class="flex items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition w-fit">
                                 Baca Selengkapnya
                             </a>
                         </div>

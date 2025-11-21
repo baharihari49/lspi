@@ -38,6 +38,17 @@ Route::get('/news', function () {
     return view('news', compact('news'));
 });
 
+Route::get('/news/{news:slug}', function (App\Models\News $news) {
+    // Get other recent published news for "Recent Articles" section
+    $recentNews = App\Models\News::published()
+        ->where('id', '!=', $news->id)
+        ->latest('published_at')
+        ->take(3)
+        ->get();
+
+    return view('news-detail', compact('news', 'recentNews'));
+});
+
 Route::get('/pengumuman', function () {
     return view('announcements');
 });
