@@ -10,7 +10,7 @@
 @section('page_description', 'Perbarui informasi berita')
 
 @section('content')
-    <form action="{{ route('admin.news.update', $news) }}" method="POST" class="max-w-4xl">
+    <form action="{{ route('admin.news.update', $news) }}" method="POST" enctype="multipart/form-data" class="w-full">
         @csrf
         @method('PUT')
         @include('admin.news.form', ['news' => $news])

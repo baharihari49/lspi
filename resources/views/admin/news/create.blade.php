@@ -10,7 +10,7 @@
 @section('page_description', 'Buat berita atau artikel baru')
 
 @section('content')
-    <form action="{{ route('admin.news.store') }}" method="POST" class="max-w-4xl">
+    <form action="{{ route('admin.news.store') }}" method="POST" enctype="multipart/form-data" class="w-full">
         @csrf
         @include('admin.news.form', ['news' => null])
     </form>

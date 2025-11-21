@@ -10,7 +10,7 @@
 @section('page_description', 'Perbarui informasi pengumuman')
 
 @section('content')
-    <form action="{{ route('admin.announcements.update', $announcement) }}" method="POST" class="max-w-4xl">
+    <form action="{{ route('admin.announcements.update', $announcement) }}" method="POST" class="w-full">
         @csrf
         @method('PUT')
         @include('admin.announcements.form', ['announcement' => $announcement])

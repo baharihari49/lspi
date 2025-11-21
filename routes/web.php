@@ -32,7 +32,10 @@ Route::get('/contact', function () {
 });
 
 Route::get('/news', function () {
-    return view('news');
+    $news = App\Models\News::published()
+        ->latest('published_at')
+        ->paginate(6);
+    return view('news', compact('news'));
 });
 
 Route::get('/pengumuman', function () {

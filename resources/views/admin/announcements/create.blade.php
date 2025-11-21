@@ -10,7 +10,7 @@
 @section('page_description', 'Buat pengumuman resmi baru')
 
 @section('content')
-    <form action="{{ route('admin.announcements.store') }}" method="POST" class="max-w-4xl">
+    <form action="{{ route('admin.announcements.store') }}" method="POST" class="w-full">
         @csrf
         @include('admin.announcements.form', ['announcement' => null])
     </form>

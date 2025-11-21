@@ -10,7 +10,7 @@
 @section('page_description', 'Perbarui informasi posisi dalam struktur organisasi')
 
 @section('content')
-    <form action="{{ route('admin.organizational-structure.update', $organizationalStructure) }}" method="POST" enctype="multipart/form-data" class="max-w-4xl">
+    <form action="{{ route('admin.organizational-structure.update', $organizationalStructure) }}" method="POST" enctype="multipart/form-data" class="w-full">
         @csrf
         @method('PUT')
         @include('admin.organizational-structure.form', ['position' => $organizationalStructure, 'allPositions' => $allPositions])

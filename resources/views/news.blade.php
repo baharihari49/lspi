@@ -43,127 +43,44 @@
 
             <!-- Articles Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                <!-- Card 1 -->
-                <div class="flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="w-full aspect-video bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-6xl">article</span>
-                    </div>
-                    <div class="flex flex-1 flex-col p-6 gap-4">
-                        <div class="flex flex-col gap-2">
-                            <p class="text-sm text-gray-500">Artikel • 15 November 2024</p>
-                            <h3 class="text-xl font-bold text-gray-900 leading-tight">Pentingnya Sertifikasi di Era Digital</h3>
-                            <p class="text-sm text-gray-600 leading-relaxed">Bagaimana sertifikasi profesional dapat meningkatkan karir Anda di era transformasi digital saat ini.</p>
-                        </div>
-                        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition w-fit">
-                            Baca Selengkapnya
-                        </button>
-                    </div>
-                </div>
+                @forelse($news as $item)
+                    <div class="flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                        <!-- Featured Image or Icon -->
+                        @if($item->image)
+                            <div class="w-full aspect-video overflow-hidden">
+                                <img src="{{ $item->image }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
+                            </div>
+                        @else
+                            <div class="w-full aspect-video bg-gradient-to-br from-{{ $item->icon_color }}-500 to-{{ $item->icon_color }}-700 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-6xl">{{ $item->icon }}</span>
+                            </div>
+                        @endif
 
-                <!-- Card 2 -->
-                <div class="flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="w-full aspect-video bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-6xl">lightbulb</span>
-                    </div>
-                    <div class="flex flex-1 flex-col p-6 gap-4">
-                        <div class="flex flex-col gap-2">
-                            <p class="text-sm text-gray-500">Tips & Trik • 10 November 2024</p>
-                            <h3 class="text-xl font-bold text-gray-900 leading-tight">Tips Sukses Menghadapi Ujian Sertifikasi</h3>
-                            <p class="text-sm text-gray-600 leading-relaxed">Strategi dan persiapan yang efektif untuk meningkatkan peluang kelulusan ujian sertifikasi kompetensi.</p>
+                        <div class="flex flex-1 flex-col p-6 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <p class="text-sm text-gray-500">{{ $item->category }} • {{ $item->published_at->format('d M Y') }}</p>
+                                <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ $item->title }}</h3>
+                                <p class="text-sm text-gray-600 leading-relaxed">{{ $item->excerpt }}</p>
+                            </div>
+                            <a href="#" class="flex items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition w-fit">
+                                Baca Selengkapnya
+                            </a>
                         </div>
-                        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition w-fit">
-                            Baca Selengkapnya
-                        </button>
                     </div>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="w-full aspect-video bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-6xl">trending_up</span>
+                @empty
+                    <div class="col-span-full text-center py-12">
+                        <span class="material-symbols-outlined text-gray-300 text-6xl mb-3">article</span>
+                        <p class="text-gray-500 text-lg">Belum ada berita yang dipublikasikan.</p>
                     </div>
-                    <div class="flex flex-1 flex-col p-6 gap-4">
-                        <div class="flex flex-col gap-2">
-                            <p class="text-sm text-gray-500">Industri • 5 November 2024</p>
-                            <h3 class="text-xl font-bold text-gray-900 leading-tight">Tren Sertifikasi Profesional 2025</h3>
-                            <p class="text-sm text-gray-600 leading-relaxed">Melihat tren dan proyeksi kebutuhan sertifikasi profesional di tahun 2025 mendatang.</p>
-                        </div>
-                        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition w-fit">
-                            Baca Selengkapnya
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Card 4 -->
-                <div class="flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="w-full aspect-video bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-6xl">menu_book</span>
-                    </div>
-                    <div class="flex flex-1 flex-col p-6 gap-4">
-                        <div class="flex flex-col gap-2">
-                            <p class="text-sm text-gray-500">Artikel • 1 November 2024</p>
-                            <h3 class="text-xl font-bold text-gray-900 leading-tight">Panduan Memilih Skema Sertifikasi yang Tepat</h3>
-                            <p class="text-sm text-gray-600 leading-relaxed">Cara memilih skema sertifikasi yang sesuai dengan keahlian dan tujuan karir Anda.</p>
-                        </div>
-                        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition w-fit">
-                            Baca Selengkapnya
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Card 5 -->
-                <div class="flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="w-full aspect-video bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-6xl">school</span>
-                    </div>
-                    <div class="flex flex-1 flex-col p-6 gap-4">
-                        <div class="flex flex-col gap-2">
-                            <p class="text-sm text-gray-500">Tips & Trik • 28 Oktober 2024</p>
-                            <h3 class="text-xl font-bold text-gray-900 leading-tight">Belajar Efektif untuk Persiapan Sertifikasi</h3>
-                            <p class="text-sm text-gray-600 leading-relaxed">Metode belajar yang terbukti efektif untuk mempersiapkan ujian sertifikasi kompetensi.</p>
-                        </div>
-                        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition w-fit">
-                            Baca Selengkapnya
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Card 6 -->
-                <div class="flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="w-full aspect-video bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-6xl">workspace_premium</span>
-                    </div>
-                    <div class="flex flex-1 flex-col p-6 gap-4">
-                        <div class="flex flex-col gap-2">
-                            <p class="text-sm text-gray-500">Artikel • 20 Oktober 2024</p>
-                            <h3 class="text-xl font-bold text-gray-900 leading-tight">Manfaat Sertifikat Profesional untuk Karir</h3>
-                            <p class="text-sm text-gray-600 leading-relaxed">Mengetahui berbagai manfaat memiliki sertifikat profesional untuk pengembangan karir jangka panjang.</p>
-                        </div>
-                        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition w-fit">
-                            Baca Selengkapnya
-                        </button>
-                    </div>
-                </div>
+                @endforelse
             </div>
 
             <!-- Pagination -->
-            <div class="flex items-center justify-center gap-2">
-                <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-200 text-gray-400 cursor-not-allowed" disabled>
-                    <span class="material-symbols-outlined">chevron_left</span>
-                </button>
-                <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-900 text-white font-bold">
-                    1
-                </button>
-                <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-200 text-gray-700 font-bold hover:bg-gray-300">
-                    2
-                </button>
-                <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-200 text-gray-700 font-bold hover:bg-gray-300">
-                    3
-                </button>
-                <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">
-                    <span class="material-symbols-outlined">chevron_right</span>
-                </button>
-            </div>
+            @if($news->hasPages())
+                <div class="flex items-center justify-center">
+                    {{ $news->links() }}
+                </div>
+            @endif
         </div>
     </div>
 @endsection

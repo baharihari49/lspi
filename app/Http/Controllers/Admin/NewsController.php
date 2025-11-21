@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class NewsController extends Controller
 {
@@ -38,11 +39,28 @@ class NewsController extends Controller
             'category' => 'required|string',
             'icon' => 'required|string',
             'icon_color' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120', // max 5MB
             'is_published' => 'boolean',
             'published_at' => 'nullable|date',
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
+
+        // Handle image upload to Cloudinary
+        if ($request->hasFile('image')) {
+            $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath(), [
+                'folder' => 'lspi/news',
+                'transformation' => [
+                    'width' => 1200,
+                    'height' => 630,
+                    'crop' => 'limit',
+                    'quality' => 'auto:good',
+                ]
+            ]);
+
+            $validated['image'] = $uploadedFileUrl->getSecurePath();
+            $validated['image_public_id'] = $uploadedFileUrl->getPublicId();
+        }
 
         if (!isset($validated['is_published'])) {
             $validated['is_published'] = false;
@@ -85,11 +103,34 @@ class NewsController extends Controller
             'category' => 'required|string',
             'icon' => 'required|string',
             'icon_color' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120', // max 5MB
             'is_published' => 'boolean',
             'published_at' => 'nullable|date',
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
+
+        // Handle image upload to Cloudinary
+        if ($request->hasFile('image')) {
+            // Delete old image from Cloudinary if exists
+            if ($news->image_public_id) {
+                Cloudinary::destroy($news->image_public_id);
+            }
+
+            // Upload new image
+            $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath(), [
+                'folder' => 'lspi/news',
+                'transformation' => [
+                    'width' => 1200,
+                    'height' => 630,
+                    'crop' => 'limit',
+                    'quality' => 'auto:good',
+                ]
+            ]);
+
+            $validated['image'] = $uploadedFileUrl->getSecurePath();
+            $validated['image_public_id'] = $uploadedFileUrl->getPublicId();
+        }
 
         if (!isset($validated['is_published'])) {
             $validated['is_published'] = false;
@@ -109,6 +150,11 @@ class NewsController extends Controller
      */
     public function destroy(News $news)
     {
+        // Delete image from Cloudinary if exists
+        if ($news->image_public_id) {
+            Cloudinary::destroy($news->image_public_id);
+        }
+
         $news->delete();
         return redirect()->route('admin.news.index')->with('success', 'Berita berhasil dihapus!');
     }
