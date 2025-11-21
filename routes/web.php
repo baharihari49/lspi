@@ -68,6 +68,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
 
+    // Master Data Management
+    Route::resource('master-roles', App\Http\Controllers\Admin\MasterRoleController::class);
+    Route::resource('master-permissions', App\Http\Controllers\Admin\MasterPermissionController::class);
+    Route::resource('master-statuses', App\Http\Controllers\Admin\MasterStatusController::class);
+    Route::resource('master-methods', App\Http\Controllers\Admin\MasterMethodController::class);
+    Route::resource('master-document-types', App\Http\Controllers\Admin\MasterDocumentTypeController::class);
+
+    // User Management
+    Route::resource('users', App\Http\Controllers\Admin\UserManagementController::class);
+
     // News Management
     Route::resource('news', App\Http\Controllers\Admin\NewsController::class);
 

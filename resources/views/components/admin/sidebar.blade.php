@@ -45,6 +45,46 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Master Data</p>
+        </div>
+
+        <!-- Master Roles -->
+        <a href="{{ route('admin.master-roles.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'master-data' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">shield</span>
+            <span class="font-medium">Roles & Permissions</span>
+        </a>
+
+        <!-- Master Statuses -->
+        <a href="{{ route('admin.master-statuses.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'master-data' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">toggle_on</span>
+            <span class="font-medium">Statuses</span>
+        </a>
+
+        <!-- Master Methods -->
+        <a href="{{ route('admin.master-methods.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'master-data' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">category</span>
+            <span class="font-medium">Methods</span>
+        </a>
+
+        <!-- Master Document Types -->
+        <a href="{{ route('admin.master-document-types.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'master-data' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">description</span>
+            <span class="font-medium">Document Types</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Users</p>
+        </div>
+
+        <!-- User Management -->
+        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'users' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">people</span>
+            <span class="font-medium">User Management</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 

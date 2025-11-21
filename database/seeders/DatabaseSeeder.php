@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            MasterDataSeeder::class,  // Must run first for roles, permissions, statuses
             AdminUserSeeder::class,
             OrganizationalStructureSeeder::class,
             NewsSeeder::class,
