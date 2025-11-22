@@ -10,7 +10,7 @@ class OrgSetting extends Model
     use HasFactory;
 
     protected $fillable = [
-        'key', 'value', 'type', 'group', 'description', 'is_public', 'is_editable',
+        'key', 'value', 'type', 'group', 'label', 'description', 'is_public', 'is_editable',
     ];
 
     protected $casts = [
