@@ -161,5 +161,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         // Event Materials (nested under events)
         Route::resource('materials', App\Http\Controllers\Admin\EventMaterialController::class);
         Route::get('materials/{material}/download', [App\Http\Controllers\Admin\EventMaterialController::class, 'download'])->name('materials.download');
+
+        // Event Attendance (nested under events)
+        Route::resource('attendance', App\Http\Controllers\Admin\EventAttendanceController::class);
+        Route::post('attendance/{attendance}/check-in', [App\Http\Controllers\Admin\EventAttendanceController::class, 'checkIn'])->name('attendance.check-in');
+        Route::post('attendance/{attendance}/check-out', [App\Http\Controllers\Admin\EventAttendanceController::class, 'checkOut'])->name('attendance.check-out');
     });
 });

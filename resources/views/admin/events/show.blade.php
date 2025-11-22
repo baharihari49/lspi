@@ -354,6 +354,81 @@
                     @endif
                 </div>
 
+                <!-- Attendance -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-900">Attendance</h3>
+                        <div class="flex gap-2">
+                            @if($event->attendance->count() > 0)
+                                <a href="{{ route('admin.events.attendance.index', $event) }}" class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition text-sm">
+                                    <span class="material-symbols-outlined text-lg">list</span>
+                                    <span>View All</span>
+                                </a>
+                            @endif
+                            <a href="{{ route('admin.events.attendance.create', $event) }}" class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
+                                <span class="material-symbols-outlined text-lg">add</span>
+                                <span>Record Attendance</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    @if($event->attendance->count() > 0)
+                        <div class="space-y-2">
+                            @foreach($event->attendance->take(5) as $record)
+                                <div class="flex items-start justify-between p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition">
+                                    <div class="flex-1">
+                                        <p class="font-semibold text-gray-900">{{ $record->user->name ?? 'N/A' }}</p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            @php
+                                                $statusColors = [
+                                                    'present' => 'bg-green-100 text-green-700',
+                                                    'absent' => 'bg-red-100 text-red-700',
+                                                    'excused' => 'bg-yellow-100 text-yellow-700',
+                                                    'late' => 'bg-orange-100 text-orange-700',
+                                                ];
+                                            @endphp
+                                            <span class="px-2 py-0.5 {{ $statusColors[$record->status] ?? 'bg-gray-100 text-gray-700' }} rounded text-xs font-semibold">
+                                                {{ ucfirst($record->status) }}
+                                            </span>
+                                            @if($record->check_in_at)
+                                                <span class="text-xs text-gray-500">In: {{ $record->check_in_at->format('H:i') }}</span>
+                                            @endif
+                                            @if($record->check_out_at)
+                                                <span class="text-xs text-gray-500">Out: {{ $record->check_out_at->format('H:i') }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-2 ml-4">
+                                        @if(!$record->check_in_at)
+                                            <form action="{{ route('admin.events.attendance.check-in', [$event, $record]) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Check In">
+                                                    <span class="material-symbols-outlined">login</span>
+                                                </button>
+                                            </form>
+                                        @elseif(!$record->check_out_at)
+                                            <form action="{{ route('admin.events.attendance.check-out', [$event, $record]) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Check Out">
+                                                    <span class="material-symbols-outlined">logout</span>
+                                                </button>
+                                            </form>
+                                        @endif
+                                        <a href="{{ route('admin.events.attendance.edit', [$event, $record]) }}" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition" title="Edit">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <span class="material-symbols-outlined text-gray-300 text-5xl mb-3">how_to_reg</span>
+                            <p class="text-gray-500">No attendance records yet</p>
+                        </div>
+                    @endif
+                </div>
+
                 <!-- Materials -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-4">
@@ -449,6 +524,10 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600">Materials</span>
                                 <span class="font-bold text-gray-900">{{ $event->materials->count() }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Attendance</span>
+                                <span class="font-bold text-gray-900">{{ $event->attendance->count() }}</span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600">Duration</span>
