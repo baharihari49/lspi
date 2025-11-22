@@ -8,12 +8,25 @@ use Illuminate\Http\Request;
 
 class MasterStatusController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $statuses = MasterStatus::orderBy('category')->orderBy('sort_order')->paginate(20);
+        $search = $request->input('search');
         $categories = MasterStatus::select('category')->distinct()->pluck('category');
 
-        return view('admin.master-data.statuses.index', compact('statuses', 'categories'));
+        $statuses = MasterStatus::when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('label', 'like', "%{$search}%")
+                      ->orWhere('code', 'like', "%{$search}%")
+                      ->orWhere('category', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('category')
+            ->orderBy('sort_order')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.master-data.statuses.index', compact('statuses', 'categories', 'search'));
     }
 
     public function create()

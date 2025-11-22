@@ -25,15 +25,34 @@
     @endif
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <div>
-                <h2 class="text-lg font-bold text-gray-900">Document Types List</h2>
-                <p class="text-sm text-gray-600">Total: {{ $documentTypes->total() }} document types</p>
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">Document Types List</h2>
+                    <p class="text-sm text-gray-600">Total: {{ $documentTypes->total() }} document types</p>
+                </div>
+                <a href="{{ route('admin.master-document-types.create') }}" class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition">
+                    <span class="material-symbols-outlined">add</span>
+                    <span>Add Document Type</span>
+                </a>
             </div>
-            <a href="{{ route('admin.master-document-types.create') }}" class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition">
-                <span class="material-symbols-outlined">add</span>
-                <span>Add Document Type</span>
-            </a>
+
+            <!-- Search Box -->
+            <form method="GET" action="{{ route('admin.master-document-types.index') }}" class="flex gap-2">
+                <div class="flex-1 relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                    <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Search by name, code, description..."
+                        class="w-full h-10 pl-10 pr-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+                <button type="submit" class="px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition">
+                    Search
+                </button>
+                @if($search)
+                    <a href="{{ route('admin.master-document-types.index') }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition">
+                        Clear
+                    </a>
+                @endif
+            </form>
         </div>
 
         <div class="overflow-x-auto">

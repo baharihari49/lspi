@@ -8,12 +8,25 @@ use Illuminate\Http\Request;
 
 class MasterMethodController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $methods = MasterMethod::orderBy('category')->orderBy('name')->paginate(20);
+        $search = $request->input('search');
         $categories = MasterMethod::select('category')->distinct()->pluck('category');
 
-        return view('admin.master-data.methods.index', compact('methods', 'categories'));
+        $methods = MasterMethod::when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('code', 'like', "%{$search}%")
+                      ->orWhere('category', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('category')
+            ->orderBy('name')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.master-data.methods.index', compact('methods', 'categories', 'search'));
     }
 
     public function create()

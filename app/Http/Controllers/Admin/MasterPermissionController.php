@@ -9,10 +9,23 @@ use Illuminate\Support\Str;
 
 class MasterPermissionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $permissions = MasterPermission::withCount('roles')->orderBy('name')->paginate(20);
-        return view('admin.master-data.permissions.index', compact('permissions'));
+        $search = $request->input('search');
+
+        $permissions = MasterPermission::withCount('roles')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('slug', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('name')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.master-data.permissions.index', compact('permissions', 'search'));
     }
 
     public function create()

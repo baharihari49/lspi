@@ -8,10 +8,22 @@ use Illuminate\Http\Request;
 
 class MasterDocumentTypeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $documentTypes = MasterDocumentType::orderBy('name')->paginate(20);
-        return view('admin.master-data.document-types.index', compact('documentTypes'));
+        $search = $request->input('search');
+
+        $documentTypes = MasterDocumentType::when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('code', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('name')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.master-data.document-types.index', compact('documentTypes', 'search'));
     }
 
     public function create()

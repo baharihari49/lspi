@@ -13,10 +13,22 @@ class MasterRoleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $roles = MasterRole::withCount(['permissions', 'users'])->paginate(10);
-        return view('admin.master-data.roles.index', compact('roles'));
+        $search = $request->input('search');
+
+        $roles = MasterRole::withCount(['permissions', 'users'])
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('slug', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.master-data.roles.index', compact('roles', 'search'));
     }
 
     /**

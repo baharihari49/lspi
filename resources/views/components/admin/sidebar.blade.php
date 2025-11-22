@@ -1,5 +1,18 @@
 @props(['active' => 'dashboard'])
 
+<style>
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .sidebar-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .sidebar-nav {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+</style>
+
 <aside class="w-64 bg-blue-900 text-white flex flex-col">
     <!-- Logo/Brand -->
     <div class="px-6 py-6 border-b border-blue-800">
@@ -13,7 +26,7 @@
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+    <nav class="sidebar-nav flex-1 px-3 py-6 space-y-1 overflow-y-auto">
         <!-- Dashboard -->
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'dashboard' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
             <span class="material-symbols-outlined">dashboard</span>
