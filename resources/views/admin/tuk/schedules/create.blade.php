@@ -2,28 +2,30 @@
 
 @section('title', 'Add TUK Schedule')
 
-@section('content')
-<div class="p-6">
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Add TUK Schedule</h1>
-        <p class="text-gray-600 mt-2">Create a new schedule for TUK availability</p>
-    </div>
+@php
+    $active = 'tuk-schedules';
+@endphp
 
-    <form action="{{ route('admin.tuk-schedules.store') }}" method="POST">
+@section('page_title', 'Add TUK Schedule')
+@section('page_description', 'Create new schedule for TUK availability')
+
+@section('content')
+    <form action="{{ route('admin.tuk-schedules.store') }}" method="POST" class="w-full">
         @csrf
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Main Form -->
+            <!-- Left Column: Form Sections -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Basic Information Card -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Schedule Information</h2>
+                <!-- Schedule Information -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Schedule Information</h3>
 
                     <div class="space-y-4">
                         <!-- TUK Selection -->
                         <div>
-                            <label for="tuk_id" class="block text-sm font-medium text-gray-700 mb-2">TUK <span class="text-red-500">*</span></label>
-                            <select id="tuk_id" name="tuk_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('tuk_id') border-red-500 @enderror">
+                            <label for="tuk_id" class="block text-sm font-semibold text-gray-700 mb-2">TUK *</label>
+                            <select id="tuk_id" name="tuk_id" required
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('tuk_id') border-red-500 @enderror">
                                 <option value="">Select TUK</option>
                                 @foreach($tuks as $tuk)
                                     <option value="{{ $tuk->id }}" {{ old('tuk_id') == $tuk->id ? 'selected' : '' }} data-capacity="{{ $tuk->capacity }}">
@@ -38,26 +40,29 @@
 
                         <!-- Date -->
                         <div>
-                            <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Date <span class="text-red-500">*</span></label>
-                            <input type="date" id="date" name="date" value="{{ old('date') }}" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('date') border-red-500 @enderror">
+                            <label for="date" class="block text-sm font-semibold text-gray-700 mb-2">Date *</label>
+                            <input type="date" id="date" name="date" value="{{ old('date') }}" required
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('date') border-red-500 @enderror">
                             @error('date')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Time -->
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label for="start_time" class="block text-sm font-medium text-gray-700 mb-2">Start Time <span class="text-red-500">*</span></label>
-                                <input type="time" id="start_time" name="start_time" value="{{ old('start_time', '08:00') }}" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('start_time') border-red-500 @enderror">
+                                <label for="start_time" class="block text-sm font-semibold text-gray-700 mb-2">Start Time *</label>
+                                <input type="time" id="start_time" name="start_time" value="{{ old('start_time', '08:00') }}" required
+                                    class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('start_time') border-red-500 @enderror">
                                 @error('start_time')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="end_time" class="block text-sm font-medium text-gray-700 mb-2">End Time <span class="text-red-500">*</span></label>
-                                <input type="time" id="end_time" name="end_time" value="{{ old('end_time', '17:00') }}" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('end_time') border-red-500 @enderror">
+                                <label for="end_time" class="block text-sm font-semibold text-gray-700 mb-2">End Time *</label>
+                                <input type="time" id="end_time" name="end_time" value="{{ old('end_time', '17:00') }}" required
+                                    class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('end_time') border-red-500 @enderror">
                                 @error('end_time')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -67,8 +72,9 @@
 
                         <!-- Status -->
                         <div>
-                            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status <span class="text-red-500">*</span></label>
-                            <select id="status" name="status" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('status') border-red-500 @enderror">
+                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
+                            <select id="status" name="status" required
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('status') border-red-500 @enderror">
                                 <option value="available" {{ old('status', 'available') == 'available' ? 'selected' : '' }}>Available</option>
                                 <option value="booked" {{ old('status') == 'booked' ? 'selected' : '' }}>Booked</option>
                                 <option value="blocked" {{ old('status') == 'blocked' ? 'selected' : '' }}>Blocked</option>
@@ -81,8 +87,10 @@
 
                         <!-- Available Capacity -->
                         <div id="capacity-field">
-                            <label for="available_capacity" class="block text-sm font-medium text-gray-700 mb-2">Available Capacity</label>
-                            <input type="number" id="available_capacity" name="available_capacity" value="{{ old('available_capacity') }}" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('available_capacity') border-red-500 @enderror">
+                            <label for="available_capacity" class="block text-sm font-semibold text-gray-700 mb-2">Available Capacity</label>
+                            <input type="number" id="available_capacity" name="available_capacity" value="{{ old('available_capacity') }}" min="0"
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('available_capacity') border-red-500 @enderror"
+                                placeholder="Number of available slots">
                             @error('available_capacity')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -91,8 +99,10 @@
 
                         <!-- Notes -->
                         <div>
-                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                            <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('notes') border-red-500 @enderror" placeholder="Additional notes about this schedule">{{ old('notes') }}</textarea>
+                            <label for="notes" class="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
+                            <textarea id="notes" name="notes" rows="3"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('notes') border-red-500 @enderror"
+                                placeholder="Additional notes about this schedule">{{ old('notes') }}</textarea>
                             @error('notes')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -101,42 +111,70 @@
                 </div>
             </div>
 
-            <!-- Sidebar -->
+            <!-- Right Column: Actions & Info -->
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow p-6 sticky top-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
-
-                    <div class="space-y-3">
-                        <button type="submit" class="w-full px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition">
-                            <span class="flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined">save</span>
-                                Save Schedule
-                            </span>
-                        </button>
-
-                        <a href="{{ route('admin.tuk-schedules.index') }}" class="block w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center">
-                            Cancel
-                        </a>
+                <div class="lg:sticky lg:top-0 space-y-6">
+                    <!-- Help Information -->
+                    <div class="bg-blue-50 rounded-xl border border-blue-200 p-6">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-blue-600">info</span>
+                            <div>
+                                <h4 class="font-semibold text-blue-900 mb-2">Schedule Guidelines</h4>
+                                <ul class="text-sm text-blue-800 space-y-1">
+                                    <li>• Fill all required fields (*)</li>
+                                    <li>• Select appropriate status</li>
+                                    <li>• Set time range carefully</li>
+                                    <li>• Capacity auto-fills from TUK</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mt-6 pt-6 border-t border-gray-200">
-                        <h3 class="text-sm font-semibold text-gray-900 mb-2">Status Guide</h3>
-                        <ul class="text-xs text-gray-600 space-y-2">
-                            <li class="flex gap-2">
-                                <span class="w-3 h-3 rounded-full bg-green-500 mt-0.5"></span>
-                                <span><strong>Available:</strong> Open for booking</span>
+                    <!-- Actions -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="space-y-3">
+                            <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition">
+                                <span class="material-symbols-outlined">save</span>
+                                <span>Create Schedule</span>
+                            </button>
+                            <a href="{{ route('admin.tuk-schedules.index') }}" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition">
+                                <span class="material-symbols-outlined">cancel</span>
+                                <span>Cancel</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Status Guide -->
+                    <div class="bg-gray-50 rounded-xl border border-gray-200 p-6">
+                        <h4 class="font-semibold text-gray-900 mb-3">Status Guide</h4>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2">
+                                <span class="w-3 h-3 rounded-full bg-green-500 mt-1 flex-shrink-0"></span>
+                                <div>
+                                    <span class="font-semibold text-gray-900">Available:</span>
+                                    <span class="block text-xs">Open for booking</span>
+                                </div>
                             </li>
-                            <li class="flex gap-2">
-                                <span class="w-3 h-3 rounded-full bg-blue-500 mt-0.5"></span>
-                                <span><strong>Booked:</strong> Reserved/in use</span>
+                            <li class="flex items-start gap-2">
+                                <span class="w-3 h-3 rounded-full bg-blue-500 mt-1 flex-shrink-0"></span>
+                                <div>
+                                    <span class="font-semibold text-gray-900">Booked:</span>
+                                    <span class="block text-xs">Reserved/in use</span>
+                                </div>
                             </li>
-                            <li class="flex gap-2">
-                                <span class="w-3 h-3 rounded-full bg-red-500 mt-0.5"></span>
-                                <span><strong>Blocked:</strong> Not available</span>
+                            <li class="flex items-start gap-2">
+                                <span class="w-3 h-3 rounded-full bg-red-500 mt-1 flex-shrink-0"></span>
+                                <div>
+                                    <span class="font-semibold text-gray-900">Blocked:</span>
+                                    <span class="block text-xs">Not available</span>
+                                </div>
                             </li>
-                            <li class="flex gap-2">
-                                <span class="w-3 h-3 rounded-full bg-yellow-500 mt-0.5"></span>
-                                <span><strong>Maintenance:</strong> Under maintenance</span>
+                            <li class="flex items-start gap-2">
+                                <span class="w-3 h-3 rounded-full bg-yellow-500 mt-1 flex-shrink-0"></span>
+                                <div>
+                                    <span class="font-semibold text-gray-900">Maintenance:</span>
+                                    <span class="block text-xs">Under maintenance</span>
+                                </div>
                             </li>
                         </ul>
                     </div>
@@ -145,11 +183,12 @@
         </div>
     </form>
 
+    @push('scripts')
     <script>
         // Show/hide capacity field based on status
         const statusSelect = document.getElementById('status');
         const capacityField = document.getElementById('capacity-field');
-        
+
         function toggleCapacityField() {
             const status = statusSelect.value;
             if (status === 'available' || status === 'booked') {
@@ -158,10 +197,10 @@
                 capacityField.style.display = 'none';
             }
         }
-        
+
         statusSelect.addEventListener('change', toggleCapacityField);
         toggleCapacityField();
-        
+
         // Auto-fill capacity based on selected TUK
         document.getElementById('tuk_id').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
@@ -171,5 +210,5 @@
             }
         });
     </script>
-</div>
+    @endpush
 @endsection
