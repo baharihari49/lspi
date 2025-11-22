@@ -144,4 +144,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('events', App\Http\Controllers\Admin\EventController::class);
     Route::post('events/{event}/publish', [App\Http\Controllers\Admin\EventController::class, 'publish'])->name('events.publish');
     Route::post('events/{event}/unpublish', [App\Http\Controllers\Admin\EventController::class, 'unpublish'])->name('events.unpublish');
+
+    // Event Sessions (nested under events)
+    Route::prefix('events/{event}')->name('events.')->group(function () {
+        Route::resource('sessions', App\Http\Controllers\Admin\EventSessionController::class);
+
+        // Event TUK Assignments (nested under events)
+        Route::resource('tuk', App\Http\Controllers\Admin\EventTukController::class);
+        Route::post('tuk/{tuk}/confirm', [App\Http\Controllers\Admin\EventTukController::class, 'confirm'])->name('tuk.confirm');
+    });
 });

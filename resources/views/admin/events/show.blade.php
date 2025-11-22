@@ -132,10 +132,18 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-gray-900">Event Sessions</h3>
-                        <button class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
-                            <span class="material-symbols-outlined text-lg">add</span>
-                            <span>Add Session</span>
-                        </button>
+                        <div class="flex gap-2">
+                            @if($event->sessions->count() > 0)
+                                <a href="{{ route('admin.events.sessions.index', $event) }}" class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition text-sm">
+                                    <span class="material-symbols-outlined text-lg">list</span>
+                                    <span>View All</span>
+                                </a>
+                            @endif
+                            <a href="{{ route('admin.events.sessions.create', $event) }}" class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
+                                <span class="material-symbols-outlined text-lg">add</span>
+                                <span>Add Session</span>
+                            </a>
+                        </div>
                     </div>
 
                     @if($event->sessions->count() > 0)
@@ -145,15 +153,40 @@
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
                                             <p class="font-semibold text-gray-900">{{ $session->name }}</p>
-                                            <p class="text-sm text-gray-600 mt-1">{{ $session->session_date->format('d M Y') }} - {{ $session->session_type }}</p>
+                                            <p class="text-sm text-gray-600 mt-1">
+                                                {{ $session->session_date->format('d M Y') }}
+                                                @if($session->start_time && $session->end_time)
+                                                    - {{ $session->start_time }} to {{ $session->end_time }}
+                                                @endif
+                                            </p>
+                                            <div class="flex items-center gap-2 mt-2">
+                                                @php
+                                                    $typeColors = [
+                                                        'theory' => 'bg-blue-100 text-blue-700',
+                                                        'practice' => 'bg-green-100 text-green-700',
+                                                        'exam' => 'bg-red-100 text-red-700',
+                                                        'other' => 'bg-gray-100 text-gray-700',
+                                                    ];
+                                                @endphp
+                                                <span class="px-2 py-0.5 {{ $typeColors[$session->session_type] ?? 'bg-gray-100 text-gray-700' }} rounded text-xs font-semibold">
+                                                    {{ ucfirst($session->session_type) }}
+                                                </span>
+                                                @if($session->is_mandatory)
+                                                    <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-semibold">Mandatory</span>
+                                                @endif
+                                            </div>
                                         </div>
                                         <div class="flex gap-2 ml-4">
-                                            <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition" title="Edit">
+                                            <a href="{{ route('admin.events.sessions.edit', [$event, $session]) }}" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition" title="Edit">
                                                 <span class="material-symbols-outlined">edit</span>
-                                            </button>
-                                            <button class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
-                                                <span class="material-symbols-outlined">delete</span>
-                                            </button>
+                                            </a>
+                                            <form action="{{ route('admin.events.sessions.destroy', [$event, $session]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this session?')" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                                                    <span class="material-symbols-outlined">delete</span>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -171,10 +204,18 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-gray-900">TUK Assignments</h3>
-                        <button class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
-                            <span class="material-symbols-outlined text-lg">add</span>
-                            <span>Assign TUK</span>
-                        </button>
+                        <div class="flex gap-2">
+                            @if($event->tuks->count() > 0)
+                                <a href="{{ route('admin.events.tuk.index', $event) }}" class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition text-sm">
+                                    <span class="material-symbols-outlined text-lg">list</span>
+                                    <span>View All</span>
+                                </a>
+                            @endif
+                            <a href="{{ route('admin.events.tuk.create', $event) }}" class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
+                                <span class="material-symbols-outlined text-lg">add</span>
+                                <span>Assign TUK</span>
+                            </a>
+                        </div>
                     </div>
 
                     @if($event->tuks->count() > 0)
@@ -182,16 +223,47 @@
                             @foreach($event->tuks as $tukAssignment)
                                 <div class="flex items-start justify-between p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition">
                                     <div class="flex-1">
-                                        <p class="font-semibold text-gray-900">{{ $tukAssignment->tuk->name ?? 'N/A' }}</p>
-                                        <p class="text-sm text-gray-600">{{ $tukAssignment->tuk->code ?? 'N/A' }}</p>
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-900">{{ $tukAssignment->tuk->name ?? 'N/A' }}</p>
+                                                <p class="text-sm text-gray-600">{{ $tukAssignment->tuk->code ?? 'N/A' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2 mt-2">
+                                            @php
+                                                $statusColors = [
+                                                    'pending' => 'bg-yellow-100 text-yellow-700',
+                                                    'confirmed' => 'bg-green-100 text-green-700',
+                                                    'cancelled' => 'bg-red-100 text-red-700',
+                                                ];
+                                            @endphp
+                                            <span class="px-2 py-0.5 {{ $statusColors[$tukAssignment->status] ?? 'bg-gray-100 text-gray-700' }} rounded text-xs font-semibold">
+                                                {{ ucfirst($tukAssignment->status) }}
+                                            </span>
+                                            @if($tukAssignment->is_primary)
+                                                <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-semibold">Primary</span>
+                                            @endif
+                                        </div>
                                     </div>
                                     <div class="flex gap-2 ml-4">
-                                        <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+                                        @if($tukAssignment->status === 'pending')
+                                            <form action="{{ route('admin.events.tuk.confirm', [$event, $tukAssignment]) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Confirm">
+                                                    <span class="material-symbols-outlined">check_circle</span>
+                                                </button>
+                                            </form>
+                                        @endif
+                                        <a href="{{ route('admin.events.tuk.edit', [$event, $tukAssignment]) }}" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition" title="Edit">
                                             <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                        <button class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
-                                            <span class="material-symbols-outlined">delete</span>
-                                        </button>
+                                        </a>
+                                        <form action="{{ route('admin.events.tuk.destroy', [$event, $tukAssignment]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this TUK assignment?')" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                                                <span class="material-symbols-outlined">delete</span>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             @endforeach
