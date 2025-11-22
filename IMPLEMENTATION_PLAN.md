@@ -54,8 +54,6 @@ Manajemen lokasi ujian:
 - Availability scheduling
 - Document management
 
------- SUDAH -------
-
 ### E. Assessor Management Module (5 tables)
 Manajemen asesor:
 - `assessors` - Data asesor (registration, validity)
@@ -69,6 +67,8 @@ Manajemen asesor:
 - Competency scope mapping
 - Registration validity tracking
 - Bank account management
+
+------ SUDAH -------
 
 ### F. Certification Scheme Module (9 tables)
 Skema sertifikasi dengan versioning:

@@ -111,4 +111,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::resource('assessor-bank-info', App\Http\Controllers\Admin\AssessorBankInfoController::class);
     Route::post('assessor-bank-info/{assessorBankInfo}/verify', [App\Http\Controllers\Admin\AssessorBankInfoController::class, 'verify'])->name('assessor-bank-info.verify');
+
+    // Certification Scheme Management
+    Route::resource('schemes', App\Http\Controllers\Admin\SchemeController::class);
 });

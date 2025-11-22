@@ -179,6 +179,17 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Certification Schemes</p>
+        </div>
+
+        <!-- Schemes -->
+        <a href="{{ route('admin.schemes.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'schemes' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">verified</span>
+            <span class="font-medium">Schemes</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 
