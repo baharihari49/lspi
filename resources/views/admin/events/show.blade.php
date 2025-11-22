@@ -280,39 +280,68 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-gray-900">Assessors</h3>
-                        <button class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
-                            <span class="material-symbols-outlined text-lg">add</span>
-                            <span>Assign Assessor</span>
-                        </button>
+                        <div class="flex gap-2">
+                            @if($event->assessors->count() > 0)
+                                <a href="{{ route('admin.events.assessors.index', $event) }}" class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition text-sm">
+                                    <span class="material-symbols-outlined text-lg">list</span>
+                                    <span>View All</span>
+                                </a>
+                            @endif
+                            <a href="{{ route('admin.events.assessors.create', $event) }}" class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
+                                <span class="material-symbols-outlined text-lg">add</span>
+                                <span>Assign Assessor</span>
+                            </a>
+                        </div>
                     </div>
 
                     @if($event->assessors->count() > 0)
                         <div class="space-y-2">
-                            @foreach($event->assessors as $assessor)
+                            @foreach($event->assessors as $assessorAssignment)
                                 <div class="flex items-start justify-between p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition">
                                     <div class="flex-1">
-                                        <p class="font-semibold text-gray-900">{{ $assessor->assessor->name ?? 'N/A' }}</p>
-                                        <div class="flex items-center gap-2 mt-1">
+                                        <p class="font-semibold text-gray-900">{{ $assessorAssignment->assessor->name ?? 'N/A' }}</p>
+                                        <p class="text-xs text-gray-500">{{ $assessorAssignment->assessor->registration_number ?? 'N/A' }}</p>
+                                        <div class="flex items-center gap-2 mt-2">
                                             @php
                                                 $statusColors = [
-                                                    'invited' => 'bg-gray-100 text-gray-700',
+                                                    'invited' => 'bg-yellow-100 text-yellow-700',
                                                     'confirmed' => 'bg-green-100 text-green-700',
                                                     'rejected' => 'bg-red-100 text-red-700',
                                                     'completed' => 'bg-blue-100 text-blue-700',
                                                 ];
+                                                $roleColors = [
+                                                    'lead' => 'bg-purple-100 text-purple-700',
+                                                    'examiner' => 'bg-blue-100 text-blue-700',
+                                                    'observer' => 'bg-gray-100 text-gray-700',
+                                                ];
                                             @endphp
-                                            <span class="px-2 py-0.5 {{ $statusColors[$assessor->status] ?? 'bg-gray-100 text-gray-700' }} rounded text-xs font-semibold">
-                                                {{ ucfirst($assessor->status) }}
+                                            <span class="px-2 py-0.5 {{ $roleColors[$assessorAssignment->role] ?? 'bg-gray-100 text-gray-700' }} rounded text-xs font-semibold">
+                                                {{ ucfirst($assessorAssignment->role) }}
+                                            </span>
+                                            <span class="px-2 py-0.5 {{ $statusColors[$assessorAssignment->status] ?? 'bg-gray-100 text-gray-700' }} rounded text-xs font-semibold">
+                                                {{ ucfirst($assessorAssignment->status) }}
                                             </span>
                                         </div>
                                     </div>
                                     <div class="flex gap-2 ml-4">
-                                        <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+                                        @if($assessorAssignment->status === 'invited')
+                                            <form action="{{ route('admin.events.assessors.confirm', [$event, $assessorAssignment]) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Confirm">
+                                                    <span class="material-symbols-outlined">check_circle</span>
+                                                </button>
+                                            </form>
+                                        @endif
+                                        <a href="{{ route('admin.events.assessors.edit', [$event, $assessorAssignment]) }}" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition" title="Edit">
                                             <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                        <button class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
-                                            <span class="material-symbols-outlined">delete</span>
-                                        </button>
+                                        </a>
+                                        <form action="{{ route('admin.events.assessors.destroy', [$event, $assessorAssignment]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this assessor assignment?')" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                                                <span class="material-symbols-outlined">delete</span>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             @endforeach
@@ -329,10 +358,18 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-gray-900">Event Materials</h3>
-                        <button class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
-                            <span class="material-symbols-outlined text-lg">add</span>
-                            <span>Upload Material</span>
-                        </button>
+                        <div class="flex gap-2">
+                            @if($event->materials->count() > 0)
+                                <a href="{{ route('admin.events.materials.index', $event) }}" class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition text-sm">
+                                    <span class="material-symbols-outlined text-lg">list</span>
+                                    <span>View All</span>
+                                </a>
+                            @endif
+                            <a href="{{ route('admin.events.materials.create', $event) }}" class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
+                                <span class="material-symbols-outlined text-lg">add</span>
+                                <span>Upload Material</span>
+                            </a>
+                        </div>
                     </div>
 
                     @if($event->materials->count() > 0)
@@ -341,15 +378,38 @@
                                 <div class="flex items-start justify-between p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition">
                                     <div class="flex-1">
                                         <p class="font-semibold text-gray-900">{{ $material->title }}</p>
-                                        <p class="text-xs text-gray-600">{{ ucfirst($material->material_type) }}</p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            @php
+                                                $typeColors = [
+                                                    'presentation' => 'bg-purple-100 text-purple-700',
+                                                    'handout' => 'bg-blue-100 text-blue-700',
+                                                    'video' => 'bg-red-100 text-red-700',
+                                                    'document' => 'bg-green-100 text-green-700',
+                                                    'other' => 'bg-gray-100 text-gray-700',
+                                                ];
+                                            @endphp
+                                            <span class="px-2 py-0.5 {{ $typeColors[$material->material_type] ?? 'bg-gray-100 text-gray-700' }} rounded text-xs font-semibold">
+                                                {{ ucfirst($material->material_type) }}
+                                            </span>
+                                            <span class="text-xs text-gray-500">{{ number_format($material->file_size / 1024, 2) }} KB</span>
+                                        </div>
                                     </div>
                                     <div class="flex gap-2 ml-4">
-                                        <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Download">
-                                            <span class="material-symbols-outlined">download</span>
-                                        </button>
-                                        <button class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
-                                            <span class="material-symbols-outlined">delete</span>
-                                        </button>
+                                        @if($material->is_downloadable)
+                                            <a href="{{ route('admin.events.materials.download', [$event, $material]) }}" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Download">
+                                                <span class="material-symbols-outlined">download</span>
+                                            </a>
+                                        @endif
+                                        <a href="{{ route('admin.events.materials.edit', [$event, $material]) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </a>
+                                        <form action="{{ route('admin.events.materials.destroy', [$event, $material]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this material?')" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                                                <span class="material-symbols-outlined">delete</span>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             @endforeach

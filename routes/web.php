@@ -152,5 +152,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         // Event TUK Assignments (nested under events)
         Route::resource('tuk', App\Http\Controllers\Admin\EventTukController::class);
         Route::post('tuk/{tuk}/confirm', [App\Http\Controllers\Admin\EventTukController::class, 'confirm'])->name('tuk.confirm');
+
+        // Event Assessor Assignments (nested under events)
+        Route::resource('assessors', App\Http\Controllers\Admin\EventAssessorController::class);
+        Route::post('assessors/{assessor}/confirm', [App\Http\Controllers\Admin\EventAssessorController::class, 'confirm'])->name('assessors.confirm');
+        Route::post('assessors/{assessor}/reject', [App\Http\Controllers\Admin\EventAssessorController::class, 'reject'])->name('assessors.reject');
+
+        // Event Materials (nested under events)
+        Route::resource('materials', App\Http\Controllers\Admin\EventMaterialController::class);
+        Route::get('materials/{material}/download', [App\Http\Controllers\Admin\EventMaterialController::class, 'download'])->name('materials.download');
     });
 });

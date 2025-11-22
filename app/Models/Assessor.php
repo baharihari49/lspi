@@ -29,6 +29,14 @@ class Assessor extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = ['name'];
+
+    // Accessor for name (alias to full_name for compatibility)
+    public function getNameAttribute(): string
+    {
+        return $this->full_name;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
