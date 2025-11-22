@@ -96,4 +96,19 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Organizational Structure Management
     Route::resource('organizational-structure', App\Http\Controllers\Admin\OrganizationalStructureController::class);
+
+    // Assessor Management
+    Route::resource('assessors', App\Http\Controllers\Admin\AssessorController::class);
+    Route::post('assessors/{assessor}/verify', [App\Http\Controllers\Admin\AssessorController::class, 'verify'])->name('assessors.verify');
+
+    Route::resource('assessor-documents', App\Http\Controllers\Admin\AssessorDocumentController::class);
+    Route::post('assessor-documents/{assessorDocument}/verify', [App\Http\Controllers\Admin\AssessorDocumentController::class, 'verify'])->name('assessor-documents.verify');
+
+    Route::resource('assessor-competency-scopes', App\Http\Controllers\Admin\AssessorCompetencyScopeController::class);
+    Route::post('assessor-competency-scopes/{assessorCompetencyScope}/approve', [App\Http\Controllers\Admin\AssessorCompetencyScopeController::class, 'approve'])->name('assessor-competency-scopes.approve');
+
+    Route::resource('assessor-experiences', App\Http\Controllers\Admin\AssessorExperienceController::class);
+
+    Route::resource('assessor-bank-info', App\Http\Controllers\Admin\AssessorBankInfoController::class);
+    Route::post('assessor-bank-info/{assessorBankInfo}/verify', [App\Http\Controllers\Admin\AssessorBankInfoController::class, 'verify'])->name('assessor-bank-info.verify');
 });

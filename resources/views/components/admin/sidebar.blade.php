@@ -144,6 +144,41 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Assessor Management</p>
+        </div>
+
+        <!-- Assessors -->
+        <a href="{{ route('admin.assessors.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessors' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">badge</span>
+            <span class="font-medium">Assessors</span>
+        </a>
+
+        <!-- Assessor Documents -->
+        <a href="{{ route('admin.assessor-documents.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessor-documents' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">description</span>
+            <span class="font-medium">Documents</span>
+        </a>
+
+        <!-- Assessor Competency Scopes -->
+        <a href="{{ route('admin.assessor-competency-scopes.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessor-competency-scopes' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">workspace_premium</span>
+            <span class="font-medium">Competency Scopes</span>
+        </a>
+
+        <!-- Assessor Experiences -->
+        <a href="{{ route('admin.assessor-experiences.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessor-experiences' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">work_history</span>
+            <span class="font-medium">Experiences</span>
+        </a>
+
+        <!-- Assessor Bank Info -->
+        <a href="{{ route('admin.assessor-bank-info.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessor-bank-info' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">account_balance</span>
+            <span class="font-medium">Bank Information</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 
