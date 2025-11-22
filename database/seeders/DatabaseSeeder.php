@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             OrganizationalStructureSeeder::class,
             NewsSeeder::class,
             LspTukSeeder::class,
+            SchemeSeeder::class,
+            EventSeeder::class,
         ]);
     }
 }

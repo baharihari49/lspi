@@ -68,8 +68,6 @@ Manajemen asesor:
 - Registration validity tracking
 - Bank account management
 
------- SUDAH -------
-
 ### F. Certification Scheme Module (9 tables)
 Skema sertifikasi dengan versioning:
 - `schemes` - Master schemes
@@ -93,6 +91,9 @@ Scheme (v1.0, v2.0, ...)
 - Hierarchical competency structure
 - Mandatory/optional requirements
 - Evidence guidance
+
+------ SUDAH -------
+
 
 ### G. Event Management Module (6 tables)
 Manajemen event ujian:

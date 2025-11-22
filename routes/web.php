@@ -139,4 +139,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
             Route::resource('requirements', App\Http\Controllers\Admin\SchemeRequirementController::class);
         });
     });
+
+    // Event Management
+    Route::resource('events', App\Http\Controllers\Admin\EventController::class);
+    Route::post('events/{event}/publish', [App\Http\Controllers\Admin\EventController::class, 'publish'])->name('events.publish');
+    Route::post('events/{event}/unpublish', [App\Http\Controllers\Admin\EventController::class, 'unpublish'])->name('events.unpublish');
 });

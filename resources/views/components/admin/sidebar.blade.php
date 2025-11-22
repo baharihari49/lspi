@@ -190,6 +190,17 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Event Management</p>
+        </div>
+
+        <!-- Events -->
+        <a href="{{ route('admin.events.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'events' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">event</span>
+            <span class="font-medium">Events</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 

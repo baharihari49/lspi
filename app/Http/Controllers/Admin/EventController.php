@@ -1,0 +1,173 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Event;
+use App\Models\Scheme;
+use App\Models\MasterStatus;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class EventController extends Controller
+{
+    public function index(Request $request)
+    {
+        $search = $request->get('search');
+        $type = $request->get('type');
+        $status = $request->get('status');
+
+        $events = Event::with(['scheme', 'status', 'creator'])
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('code', 'like', "%{$search}%")
+                      ->orWhere('name', 'like', "%{$search}%")
+                      ->orWhere('location', 'like', "%{$search}%");
+                });
+            })
+            ->when($type, function ($query, $type) {
+                $query->where('event_type', $type);
+            })
+            ->when($status, function ($query, $status) {
+                $query->where('status_id', $status);
+            })
+            ->latest()
+            ->paginate(15);
+
+        $statuses = MasterStatus::where('category', 'event')->get();
+
+        return view('admin.events.index', compact('events', 'search', 'type', 'status', 'statuses'));
+    }
+
+    public function create()
+    {
+        $schemes = Scheme::active()->get();
+        $statuses = MasterStatus::where('category', 'event')->get();
+
+        return view('admin.events.create', compact('schemes', 'statuses'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string|max:255|unique:events,code',
+            'name' => 'required|string|max:255',
+            'scheme_id' => 'nullable|exists:schemes,id',
+            'description' => 'nullable|string',
+            'event_type' => 'required|in:certification,training,workshop,other',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'registration_start' => 'nullable|date',
+            'registration_end' => 'nullable|date|after_or_equal:registration_start',
+            'max_participants' => 'nullable|integer|min:1',
+            'registration_fee' => 'nullable|numeric|min:0',
+            'status_id' => 'nullable|exists:master_statuses,id',
+            'is_published' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
+            'location' => 'nullable|string|max:255',
+            'location_address' => 'nullable|string',
+        ]);
+
+        $event = Event::create([
+            ...$validated,
+            'current_participants' => 0,
+            'is_published' => !empty($validated['is_published']),
+            'is_active' => !empty($validated['is_active']),
+            'created_by' => Auth::id(),
+            'updated_by' => Auth::id(),
+        ]);
+
+        return redirect()
+            ->route('admin.events.show', $event)
+            ->with('success', 'Event created successfully');
+    }
+
+    public function show(Event $event)
+    {
+        $event->load([
+            'scheme',
+            'status',
+            'sessions' => function ($query) {
+                $query->orderBy('session_date')->orderBy('start_time');
+            },
+            'tuks.tuk',
+            'assessors.assessor',
+            'materials',
+            'attendance.user',
+            'creator',
+            'updater',
+        ]);
+
+        return view('admin.events.show', compact('event'));
+    }
+
+    public function edit(Event $event)
+    {
+        $schemes = Scheme::active()->get();
+        $statuses = MasterStatus::where('category', 'event')->get();
+
+        return view('admin.events.edit', compact('event', 'schemes', 'statuses'));
+    }
+
+    public function update(Request $request, Event $event)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string|max:255|unique:events,code,' . $event->id,
+            'name' => 'required|string|max:255',
+            'scheme_id' => 'nullable|exists:schemes,id',
+            'description' => 'nullable|string',
+            'event_type' => 'required|in:certification,training,workshop,other',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'registration_start' => 'nullable|date',
+            'registration_end' => 'nullable|date|after_or_equal:registration_start',
+            'max_participants' => 'nullable|integer|min:1',
+            'registration_fee' => 'nullable|numeric|min:0',
+            'status_id' => 'nullable|exists:master_statuses,id',
+            'is_published' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
+            'location' => 'nullable|string|max:255',
+            'location_address' => 'nullable|string',
+        ]);
+
+        $event->update([
+            ...$validated,
+            'is_published' => !empty($validated['is_published']),
+            'is_active' => !empty($validated['is_active']),
+            'updated_by' => Auth::id(),
+        ]);
+
+        return redirect()
+            ->route('admin.events.show', $event)
+            ->with('success', 'Event updated successfully');
+    }
+
+    public function destroy(Event $event)
+    {
+        $event->delete();
+
+        return redirect()
+            ->route('admin.events.index')
+            ->with('success', 'Event deleted successfully');
+    }
+
+    public function publish(Event $event)
+    {
+        $event->update([
+            'is_published' => true,
+            'updated_by' => Auth::id(),
+        ]);
+
+        return back()->with('success', 'Event published successfully');
+    }
+
+    public function unpublish(Event $event)
+    {
+        $event->update([
+            'is_published' => false,
+            'updated_by' => Auth::id(),
+        ]);
+
+        return back()->with('success', 'Event unpublished successfully');
+    }
+}
