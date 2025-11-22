@@ -114,4 +114,29 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Certification Scheme Management
     Route::resource('schemes', App\Http\Controllers\Admin\SchemeController::class);
+
+    // Scheme Versions (nested under schemes)
+    Route::prefix('schemes/{scheme}')->name('schemes.')->group(function () {
+        Route::resource('versions', App\Http\Controllers\Admin\SchemeVersionController::class);
+        Route::post('versions/{version}/set-current', [App\Http\Controllers\Admin\SchemeVersionController::class, 'setCurrent'])->name('versions.set-current');
+        Route::post('versions/{version}/approve', [App\Http\Controllers\Admin\SchemeVersionController::class, 'approve'])->name('versions.approve');
+
+        // Scheme Units (nested under versions)
+        Route::prefix('versions/{version}')->name('versions.')->group(function () {
+            Route::resource('units', App\Http\Controllers\Admin\SchemeUnitController::class);
+
+            // Scheme Elements (nested under units)
+            Route::prefix('units/{unit}')->name('units.')->group(function () {
+                Route::resource('elements', App\Http\Controllers\Admin\SchemeElementController::class);
+
+                // Scheme Criteria (nested under elements)
+                Route::prefix('elements/{element}')->name('elements.')->group(function () {
+                    Route::resource('criteria', App\Http\Controllers\Admin\SchemeCriterionController::class);
+                });
+            });
+
+            // Scheme Requirements (nested under versions)
+            Route::resource('requirements', App\Http\Controllers\Admin\SchemeRequirementController::class);
+        });
+    });
 });

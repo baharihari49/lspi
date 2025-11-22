@@ -80,7 +80,10 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-900">Versions</h3>
-                    <span class="text-sm text-gray-600">{{ $scheme->versions->count() }} version(s)</span>
+                    <a href="{{ route('admin.schemes.versions.index', $scheme) }}" class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
+                        <span class="material-symbols-outlined text-lg">settings</span>
+                        <span>Manage Versions</span>
+                    </a>
                 </div>
 
                 @if($scheme->versions->count() > 0)
@@ -242,8 +245,12 @@
                 @else
                     <div class="text-center py-8">
                         <span class="material-symbols-outlined text-gray-300 text-5xl mb-3">inventory_2</span>
-                        <p class="text-gray-500">No versions created yet</p>
-                        <p class="text-sm text-gray-400 mt-1">Create a version to add units and requirements</p>
+                        <p class="text-gray-500 font-semibold">No versions created yet</p>
+                        <p class="text-sm text-gray-400 mt-1 mb-4">Create a version to add units and requirements</p>
+                        <a href="{{ route('admin.schemes.versions.create', $scheme) }}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition">
+                            <span class="material-symbols-outlined">add</span>
+                            <span>Create First Version</span>
+                        </a>
                     </div>
                 @endif
             </div>
