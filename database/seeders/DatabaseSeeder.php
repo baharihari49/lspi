@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             OrganizationalStructureSeeder::class,
             NewsSeeder::class,
+            LspTukSeeder::class,
         ]);
     }
 }

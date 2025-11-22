@@ -98,6 +98,52 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">LSP Configuration</p>
+        </div>
+
+        <!-- LSP Profiles -->
+        <a href="{{ route('admin.lsp-profiles.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'lsp-profiles' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">corporate_fare</span>
+            <span class="font-medium">LSP Profiles</span>
+        </a>
+
+        <!-- Organization Settings -->
+        <a href="{{ route('admin.org-settings.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'org-settings' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="font-medium">Organization Settings</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">TUK Management</p>
+        </div>
+
+        <!-- TUK -->
+        <a href="{{ route('admin.tuk.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'tuk' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">location_city</span>
+            <span class="font-medium">TUK</span>
+        </a>
+
+        <!-- TUK Facilities -->
+        <a href="{{ route('admin.tuk-facilities.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'tuk-facilities' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">inventory_2</span>
+            <span class="font-medium">TUK Facilities</span>
+        </a>
+
+        <!-- TUK Documents -->
+        <a href="{{ route('admin.tuk-documents.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'tuk-documents' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">folder</span>
+            <span class="font-medium">TUK Documents</span>
+        </a>
+
+        <!-- TUK Schedules -->
+        <a href="{{ route('admin.tuk-schedules.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'tuk-schedules' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <span class="font-medium">TUK Schedules</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 

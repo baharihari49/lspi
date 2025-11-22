@@ -29,13 +29,12 @@ Sistem user dengan profile lengkap:
 - `role_permission` - Role-permission mapping
 - `user_role` - User-role assignment dengan audit trail
 
-------
-
 **Key Features:**
 - Multi-role support per user
 - Avatar file management via Cloudinary
 - Soft delete support
 - Audit trail (created_by, updated_by)
+
 
 ### C. LSP Configuration Module (2 tables)
 Konfigurasi organisasi LSP:
@@ -54,6 +53,8 @@ Manajemen lokasi ujian:
 - Capacity management
 - Availability scheduling
 - Document management
+
+------ SUDAH -------
 
 ### E. Assessor Management Module (5 tables)
 Manajemen asesor:

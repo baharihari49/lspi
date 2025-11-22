@@ -78,6 +78,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // User Management
     Route::resource('users', App\Http\Controllers\Admin\UserManagementController::class);
 
+    // LSP Configuration
+    Route::resource('lsp-profiles', App\Http\Controllers\Admin\LspProfileController::class);
+    Route::resource('org-settings', App\Http\Controllers\Admin\OrgSettingController::class);
+
+    // TUK Management
+    Route::resource('tuk', App\Http\Controllers\Admin\TukController::class);
+    Route::resource('tuk-facilities', App\Http\Controllers\Admin\TukFacilityController::class);
+    Route::resource('tuk-documents', App\Http\Controllers\Admin\TukDocumentController::class);
+    Route::resource('tuk-schedules', App\Http\Controllers\Admin\TukScheduleController::class);
+
     // News Management
     Route::resource('news', App\Http\Controllers\Admin\NewsController::class);
 
