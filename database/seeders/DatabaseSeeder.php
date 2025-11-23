@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             OrganizationalStructureSeeder::class,
             NewsSeeder::class,
             LspTukSeeder::class,
+            AssessorSeeder::class,  // Must run before EventSeeder
             SchemeSeeder::class,
             EventSeeder::class,
         ]);
