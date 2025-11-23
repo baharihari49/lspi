@@ -7,6 +7,7 @@ use App\Models\Apl02Evidence;
 use App\Models\Apl02EvidenceMap;
 use App\Models\Apl02AssessorReview;
 use App\Models\Assessee;
+use App\Models\Assessor;
 use App\Models\Scheme;
 use App\Models\SchemeUnit;
 use App\Models\SchemeElement;
@@ -26,9 +27,7 @@ class Apl02Seeder extends Seeder
         $assessees = Assessee::all();
         $schemes = Scheme::with('currentVersion.units.elements')->get();
         $events = Event::where('is_active', true)->get();
-        $assessors = User::whereHas('roles', function($q) {
-            $q->where('name', 'Assessor');
-        })->get();
+        $assessors = Assessor::with('user')->where('is_active', true)->get();
 
         if ($assessees->isEmpty() || $schemes->isEmpty()) {
             $this->command->warn('Skipping Apl02Seeder: No assessees or schemes found. Please run AssesseeSeeder and SchemeSeeder first.');
@@ -62,7 +61,7 @@ class Apl02Seeder extends Seeder
                     'scheme_id' => $scheme->id,
                     'scheme_unit_id' => $schemeUnit->id,
                     'event_id' => $events->isNotEmpty() && rand(0, 1) ? $events->random()->id : null,
-                    'assessor_id' => $assessors->isNotEmpty() && rand(0, 1) ? $assessors->random()->id : null,
+                    'assessor_id' => $assessors->isNotEmpty() && rand(0, 1) ? $assessors->random()->user_id : null,
                     'unit_code' => $schemeUnit->code,
                     'unit_title' => $schemeUnit->title,
                     'status' => $this->randomStatus(),
@@ -84,7 +83,20 @@ class Apl02Seeder extends Seeder
                 $evidenceCount = rand(3, min(8, $elements->count() * 2));
 
                 for ($i = 0; $i < $evidenceCount; $i++) {
+                    // Generate evidence number manually
+                    $year = date('Y');
+                    $lastEvidence = Apl02Evidence::where('evidence_number', 'like', "EVD-{$year}-%")
+                        ->orderBy('evidence_number', 'desc')
+                        ->first();
+
+                    $newNumber = $lastEvidence
+                        ? ((int)substr($lastEvidence->evidence_number, -4) + 1)
+                        : 1;
+
+                    $evidenceNumber = 'EVD-' . $year . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+
                     $evidence = Apl02Evidence::create([
+                        'evidence_number' => $evidenceNumber,
                         'assessee_id' => $assessee->id,
                         'apl02_unit_id' => $unit->id,
                         'evidence_type' => $this->randomEvidenceType(),
@@ -100,7 +112,7 @@ class Apl02Seeder extends Seeder
                         'validity_end_date' => now()->addDays(rand(30, 730)),
                         'verification_status' => $this->randomVerificationStatus(),
                         'verified_at' => rand(0, 1) ? now()->subDays(rand(1, 10)) : null,
-                        'verified_by' => rand(0, 1) && $assessors->isNotEmpty() ? $assessors->random()->id : null,
+                        'verified_by' => rand(0, 1) && $assessors->isNotEmpty() ? $assessors->random()->user_id : null,
                         'assessment_result' => $this->randomAssessmentStatus(),
                         'assessor_notes' => rand(0, 1) ? 'Evidence meets the required criteria.' : null,
                         'is_authentic' => rand(0, 1),
@@ -119,7 +131,7 @@ class Apl02Seeder extends Seeder
                             'scheme_element_id' => $element->id,
                             'coverage_level' => $this->randomCoverageLevel(),
                             'assessor_evaluation' => $this->randomAssessorEvaluation(),
-                            'evaluated_by' => rand(0, 1) && $assessors->isNotEmpty() ? $assessors->random()->id : null,
+                            'evaluated_by' => rand(0, 1) && $assessors->isNotEmpty() ? $assessors->random()->user_id : null,
                             'evaluated_at' => rand(0, 1) ? now()->subDays(rand(1, 10)) : null,
                             'evaluation_notes' => rand(0, 1) ? 'Evidence demonstrates competency in this element.' : null,
                             'display_order' => $i,
@@ -131,60 +143,87 @@ class Apl02Seeder extends Seeder
                 $unit->calculateCompletionPercentage();
                 $unit->save();
 
-                // Create 0-2 assessor reviews per unit
-                $reviewCount = rand(0, 2);
+                // Create 1-2 assessor reviews per unit
+                $reviewCount = rand(1, 2);
 
-                for ($i = 0; $i < $reviewCount; $i++) {
+                $this->command->info("Creating {$reviewCount} reviews for unit {$unit->id}");
+
+                for ($j = 0; $j < $reviewCount; $j++) {
                     if ($assessors->isEmpty()) {
+                        $this->command->warn("No assessors available for reviews");
                         break;
                     }
 
-                    $review = Apl02AssessorReview::create([
+                    $assessorId = $assessors->random()->user_id;
+                    $reviewStatus = $this->randomReviewStatus();
+                    $reviewDecision = $this->randomReviewDecision();
+
+                    // Generate review number manually
+                    $year = date('Y');
+                    $lastReview = Apl02AssessorReview::where('review_number', 'like', "REV-APL02-{$year}-%")
+                        ->orderBy('review_number', 'desc')
+                        ->first();
+
+                    $newNumber = $lastReview
+                        ? ((int)substr($lastReview->review_number, -4) + 1)
+                        : 1;
+
+                    $reviewNumber = 'REV-APL02-' . $year . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+
+                    try {
+                        // Create review with correct field names
+                        $review = Apl02AssessorReview::create([
+                        'review_number' => $reviewNumber,
                         'apl02_unit_id' => $unit->id,
-                        'assessor_id' => $assessors->random()->id,
+                        'assessor_id' => $assessorId,
                         'review_type' => $this->randomReviewType(),
-                        'status' => $this->randomReviewStatus(),
-                        'decision' => $this->randomReviewDecision(),
-                        'validity_score' => rand(60, 100),
-                        'authenticity_score' => rand(60, 100),
-                        'currency_score' => rand(60, 100),
-                        'sufficiency_score' => rand(60, 100),
-                        'consistency_score' => rand(60, 100),
-                        'overall_comments' => 'The portfolio demonstrates good understanding of the required competencies.',
+                        'status' => $reviewStatus,
+                        'decision' => $reviewDecision,
+                        'validity_score' => in_array($reviewStatus, ['completed', 'submitted', 'approved']) ? rand(60, 100) : null,
+                        'authenticity_score' => in_array($reviewStatus, ['completed', 'submitted', 'approved']) ? rand(60, 100) : null,
+                        'currency_score' => in_array($reviewStatus, ['completed', 'submitted', 'approved']) ? rand(60, 100) : null,
+                        'sufficiency_score' => in_array($reviewStatus, ['completed', 'submitted', 'approved']) ? rand(60, 100) : null,
+                        'consistency_score' => in_array($reviewStatus, ['completed', 'submitted', 'approved']) ? rand(60, 100) : null,
+                        'overall_comments' => in_array($reviewStatus, ['completed', 'submitted', 'approved']) ? 'The portfolio demonstrates good understanding of the required competencies.' : null,
                         'recommendations' => rand(0, 1) ? 'Continue to develop skills in this area.' : null,
-                        'strengths' => [
+                        'strengths' => in_array($reviewStatus, ['completed', 'submitted', 'approved']) ? [
                             'Clear documentation',
                             'Comprehensive evidence',
                             'Well-organized portfolio'
-                        ],
+                        ] : null,
                         'weaknesses' => rand(0, 1) ? [
                             'Some evidence could be more recent',
                             'Need more variety in evidence types'
-                        ] : [],
+                        ] : null,
                         'improvement_areas' => rand(0, 1) ? [
                             'Add more recent work samples',
                             'Include certification documents'
-                        ] : [],
-                        'next_steps' => [
+                        ] : null,
+                        'next_steps' => in_array($reviewStatus, ['completed', 'submitted', 'approved']) ? [
                             'Submit additional evidence',
                             'Schedule interview if required'
-                        ],
+                        ] : null,
                         'requires_interview' => rand(0, 1),
                         'requires_demonstration' => rand(0, 1),
                         'interview_notes' => rand(0, 1) ? 'Interview scheduled for further assessment.' : null,
                         'demonstration_notes' => rand(0, 1) ? 'Practical demonstration may be required.' : null,
-                        'started_at' => now()->subDays(rand(5, 15)),
-                        'completed_at' => rand(0, 1) ? now()->subDays(rand(1, 5)) : null,
+                        'review_started_at' => $reviewStatus !== 'draft' ? now()->subDays(rand(5, 15)) : null,
+                        'review_completed_at' => in_array($reviewStatus, ['completed', 'submitted', 'approved']) ? now()->subDays(rand(1, 5)) : null,
                         'deadline' => now()->addDays(rand(7, 30)),
-                        'is_final' => rand(0, 1),
-                        'verified_at' => rand(0, 1) ? now()->subDays(rand(1, 3)) : null,
-                        'verified_by' => rand(0, 1) && $assessors->count() > 1 ? $assessors->where('id', '!=', $review->assessor_id ?? 0)->random()->id : null,
-                        'verification_notes' => rand(0, 1) ? 'Review has been verified and approved.' : null,
+                        'is_final' => $reviewStatus === 'approved' && rand(0, 1),
+                        'verified_at' => $reviewStatus === 'approved' ? now()->subDays(rand(1, 3)) : null,
+                        'verified_by' => $reviewStatus === 'approved' && $assessors->count() > 1 ? $assessors->where('user_id', '!=', $assessorId)->random()->user_id : null,
+                        'verification_notes' => $reviewStatus === 'approved' ? 'Review has been verified and approved.' : null,
                     ]);
 
-                    // Calculate overall score
-                    $review->calculateOverallScore();
-                    $review->save();
+                        // Calculate overall score if scores exist
+                        if ($review->validity_score) {
+                            $review->calculateOverallScore();
+                            $review->save();
+                        }
+                    } catch (\Exception $e) {
+                        $this->command->warn("Failed to create review for unit {$unit->id}: " . $e->getMessage());
+                    }
                 }
             }
         }
@@ -328,9 +367,10 @@ class Apl02Seeder extends Seeder
         $statuses = [
             'draft' => 20,
             'in_progress' => 30,
-            'completed' => 35,
-            'verified' => 10,
-            'requires_revision' => 5,
+            'completed' => 30,
+            'submitted' => 10,
+            'approved' => 5,
+            'revision_required' => 5,
         ];
 
         return $this->weightedRandom($statuses);

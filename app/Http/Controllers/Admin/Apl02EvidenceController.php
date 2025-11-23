@@ -49,20 +49,20 @@ class Apl02EvidenceController extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        $evidences = $query->paginate(20);
+        $evidence = $query->paginate(20);
 
         $units = Apl02Unit::with('assessee')->orderBy('unit_code')->get();
 
-        return view('admin.apl02.evidence.index', compact('evidences', 'units'));
+        return view('admin.apl02.evidence.index', compact('evidence', 'units'));
     }
 
     public function create(Request $request)
     {
         $unitId = $request->get('unit_id');
-        $unit = $unitId ? Apl02Unit::with(['assessee', 'schemeUnit'])->findOrFail($unitId) : null;
+        $selectedUnit = $unitId ? Apl02Unit::with(['assessee', 'schemeUnit'])->findOrFail($unitId) : null;
         $units = Apl02Unit::with('assessee')->orderBy('unit_code')->get();
 
-        return view('admin.apl02.evidence.create', compact('unit', 'units'));
+        return view('admin.apl02.evidence.create', compact('selectedUnit', 'units'));
     }
 
     public function store(Request $request)
