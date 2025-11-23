@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             SchemeSeeder::class,
             EventSeeder::class,
             AssesseeSeeder::class,  // Assessees with documents, employment, education, experience
+            Apl02Seeder::class,  // APL-02 Portfolio data
         ]);
     }
 }

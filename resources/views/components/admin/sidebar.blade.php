@@ -241,6 +241,35 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">APL-02 Portfolio</p>
+        </div>
+
+        <!-- APL-02 Units -->
+        <a href="{{ route('admin.apl02.units.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'apl02-units' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">folder_open</span>
+            <span class="font-medium">Portfolio Units</span>
+        </a>
+
+        <!-- APL-02 Evidence -->
+        <a href="{{ route('admin.apl02.evidence.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'apl02-evidence' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">upload_file</span>
+            <span class="font-medium">Evidence</span>
+        </a>
+
+        <!-- APL-02 Reviews -->
+        <a href="{{ route('admin.apl02.reviews.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'apl02-reviews' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">fact_check</span>
+            <span class="font-medium">Assessor Reviews</span>
+        </a>
+
+        <!-- My APL-02 Reviews -->
+        <a href="{{ route('admin.apl02.reviews.my-reviews') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'my-apl02-reviews' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">person_check</span>
+            <span class="font-medium">My APL-02 Reviews</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 

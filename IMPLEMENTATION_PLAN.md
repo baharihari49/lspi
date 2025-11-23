@@ -122,8 +122,6 @@ Manajemen peserta sertifikasi:
 - Education history
 - Experience portfolio
 
------- SUDAH -------
-
 ### I. APL-01 Form Module (4 tables)
 Form permohonan sertifikasi:
 - `apl01_forms` - Master APL-01
@@ -136,6 +134,8 @@ Form permohonan sertifikasi:
 - JSON validation rules
 - File upload support
 - Multi-level review
+
+------ SUDAH -------
 
 ### J. APL-02 Portfolio Module (4 tables)
 Portfolio bukti kompetensi:

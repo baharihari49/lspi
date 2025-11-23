@@ -140,7 +140,7 @@
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                                 <label class="relative flex items-center justify-center px-4 py-3 border-2 rounded-lg cursor-pointer transition hover:border-blue-500 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                                     <input type="radio" name="decision" value="approved" required class="sr-only">
-                                    <div class="text-center">
+                                    <div class="text-center items-center flex gap-2">
                                         <span class="material-symbols-outlined text-green-600 block mb-1">check_circle</span>
                                         <span class="text-sm font-semibold">Approve</span>
                                     </div>
@@ -148,7 +148,7 @@
 
                                 <label class="relative flex items-center justify-center px-4 py-3 border-2 rounded-lg cursor-pointer transition hover:border-blue-500 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                                     <input type="radio" name="decision" value="rejected" required class="sr-only">
-                                    <div class="text-center">
+                                    <div class="text-center items-center flex gap-2">
                                         <span class="material-symbols-outlined text-red-600 block mb-1">cancel</span>
                                         <span class="text-sm font-semibold">Reject</span>
                                     </div>
@@ -156,7 +156,7 @@
 
                                 <label class="relative flex items-center justify-center px-4 py-3 border-2 rounded-lg cursor-pointer transition hover:border-blue-500 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                                     <input type="radio" name="decision" value="approved_with_notes" required class="sr-only">
-                                    <div class="text-center">
+                                    <div class="text-center items-center flex gap-2">
                                         <span class="material-symbols-outlined text-blue-600 block mb-1">note_add</span>
                                         <span class="text-sm font-semibold">Approve with Notes</span>
                                     </div>
@@ -164,7 +164,7 @@
 
                                 <label class="relative flex items-center justify-center px-4 py-3 border-2 rounded-lg cursor-pointer transition hover:border-blue-500 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                                     <input type="radio" name="decision" value="returned" required class="sr-only">
-                                    <div class="text-center">
+                                    <div class="text-center items-center flex gap-2">
                                         <span class="material-symbols-outlined text-orange-600 block mb-1">undo</span>
                                         <span class="text-sm font-semibold">Return</span>
                                     </div>

@@ -219,4 +219,64 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('apl01-reviews/{review}/escalate', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'escalate'])->name('apl01-reviews.escalate');
     Route::post('apl01-reviews/{review}/reassign', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'reassign'])->name('apl01-reviews.reassign');
     Route::post('apl01-reviews/{review}/deadline', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'updateDeadline'])->name('apl01-reviews.deadline');
+
+    // APL-02 Units
+    Route::resource('apl02/units', App\Http\Controllers\Admin\Apl02UnitController::class)
+        ->names([
+            'index' => 'apl02.units.index',
+            'create' => 'apl02.units.create',
+            'store' => 'apl02.units.store',
+            'show' => 'apl02.units.show',
+            'edit' => 'apl02.units.edit',
+            'update' => 'apl02.units.update',
+            'destroy' => 'apl02.units.destroy',
+        ])
+        ->parameters(['units' => 'unit']);
+    Route::post('apl02/units/{unit}/submit', [App\Http\Controllers\Admin\Apl02UnitController::class, 'submit'])->name('apl02.units.submit');
+    Route::post('apl02/units/{unit}/assign-assessor', [App\Http\Controllers\Admin\Apl02UnitController::class, 'assignAssessor'])->name('apl02.units.assign-assessor');
+    Route::post('apl02/units/{unit}/start-assessment', [App\Http\Controllers\Admin\Apl02UnitController::class, 'startAssessment'])->name('apl02.units.start-assessment');
+    Route::post('apl02/units/{unit}/complete-assessment', [App\Http\Controllers\Admin\Apl02UnitController::class, 'completeAssessment'])->name('apl02.units.complete-assessment');
+    Route::post('apl02/units/{unit}/lock', [App\Http\Controllers\Admin\Apl02UnitController::class, 'lock'])->name('apl02.units.lock');
+    Route::post('apl02/units/{unit}/unlock', [App\Http\Controllers\Admin\Apl02UnitController::class, 'unlock'])->name('apl02.units.unlock');
+    Route::post('apl02/units/{unit}/calculate-completion', [App\Http\Controllers\Admin\Apl02UnitController::class, 'calculateCompletion'])->name('apl02.units.calculate-completion');
+    Route::get('apl02/api/scheme-units', [App\Http\Controllers\Admin\Apl02UnitController::class, 'getSchemeUnits'])->name('apl02.units.get-scheme-units');
+
+    // APL-02 Evidence
+    Route::resource('apl02/evidence', App\Http\Controllers\Admin\Apl02EvidenceController::class)
+        ->names([
+            'index' => 'apl02.evidence.index',
+            'create' => 'apl02.evidence.create',
+            'store' => 'apl02.evidence.store',
+            'show' => 'apl02.evidence.show',
+            'edit' => 'apl02.evidence.edit',
+            'update' => 'apl02.evidence.update',
+            'destroy' => 'apl02.evidence.destroy',
+        ])
+        ->parameters(['evidence' => 'evidence']);
+    Route::post('apl02/evidence/{evidence}/verify', [App\Http\Controllers\Admin\Apl02EvidenceController::class, 'verify'])->name('apl02.evidence.verify');
+    Route::post('apl02/evidence/{evidence}/reject', [App\Http\Controllers\Admin\Apl02EvidenceController::class, 'reject'])->name('apl02.evidence.reject');
+    Route::post('apl02/evidence/{evidence}/assess', [App\Http\Controllers\Admin\Apl02EvidenceController::class, 'assess'])->name('apl02.evidence.assess');
+    Route::post('apl02/evidence/{evidence}/map-to-element', [App\Http\Controllers\Admin\Apl02EvidenceController::class, 'mapToElement'])->name('apl02.evidence.map-to-element');
+    Route::delete('apl02/evidence/{evidence}/unmap/{map}', [App\Http\Controllers\Admin\Apl02EvidenceController::class, 'unmapFromElement'])->name('apl02.evidence.unmap-from-element');
+    Route::get('apl02/evidence/{evidence}/download', [App\Http\Controllers\Admin\Apl02EvidenceController::class, 'download'])->name('apl02.evidence.download');
+
+    // APL-02 Assessor Reviews
+    Route::get('apl02/reviews/my-reviews', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'myReviews'])->name('apl02.reviews.my-reviews');
+    Route::resource('apl02/reviews', App\Http\Controllers\Admin\Apl02AssessorReviewController::class)
+        ->names([
+            'index' => 'apl02.reviews.index',
+            'create' => 'apl02.reviews.create',
+            'store' => 'apl02.reviews.store',
+            'show' => 'apl02.reviews.show',
+            'edit' => 'apl02.reviews.edit',
+            'update' => 'apl02.reviews.update',
+            'destroy' => 'apl02.reviews.destroy',
+        ])
+        ->parameters(['reviews' => 'review']);
+    Route::get('apl02/reviews/{review}/conduct', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'conduct'])->name('apl02.reviews.conduct');
+    Route::post('apl02/reviews/{review}/submit-review', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'submitReview'])->name('apl02.reviews.submit-review');
+    Route::post('apl02/reviews/{review}/verify', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'verify'])->name('apl02.reviews.verify');
+    Route::post('apl02/reviews/{review}/require-revision', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'requireRevision'])->name('apl02.reviews.require-revision');
+    Route::post('apl02/reviews/{review}/mark-as-final', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'markAsFinal'])->name('apl02.reviews.mark-as-final');
+    Route::post('apl02/reviews/{review}/schedule-re-assessment', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'scheduleReAssessment'])->name('apl02.reviews.schedule-re-assessment');
 });
