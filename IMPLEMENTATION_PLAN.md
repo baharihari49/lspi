@@ -108,8 +108,6 @@ Manajemen event ujian:
 - Material distribution
 - Check-in/check-out tracking
 
------- SUDAH -------
-
 ### H. Assessee (Peserta) Module (5 tables)
 Manajemen peserta sertifikasi:
 - `assessees` - Data peserta
@@ -123,6 +121,8 @@ Manajemen peserta sertifikasi:
 - Employment tracking
 - Education history
 - Experience portfolio
+
+------ SUDAH -------
 
 ### I. APL-01 Form Module (4 tables)
 Form permohonan sertifikasi:

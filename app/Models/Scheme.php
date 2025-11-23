@@ -60,6 +60,11 @@ class Scheme extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
+    public function formFields(): HasMany
+    {
+        return $this->hasMany(Apl01FormField::class);
+    }
+
     // Scopes
     public function scopeActive($query)
     {

@@ -191,4 +191,32 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::resource('experience', App\Http\Controllers\Admin\AssesseeExperienceController::class);
         Route::post('experience/{experience}/verify', [App\Http\Controllers\Admin\AssesseeExperienceController::class, 'verify'])->name('experience.verify');
     });
+
+    // APL-01 Form Management
+    Route::resource('apl01', App\Http\Controllers\Admin\Apl01FormController::class);
+    Route::post('apl01/{apl01}/submit', [App\Http\Controllers\Admin\Apl01FormController::class, 'submit'])->name('apl01.submit');
+    Route::post('apl01/{apl01}/declaration', [App\Http\Controllers\Admin\Apl01FormController::class, 'updateDeclaration'])->name('apl01.declaration');
+    Route::post('apl01/autofill', [App\Http\Controllers\Admin\Apl01FormController::class, 'autofill'])->name('apl01.autofill');
+
+    // APL-01 Form Fields (Form Builder)
+    Route::resource('apl01-fields', App\Http\Controllers\Admin\Apl01FormFieldController::class)->parameters([
+        'apl01-fields' => 'field'
+    ]);
+    Route::post('apl01-fields/reorder', [App\Http\Controllers\Admin\Apl01FormFieldController::class, 'reorder'])->name('apl01-fields.reorder');
+    Route::post('apl01-fields/{field}/duplicate', [App\Http\Controllers\Admin\Apl01FormFieldController::class, 'duplicate'])->name('apl01-fields.duplicate');
+    Route::get('schemes/{scheme}/fields', [App\Http\Controllers\Admin\Apl01FormFieldController::class, 'getByScheme'])->name('schemes.fields');
+
+    // APL-01 Reviews
+    Route::get('apl01-reviews/my-reviews', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'myReviews'])->name('apl01-reviews.my-reviews');
+    Route::resource('apl01-reviews', App\Http\Controllers\Admin\Apl01ReviewController::class)->only(['index', 'show'])->parameters([
+        'apl01-reviews' => 'review'
+    ]);
+    Route::get('apl01-reviews/{review}/review', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'review'])->name('apl01-reviews.review');
+    Route::post('apl01-reviews/{review}/start', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'start'])->name('apl01-reviews.start');
+    Route::post('apl01-reviews/{review}/submit-decision', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'submitDecision'])->name('apl01-reviews.submit-decision');
+    Route::post('apl01-reviews/{review}/approve', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'approve'])->name('apl01-reviews.approve');
+    Route::post('apl01-reviews/{review}/reject', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'reject'])->name('apl01-reviews.reject');
+    Route::post('apl01-reviews/{review}/escalate', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'escalate'])->name('apl01-reviews.escalate');
+    Route::post('apl01-reviews/{review}/reassign', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'reassign'])->name('apl01-reviews.reassign');
+    Route::post('apl01-reviews/{review}/deadline', [App\Http\Controllers\Admin\Apl01ReviewController::class, 'updateDeadline'])->name('apl01-reviews.deadline');
 });

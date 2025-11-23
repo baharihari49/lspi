@@ -212,6 +212,35 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">APL-01 Forms</p>
+        </div>
+
+        <!-- APL-01 Forms -->
+        <a href="{{ route('admin.apl01.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'apl01' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">description</span>
+            <span class="font-medium">APL-01 Forms</span>
+        </a>
+
+        <!-- APL-01 Form Fields -->
+        <a href="{{ route('admin.apl01-fields.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'apl01-fields' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">input</span>
+            <span class="font-medium">Form Builder</span>
+        </a>
+
+        <!-- APL-01 Reviews -->
+        <a href="{{ route('admin.apl01-reviews.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'apl01-reviews' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">rate_review</span>
+            <span class="font-medium">Reviews</span>
+        </a>
+
+        <!-- My Reviews -->
+        <a href="{{ route('admin.apl01-reviews.my-reviews') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'my-reviews' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">assignment_ind</span>
+            <span class="font-medium">My Reviews</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 
