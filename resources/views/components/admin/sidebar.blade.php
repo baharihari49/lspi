@@ -309,10 +309,22 @@
             <span class="font-medium">Interviews</span>
         </a>
 
+        <!-- Assessment Verification -->
+        <a href="{{ route('admin.assessment-verification.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessment-verification' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">verified</span>
+            <span class="font-medium">Verification</span>
+        </a>
+
         <!-- Assessment Results -->
         <a href="{{ route('admin.assessment-results.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessment-results' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
             <span class="material-symbols-outlined">description</span>
             <span class="font-medium">Results & Certificates</span>
+        </a>
+
+        <!-- Result Approval -->
+        <a href="{{ route('admin.result-approval.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'result-approval' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">task_alt</span>
+            <span class="font-medium">Result Approval</span>
         </a>
 
         <!-- Divider -->

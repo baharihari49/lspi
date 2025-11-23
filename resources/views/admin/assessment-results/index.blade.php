@@ -10,72 +10,46 @@
 @section('page_description', 'View and manage assessment results and certifications')
 
 @section('content')
-    @if(session('success'))
-        <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-start">
-            <span class="material-symbols-outlined text-green-600 mr-3">check_circle</span>
-            <p class="text-green-800 font-medium">{{ session('success') }}</p>
-        </div>
-    @endif
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <form method="GET" action="{{ route('admin.assessment-results.index') }}" class="space-y-4">
+            <div class="flex flex-wrap gap-3">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search result number, certificate, assessee..."
+                    class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm flex-1 min-w-[200px]">
 
-    @if(session('error'))
-        <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
-            <span class="material-symbols-outlined text-red-600 mr-3">error</span>
-            <p class="text-red-800 font-medium">{{ session('error') }}</p>
-        </div>
-    @endif
+                <select name="final_result" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                    <option value="">All Results</option>
+                    <option value="competent" {{ request('final_result') === 'competent' ? 'selected' : '' }}>Competent</option>
+                    <option value="not_yet_competent" {{ request('final_result') === 'not_yet_competent' ? 'selected' : '' }}>Not Yet Competent</option>
+                    <option value="requires_reassessment" {{ request('final_result') === 'requires_reassessment' ? 'selected' : '' }}>Requires Reassessment</option>
+                </select>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h2 class="text-lg font-bold text-gray-900">Results List</h2>
-                    <p class="text-sm text-gray-600">Total: {{ $results->total() }} results</p>
-                </div>
+                <select name="approval_status" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                    <option value="">All Approval Status</option>
+                    <option value="pending" {{ request('approval_status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="approved" {{ request('approval_status') === 'approved' ? 'selected' : '' }}>Approved</option>
+                    <option value="rejected" {{ request('approval_status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
+                    <option value="requires_revision" {{ request('approval_status') === 'requires_revision' ? 'selected' : '' }}>Requires Revision</option>
+                </select>
+
+                <select name="is_published" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                    <option value="">All Publishing Status</option>
+                    <option value="1" {{ request('is_published') === '1' ? 'selected' : '' }}>Published</option>
+                    <option value="0" {{ request('is_published') === '0' ? 'selected' : '' }}>Not Published</option>
+                </select>
+
+                <button type="submit" class="px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition text-sm font-medium">
+                    Apply Filters
+                </button>
+                <a href="{{ route('admin.assessment-results.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                    Reset
+                </a>
             </div>
+        </form>
+    </div>
 
-            <!-- Search & Filter Box -->
-            <form method="GET" action="{{ route('admin.assessment-results.index') }}" class="space-y-3">
-                <div class="flex gap-2">
-                    <div class="flex-1 relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                        <input type="text" name="search" value="{{ request('search') ?? '' }}" placeholder="Search by result number, certificate number, or assessee name..."
-                            class="w-full h-10 pl-10 pr-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                    </div>
-                    <button type="submit" class="px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition">
-                        Search
-                    </button>
-                    @if(request()->hasAny(['search', 'final_result', 'approval_status', 'is_published']))
-                        <a href="{{ route('admin.assessment-results.index') }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition">
-                            Clear
-                        </a>
-                    @endif
-                </div>
-
-                <!-- Filter Options -->
-                <div class="grid grid-cols-3 gap-2">
-                    <select name="final_result" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
-                        <option value="">All Results</option>
-                        <option value="competent" {{ request('final_result') === 'competent' ? 'selected' : '' }}>Competent</option>
-                        <option value="not_yet_competent" {{ request('final_result') === 'not_yet_competent' ? 'selected' : '' }}>Not Yet Competent</option>
-                        <option value="requires_reassessment" {{ request('final_result') === 'requires_reassessment' ? 'selected' : '' }}>Requires Reassessment</option>
-                    </select>
-
-                    <select name="approval_status" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
-                        <option value="">All Approval Status</option>
-                        <option value="pending" {{ request('approval_status') === 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ request('approval_status') === 'approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="rejected" {{ request('approval_status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                        <option value="revision_required" {{ request('approval_status') === 'revision_required' ? 'selected' : '' }}>Revision Required</option>
-                    </select>
-
-                    <select name="is_published" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
-                        <option value="">All Publishing Status</option>
-                        <option value="1" {{ request('is_published') === '1' ? 'selected' : '' }}>Published</option>
-                        <option value="0" {{ request('is_published') === '0' ? 'selected' : '' }}>Not Published</option>
-                    </select>
-                </div>
-            </form>
-        </div>
+    <!-- Results List -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
         <div class="overflow-x-auto">
             <table class="w-full">
@@ -185,10 +159,12 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-12 text-center">
-                                <span class="material-symbols-outlined text-gray-300 text-6xl mb-4">description</span>
-                                <p class="text-gray-500 font-medium">No results found</p>
-                                <p class="text-sm text-gray-400 mt-2">Results will appear here after assessments are completed</p>
+                            <td colspan="8" class="px-6 py-16 text-center">
+                                <div class="flex flex-col items-center justify-center">
+                                    <span class="material-symbols-outlined text-gray-300 mb-4" style="font-size: 80px;">description</span>
+                                    <p class="text-gray-500 font-medium text-lg">No results found</p>
+                                    <p class="text-gray-400 text-sm mt-1">Results will appear here after assessments are completed</p>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -196,6 +172,8 @@
             </table>
         </div>
 
+
+        <!-- Pagination -->
         @if($results->hasPages())
             <div class="px-6 py-4 border-t border-gray-200">
                 {{ $results->links() }}

@@ -306,6 +306,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('assessment-results/{assessmentResult}/publish', [App\Http\Controllers\Admin\AssessmentResultController::class, 'publish'])->name('assessment-results.publish');
     Route::post('assessment-results/{assessmentResult}/issue-certificate', [App\Http\Controllers\Admin\AssessmentResultController::class, 'issueCertificate'])->name('assessment-results.issue-certificate');
 
+    // Result Approval Routes
+    Route::resource('result-approval', App\Http\Controllers\Admin\ResultApprovalController::class)->parameters(['result-approval' => 'resultApproval']);
+    Route::post('result-approval/{resultApproval}/process-decision', [App\Http\Controllers\Admin\ResultApprovalController::class, 'processDecision'])->name('result-approval.process-decision');
+    Route::post('result-approval/{resultApproval}/delegate', [App\Http\Controllers\Admin\ResultApprovalController::class, 'delegate'])->name('result-approval.delegate');
+
     // Assessment Units Routes
     Route::post('assessment-units/{assessmentUnit}/start', [App\Http\Controllers\Admin\AssessmentUnitController::class, 'start'])->name('assessment-units.start');
     Route::post('assessment-units/{assessmentUnit}/complete', [App\Http\Controllers\Admin\AssessmentUnitController::class, 'complete'])->name('assessment-units.complete');
@@ -347,4 +352,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Assessment Interviews Routes
     Route::resource('assessment-interviews', App\Http\Controllers\Admin\AssessmentInterviewController::class)->parameters(['assessment-interviews' => 'assessmentInterview']);
+
+    // Assessment Verification Routes
+    Route::resource('assessment-verification', App\Http\Controllers\Admin\AssessmentVerificationController::class)->parameters(['assessment-verification' => 'assessmentVerification']);
 });
