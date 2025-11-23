@@ -167,4 +167,28 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('attendance/{attendance}/check-in', [App\Http\Controllers\Admin\EventAttendanceController::class, 'checkIn'])->name('attendance.check-in');
         Route::post('attendance/{attendance}/check-out', [App\Http\Controllers\Admin\EventAttendanceController::class, 'checkOut'])->name('attendance.check-out');
     });
+
+    // Assessees (Peserta)
+    Route::resource('assessees', App\Http\Controllers\Admin\AssesseeController::class);
+    Route::post('assessees/{assessee}/verify', [App\Http\Controllers\Admin\AssesseeController::class, 'verify'])->name('assessees.verify');
+
+    // Assessee nested resources
+    Route::prefix('assessees/{assessee}')->name('assessees.')->group(function () {
+        // Assessee Documents
+        Route::resource('documents', App\Http\Controllers\Admin\AssesseeDocumentController::class);
+        Route::get('documents/{document}/download', [App\Http\Controllers\Admin\AssesseeDocumentController::class, 'download'])->name('documents.download');
+        Route::post('documents/{document}/verify', [App\Http\Controllers\Admin\AssesseeDocumentController::class, 'verify'])->name('documents.verify');
+
+        // Assessee Employment Info
+        Route::resource('employment', App\Http\Controllers\Admin\AssesseeEmploymentController::class);
+        Route::post('employment/{employment}/verify', [App\Http\Controllers\Admin\AssesseeEmploymentController::class, 'verify'])->name('employment.verify');
+
+        // Assessee Education History
+        Route::resource('education', App\Http\Controllers\Admin\AssesseeEducationController::class);
+        Route::post('education/{education}/verify', [App\Http\Controllers\Admin\AssesseeEducationController::class, 'verify'])->name('education.verify');
+
+        // Assessee Experience
+        Route::resource('experience', App\Http\Controllers\Admin\AssesseeExperienceController::class);
+        Route::post('experience/{experience}/verify', [App\Http\Controllers\Admin\AssesseeExperienceController::class, 'verify'])->name('experience.verify');
+    });
 });

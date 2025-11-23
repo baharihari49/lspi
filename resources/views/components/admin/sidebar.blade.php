@@ -201,6 +201,17 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Assessee Management</p>
+        </div>
+
+        <!-- Assessees -->
+        <a href="{{ route('admin.assessees.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessees' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">school</span>
+            <span class="font-medium">Assessees</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 

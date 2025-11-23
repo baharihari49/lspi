@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             AssessorSeeder::class,  // Must run before EventSeeder
             SchemeSeeder::class,
             EventSeeder::class,
+            AssesseeSeeder::class,  // Assessees with documents, employment, education, experience
         ]);
     }
 }

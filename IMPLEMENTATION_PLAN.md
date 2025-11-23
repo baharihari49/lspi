@@ -92,8 +92,6 @@ Scheme (v1.0, v2.0, ...)
 - Mandatory/optional requirements
 - Evidence guidance
 
------- SUDAH -------
-
 
 ### G. Event Management Module (6 tables)
 Manajemen event ujian:
@@ -109,6 +107,8 @@ Manajemen event ujian:
 - Assessor confirmation workflow
 - Material distribution
 - Check-in/check-out tracking
+
+------ SUDAH -------
 
 ### H. Assessee (Peserta) Module (5 tables)
 Manajemen peserta sertifikasi:
