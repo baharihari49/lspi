@@ -270,6 +270,53 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Assessment Module</p>
+        </div>
+
+        <!-- Assessments -->
+        <a href="{{ route('admin.assessments.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessments' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">assignment</span>
+            <span class="font-medium">Assessments</span>
+        </a>
+
+        <!-- Assessment Units -->
+        <a href="{{ route('admin.assessment-units.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessment-units' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">view_module</span>
+            <span class="font-medium">Assessment Units</span>
+        </a>
+
+        <!-- Assessment Criteria -->
+        <a href="{{ route('admin.assessment-criteria.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessment-criteria' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">checklist</span>
+            <span class="font-medium">Criteria (KUK)</span>
+        </a>
+
+        <!-- Assessment Documents -->
+        <a href="{{ route('admin.assessment-documents.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessment-documents' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">folder_open</span>
+            <span class="font-medium">Documents</span>
+        </a>
+
+        <!-- Assessment Observations -->
+        <a href="{{ route('admin.assessment-observations.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessment-observations' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">visibility</span>
+            <span class="font-medium">Observations</span>
+        </a>
+
+        <!-- Assessment Interviews -->
+        <a href="{{ route('admin.assessment-interviews.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessment-interviews' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">question_answer</span>
+            <span class="font-medium">Interviews</span>
+        </a>
+
+        <!-- Assessment Results -->
+        <a href="{{ route('admin.assessment-results.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'assessment-results' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">description</span>
+            <span class="font-medium">Results & Certificates</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 

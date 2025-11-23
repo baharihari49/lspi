@@ -279,4 +279,72 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('apl02/reviews/{review}/require-revision', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'requireRevision'])->name('apl02.reviews.require-revision');
     Route::post('apl02/reviews/{review}/mark-as-final', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'markAsFinal'])->name('apl02.reviews.mark-as-final');
     Route::post('apl02/reviews/{review}/schedule-re-assessment', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'scheduleReAssessment'])->name('apl02.reviews.schedule-re-assessment');
+
+    // Assessment Module Routes (Module K)
+    Route::resource('assessments', App\Http\Controllers\Admin\AssessmentController::class)->names([
+        'index' => 'assessments.index',
+        'create' => 'assessments.create',
+        'store' => 'assessments.store',
+        'show' => 'assessments.show',
+        'edit' => 'assessments.edit',
+        'update' => 'assessments.update',
+        'destroy' => 'assessments.destroy',
+    ]);
+    Route::post('assessments/{assessment}/update-status', [App\Http\Controllers\Admin\AssessmentController::class, 'updateStatus'])->name('assessments.update-status');
+    Route::post('assessments/{assessment}/generate-units', [App\Http\Controllers\Admin\AssessmentController::class, 'generateUnits'])->name('assessments.generate-units');
+
+    // Assessment Results Routes
+    Route::resource('assessment-results', App\Http\Controllers\Admin\AssessmentResultController::class)->names([
+        'index' => 'assessment-results.index',
+        'create' => 'assessment-results.create',
+        'store' => 'assessment-results.store',
+        'show' => 'assessment-results.show',
+        'edit' => 'assessment-results.edit',
+        'update' => 'assessment-results.update',
+        'destroy' => 'assessment-results.destroy',
+    ])->parameters(['assessment-results' => 'assessmentResult']);
+    Route::post('assessment-results/{assessmentResult}/publish', [App\Http\Controllers\Admin\AssessmentResultController::class, 'publish'])->name('assessment-results.publish');
+    Route::post('assessment-results/{assessmentResult}/issue-certificate', [App\Http\Controllers\Admin\AssessmentResultController::class, 'issueCertificate'])->name('assessment-results.issue-certificate');
+
+    // Assessment Units Routes
+    Route::post('assessment-units/{assessmentUnit}/start', [App\Http\Controllers\Admin\AssessmentUnitController::class, 'start'])->name('assessment-units.start');
+    Route::post('assessment-units/{assessmentUnit}/complete', [App\Http\Controllers\Admin\AssessmentUnitController::class, 'complete'])->name('assessment-units.complete');
+    Route::resource('assessment-units', App\Http\Controllers\Admin\AssessmentUnitController::class)->names([
+        'index' => 'assessment-units.index',
+        'create' => 'assessment-units.create',
+        'store' => 'assessment-units.store',
+        'show' => 'assessment-units.show',
+        'edit' => 'assessment-units.edit',
+        'update' => 'assessment-units.update',
+        'destroy' => 'assessment-units.destroy',
+    ])->parameters(['assessment-units' => 'assessmentUnit']);
+
+    // Assessment Criteria Routes
+    Route::get('assessment-units/{assessmentUnit}/assess', [App\Http\Controllers\Admin\AssessmentCriteriaController::class, 'assessForm'])->name('assessment-criteria.assess-form');
+    Route::post('assessment-criteria/{assessmentCriterion}/assess', [App\Http\Controllers\Admin\AssessmentCriteriaController::class, 'assess'])->name('assessment-criteria.assess');
+    Route::post('assessment-criteria/bulk-assess', [App\Http\Controllers\Admin\AssessmentCriteriaController::class, 'bulkAssess'])->name('assessment-criteria.bulk-assess');
+    Route::post('assessment-criteria/{assessmentCriterion}/toggle-critical', [App\Http\Controllers\Admin\AssessmentCriteriaController::class, 'toggleCritical'])->name('assessment-criteria.toggle-critical');
+    Route::resource('assessment-criteria', App\Http\Controllers\Admin\AssessmentCriteriaController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+
+    // Assessment Documents Routes
+    Route::get('assessment-documents/get-units', [App\Http\Controllers\Admin\AssessmentDocumentController::class, 'getUnits'])->name('assessment-documents.get-units');
+    Route::get('assessment-documents/get-criteria', [App\Http\Controllers\Admin\AssessmentDocumentController::class, 'getCriteria'])->name('assessment-documents.get-criteria');
+    Route::post('assessment-documents/bulk-verify', [App\Http\Controllers\Admin\AssessmentDocumentController::class, 'bulkVerify'])->name('assessment-documents.bulk-verify');
+    Route::post('assessment-documents/{assessmentDocument}/verify', [App\Http\Controllers\Admin\AssessmentDocumentController::class, 'verify'])->name('assessment-documents.verify');
+    Route::get('assessment-documents/{assessmentDocument}/download', [App\Http\Controllers\Admin\AssessmentDocumentController::class, 'download'])->name('assessment-documents.download');
+    Route::resource('assessment-documents', App\Http\Controllers\Admin\AssessmentDocumentController::class)->names([
+        'index' => 'assessment-documents.index',
+        'create' => 'assessment-documents.create',
+        'store' => 'assessment-documents.store',
+        'show' => 'assessment-documents.show',
+        'edit' => 'assessment-documents.edit',
+        'update' => 'assessment-documents.update',
+        'destroy' => 'assessment-documents.destroy',
+    ])->parameters(['assessment-documents' => 'assessmentDocument']);
+
+    // Assessment Observations Routes
+    Route::resource('assessment-observations', App\Http\Controllers\Admin\AssessmentObservationController::class)->parameters(['assessment-observations' => 'assessmentObservation']);
+
+    // Assessment Interviews Routes
+    Route::resource('assessment-interviews', App\Http\Controllers\Admin\AssessmentInterviewController::class)->parameters(['assessment-interviews' => 'assessmentInterview']);
 });

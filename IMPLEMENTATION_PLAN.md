@@ -135,8 +135,6 @@ Form permohonan sertifikasi:
 - File upload support
 - Multi-level review
 
------- SUDAH -------
-
 ### J. APL-02 Portfolio Module (4 tables)
 Portfolio bukti kompetensi:
 - `apl02_units` - Unit kompetensi yang diambil
@@ -149,6 +147,8 @@ Portfolio bukti kompetensi:
 - Assessor scoring system
 - Evidence type classification
 - Status tracking
+
+------ SUDAH -------
 
 ### K. Assessment Module (10 tables)
 Proses asesmen:
