@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             LspTukSeeder::class,
             AssessorSeeder::class,  // Must run before EventSeeder
             SchemeSeeder::class,
+            PaymentMethodSeeder::class,  // Payment methods (Module M)
             EventSeeder::class,
             AssesseeSeeder::class,  // Assessees with documents, employment, education, experience
             Apl02Seeder::class,  // APL-02 Portfolio data

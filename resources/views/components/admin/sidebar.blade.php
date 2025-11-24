@@ -352,6 +352,23 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Pembayaran</p>
+        </div>
+
+        <!-- Payments -->
+        <a href="{{ route('admin.payments.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'payments' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">payments</span>
+            <span class="font-medium">Payments</span>
+        </a>
+
+        <!-- Payment Methods -->
+        <a href="{{ route('admin.payment-methods.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'payment-methods' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">credit_card</span>
+            <span class="font-medium">Payment Methods</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 

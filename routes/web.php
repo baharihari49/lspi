@@ -326,6 +326,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('certificate-renewal/{certificateRenewal}/approve', [App\Http\Controllers\Admin\CertificateRenewalController::class, 'approve'])->name('certificate-renewal.approve');
     Route::post('certificate-renewal/{certificateRenewal}/reject', [App\Http\Controllers\Admin\CertificateRenewalController::class, 'reject'])->name('certificate-renewal.reject');
 
+    // Payment Management Routes (Module M)
+    Route::resource('payments', App\Http\Controllers\Admin\PaymentController::class);
+    Route::post('payments/{payment}/mark-paid', [App\Http\Controllers\Admin\PaymentController::class, 'markAsPaid'])->name('payments.mark-paid');
+    Route::post('payments/{payment}/cancel', [App\Http\Controllers\Admin\PaymentController::class, 'cancel'])->name('payments.cancel');
+    Route::post('payments/{payment}/verify', [App\Http\Controllers\Admin\PaymentController::class, 'verify'])->name('payments.verify');
+
+    // Payment Methods Routes
+    Route::resource('payment-methods', App\Http\Controllers\Admin\PaymentMethodController::class);
+    Route::post('payment-methods/{paymentMethod}/toggle-status', [App\Http\Controllers\Admin\PaymentMethodController::class, 'toggleStatus'])->name('payment-methods.toggle-status');
+
     // Assessment Units Routes
     Route::post('assessment-units/{assessmentUnit}/start', [App\Http\Controllers\Admin\AssessmentUnitController::class, 'start'])->name('assessment-units.start');
     Route::post('assessment-units/{assessmentUnit}/complete', [App\Http\Controllers\Admin\AssessmentUnitController::class, 'complete'])->name('assessment-units.complete');
