@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             AssesseeSeeder::class,  // Assessees with documents, employment, education, experience
             Apl02Seeder::class,  // APL-02 Portfolio data
             AssessmentSeeder::class,  // Assessment Module (Module K)
+            CertificateSeeder::class,  // Certificate Management (Module L)
         ]);
     }
 }

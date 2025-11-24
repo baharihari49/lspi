@@ -329,6 +329,29 @@
 
         <!-- Divider -->
         <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Sertifikasi</p>
+        </div>
+
+        <!-- Certificates -->
+        <a href="{{ route('admin.certificates.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'certificates' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">workspace_premium</span>
+            <span class="font-medium">Certificates</span>
+        </a>
+
+        <!-- Certificate Renewal -->
+        <a href="{{ route('admin.certificate-renewal.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'certificate-renewal' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">autorenew</span>
+            <span class="font-medium">Renewal</span>
+        </a>
+
+        <!-- Certificate Revoke -->
+        <a href="{{ route('admin.certificate-revoke.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'certificate-revoke' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+            <span class="material-symbols-outlined">block</span>
+            <span class="font-medium">Revocation</span>
+        </a>
+
+        <!-- Divider -->
+        <div class="pt-4 pb-2">
             <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
         </div>
 

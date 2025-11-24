@@ -311,6 +311,21 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('result-approval/{resultApproval}/process-decision', [App\Http\Controllers\Admin\ResultApprovalController::class, 'processDecision'])->name('result-approval.process-decision');
     Route::post('result-approval/{resultApproval}/delegate', [App\Http\Controllers\Admin\ResultApprovalController::class, 'delegate'])->name('result-approval.delegate');
 
+    // Certificate Management Routes (Module L)
+    Route::resource('certificates', App\Http\Controllers\Admin\CertificateController::class);
+    Route::get('certificates/{certificate}/download', [App\Http\Controllers\Admin\CertificateController::class, 'download'])->name('certificates.download');
+    Route::get('certificates/{certificate}/generate-qr', [App\Http\Controllers\Admin\CertificateController::class, 'generateQr'])->name('certificates.generate-qr');
+
+    // Certificate Revoke Routes
+    Route::resource('certificate-revoke', App\Http\Controllers\Admin\CertificateRevokeController::class)->parameters(['certificate-revoke' => 'certificateRevoke']);
+    Route::post('certificate-revoke/{certificateRevoke}/approve', [App\Http\Controllers\Admin\CertificateRevokeController::class, 'approve'])->name('certificate-revoke.approve');
+    Route::post('certificate-revoke/{certificateRevoke}/reject', [App\Http\Controllers\Admin\CertificateRevokeController::class, 'reject'])->name('certificate-revoke.reject');
+
+    // Certificate Renewal Routes
+    Route::resource('certificate-renewal', App\Http\Controllers\Admin\CertificateRenewalController::class)->parameters(['certificate-renewal' => 'certificateRenewal']);
+    Route::post('certificate-renewal/{certificateRenewal}/approve', [App\Http\Controllers\Admin\CertificateRenewalController::class, 'approve'])->name('certificate-renewal.approve');
+    Route::post('certificate-renewal/{certificateRenewal}/reject', [App\Http\Controllers\Admin\CertificateRenewalController::class, 'reject'])->name('certificate-renewal.reject');
+
     // Assessment Units Routes
     Route::post('assessment-units/{assessmentUnit}/start', [App\Http\Controllers\Admin\AssessmentUnitController::class, 'start'])->name('assessment-units.start');
     Route::post('assessment-units/{assessmentUnit}/complete', [App\Http\Controllers\Admin\AssessmentUnitController::class, 'complete'])->name('assessment-units.complete');

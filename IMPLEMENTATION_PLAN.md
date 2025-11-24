@@ -148,7 +148,6 @@ Portfolio bukti kompetensi:
 - Evidence type classification
 - Status tracking
 
------- SUDAH -------
 
 ### K. Assessment Module (10 tables)
 Proses asesmen:
@@ -170,6 +169,7 @@ Proses asesmen:
 - Multi-level approval workflow
 - Result revision tracking
 
+
 ### L. Certificate Management Module (5 tables)
 Manajemen sertifikat:
 - `certificates` - Master sertifikat
@@ -184,6 +184,8 @@ Manajemen sertifikat:
 - Expiry management
 - Revocation system
 - Renewal chain tracking
+
+------ SUDAH -------
 
 ### M. Payment Module (4 tables)
 Sistem pembayaran:
