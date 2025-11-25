@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Scheme extends Model
@@ -63,6 +64,24 @@ class Scheme extends Model
     public function formFields(): HasMany
     {
         return $this->hasMany(Apl01FormField::class);
+    }
+
+    /**
+     * Get units through the current version
+     */
+    public function units()
+    {
+        // Get units from the current active version
+        return $this->hasManyThrough(
+            SchemeUnit::class,
+            SchemeVersion::class,
+            'scheme_id', // Foreign key on SchemeVersion table
+            'scheme_version_id', // Foreign key on SchemeUnit table
+            'id', // Local key on Scheme table
+            'id' // Local key on SchemeVersion table
+        )->whereHas('schemeVersion', function ($query) {
+            $query->where('is_current', true);
+        });
     }
 
     // Scopes

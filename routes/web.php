@@ -380,4 +380,45 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Assessment Verification Routes
     Route::resource('assessment-verification', App\Http\Controllers\Admin\AssessmentVerificationController::class)->parameters(['assessment-verification' => 'assessmentVerification']);
+
+    // =====================================================
+    // ASSESSEE SELF-SERVICE ROUTES
+    // =====================================================
+    // Accessible by assessee role, or admin/super-admin for testing/support
+    Route::middleware(['role:assessee,admin,super-admin'])->group(function () {
+        // Available Events (for registration)
+        Route::get('available-events', [App\Http\Controllers\Assessee\EventRegistrationController::class, 'index'])->name('available-events.index');
+        Route::get('available-events/{event}', [App\Http\Controllers\Assessee\EventRegistrationController::class, 'show'])->name('available-events.show');
+        Route::post('available-events/{event}/register', [App\Http\Controllers\Assessee\EventRegistrationController::class, 'register'])->name('available-events.register');
+
+        // My Certificates
+        Route::get('my-certificates', [App\Http\Controllers\Assessee\MyCertificateController::class, 'index'])->name('my-certificates.index');
+        Route::get('my-certificates/{certificate}', [App\Http\Controllers\Assessee\MyCertificateController::class, 'show'])->name('my-certificates.show');
+        Route::get('my-certificates/{certificate}/download', [App\Http\Controllers\Assessee\MyCertificateController::class, 'download'])->name('my-certificates.download');
+
+        // My APL-01
+        Route::get('my-apl01', [App\Http\Controllers\Assessee\MyApl01Controller::class, 'index'])->name('my-apl01.index');
+        Route::get('my-apl01/{apl01}', [App\Http\Controllers\Assessee\MyApl01Controller::class, 'show'])->name('my-apl01.show');
+        Route::get('my-apl01/{apl01}/edit', [App\Http\Controllers\Assessee\MyApl01Controller::class, 'edit'])->name('my-apl01.edit');
+        Route::put('my-apl01/{apl01}', [App\Http\Controllers\Assessee\MyApl01Controller::class, 'update'])->name('my-apl01.update');
+        Route::post('my-apl01/{apl01}/submit', [App\Http\Controllers\Assessee\MyApl01Controller::class, 'submit'])->name('my-apl01.submit');
+
+        // My APL-02
+        Route::get('my-apl02', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'index'])->name('my-apl02.index');
+        Route::get('my-apl02/{unit}', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'show'])->name('my-apl02.show');
+        Route::get('my-apl02/{unit}/upload', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'uploadEvidence'])->name('my-apl02.upload');
+        Route::post('my-apl02/{unit}/upload', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'storeEvidence'])->name('my-apl02.store-evidence');
+        Route::delete('my-apl02/{unit}/evidence/{evidence}', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'deleteEvidence'])->name('my-apl02.delete-evidence');
+        Route::post('my-apl02/{unit}/submit', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'submit'])->name('my-apl02.submit');
+
+        // My Assessments
+        Route::get('my-assessments', [App\Http\Controllers\Assessee\MyAssessmentController::class, 'index'])->name('my-assessments.index');
+        Route::get('my-assessments/{assessment}', [App\Http\Controllers\Assessee\MyAssessmentController::class, 'show'])->name('my-assessments.show');
+
+        // My Payments
+        Route::get('my-payments', [App\Http\Controllers\Assessee\MyPaymentController::class, 'index'])->name('my-payments.index');
+        Route::get('my-payments/{payment}', [App\Http\Controllers\Assessee\MyPaymentController::class, 'show'])->name('my-payments.show');
+        Route::get('my-payments/{payment}/upload-proof', [App\Http\Controllers\Assessee\MyPaymentController::class, 'uploadProof'])->name('my-payments.upload-proof');
+        Route::post('my-payments/{payment}/upload-proof', [App\Http\Controllers\Assessee\MyPaymentController::class, 'storeProof'])->name('my-payments.store-proof');
+    });
 });

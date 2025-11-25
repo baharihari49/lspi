@@ -99,6 +99,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's assessee profile.
+     */
+    public function assessee(): HasOne
+    {
+        return $this->hasOne(Assessee::class);
+    }
+
+    /**
      * Get the user's roles.
      */
     public function roles(): BelongsToMany
