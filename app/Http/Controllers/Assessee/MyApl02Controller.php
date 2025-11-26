@@ -70,7 +70,7 @@ class MyApl02Controller extends Controller
             abort(403, 'Anda tidak memiliki akses ke unit ini.');
         }
 
-        $unit->load(['scheme', 'schemeUnit', 'evidence', 'reviews']);
+        $unit->load(['scheme', 'schemeUnit.elements', 'evidence', 'assessorReviews']);
 
         return view('assessee.my-apl02.show', compact('unit'));
     }
@@ -107,30 +107,55 @@ class MyApl02Controller extends Controller
             abort(403, 'Anda tidak memiliki akses ke unit ini.');
         }
 
+        // Validate common fields
         $validated = $request->validate([
             'evidence_type' => 'required|in:document,certificate,work_sample,project,photo,video,portfolio',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'file' => 'required|file|max:10240', // Max 10MB
         ]);
 
-        // Store file
-        $file = $request->file('file');
-        $path = $file->store('apl02-evidence/' . $assessee->id, 'public');
+        // Check upload mode and validate accordingly
+        $uploadMode = $request->input('upload_mode', 'file');
+        $uploadedCount = 0;
 
-        // Create evidence record
-        $evidence = Apl02Evidence::create([
-            'apl02_unit_id' => $unit->id,
-            'evidence_number' => 'EVD-' . date('Y') . '-' . str_pad(Apl02Evidence::count() + 1, 4, '0', STR_PAD_LEFT),
-            'evidence_type' => $validated['evidence_type'],
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'file_path' => $path,
-            'file_name' => $file->getClientOriginalName(),
-            'file_size' => $file->getSize(),
-            'mime_type' => $file->getMimeType(),
-            'verification_status' => 'pending',
-        ]);
+        if ($uploadMode === 'file' && $request->hasFile('file')) {
+            // Single file upload
+            $request->validate([
+                'file' => 'required|file|max:10240', // Max 10MB
+            ]);
+
+            $file = $request->file('file');
+            $this->storeEvidenceFile($unit, $assessee, $file, $validated);
+            $uploadedCount = 1;
+
+        } elseif (($uploadMode === 'multiple' || $uploadMode === 'folder') && $request->hasFile('files')) {
+            // Multiple files or folder upload
+            $request->validate([
+                'files' => 'required|array',
+                'files.*' => 'file|max:10240', // Max 10MB per file
+            ]);
+
+            $files = $request->file('files');
+            foreach ($files as $index => $file) {
+                // Skip directories (sometimes sent as empty files)
+                if ($file->getSize() === 0 && !$file->getClientOriginalExtension()) {
+                    continue;
+                }
+
+                // For multiple files, append index to title
+                $fileTitle = count($files) > 1
+                    ? $validated['title'] . ' (' . ($index + 1) . ')'
+                    : $validated['title'];
+
+                $fileValidated = array_merge($validated, ['title' => $fileTitle]);
+                $this->storeEvidenceFile($unit, $assessee, $file, $fileValidated);
+                $uploadedCount++;
+            }
+        } else {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Silakan pilih file untuk diupload.');
+        }
 
         // Update unit status if needed
         if ($unit->status === 'not_started') {
@@ -142,8 +167,34 @@ class MyApl02Controller extends Controller
             'total_evidence' => $unit->evidence()->count(),
         ]);
 
+        $message = $uploadedCount === 1
+            ? 'Bukti berhasil diupload.'
+            : "{$uploadedCount} bukti berhasil diupload.";
+
         return redirect()->route('admin.my-apl02.show', $unit)
-            ->with('success', 'Bukti berhasil diupload.');
+            ->with('success', $message);
+    }
+
+    /**
+     * Store a single evidence file.
+     */
+    private function storeEvidenceFile(Apl02Unit $unit, $assessee, $file, array $validated): Apl02Evidence
+    {
+        $path = $file->store('apl02-evidence/' . $assessee->id, 'public');
+
+        return Apl02Evidence::create([
+            'apl02_unit_id' => $unit->id,
+            'assessee_id' => $assessee->id,
+            'evidence_number' => 'EVD-' . date('Y') . '-' . str_pad(Apl02Evidence::count() + 1, 4, '0', STR_PAD_LEFT),
+            'evidence_type' => $validated['evidence_type'],
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'file_path' => $path,
+            'file_name' => $file->getClientOriginalName(),
+            'file_size' => $file->getSize(),
+            'mime_type' => $file->getMimeType(),
+            'verification_status' => 'pending',
+        ]);
     }
 
     /**

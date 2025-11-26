@@ -16,6 +16,7 @@ class Apl02Unit extends Model
         'scheme_id',
         'scheme_unit_id',
         'event_id',
+        'apl01_form_id',
         'unit_code',
         'unit_title',
         'unit_description',
@@ -36,6 +37,7 @@ class Apl02Unit extends Model
         'is_locked',
         'locked_at',
         'metadata',
+        'auto_generated',
     ];
 
     protected $casts = [
@@ -49,6 +51,7 @@ class Apl02Unit extends Model
         'completion_percentage' => 'decimal:2',
         'score' => 'decimal:2',
         'is_locked' => 'boolean',
+        'auto_generated' => 'boolean',
     ];
 
     // Relationships
@@ -70,6 +73,11 @@ class Apl02Unit extends Model
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
+    }
+
+    public function apl01Form(): BelongsTo
+    {
+        return $this->belongsTo(Apl01Form::class, 'apl01_form_id');
     }
 
     public function assessor(): BelongsTo

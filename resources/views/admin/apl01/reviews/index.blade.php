@@ -24,6 +24,52 @@
         </div>
     @endif
 
+    <!-- Pending Submissions Alert -->
+    @if($pendingSubmissions->count() > 0)
+        <div class="mb-6 bg-orange-50 border border-orange-200 rounded-xl p-6">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-2xl">pending_actions</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-orange-900 mb-2">
+                        {{ $pendingSubmissions->count() }} Form Menunggu Diterima
+                    </h3>
+                    <p class="text-sm text-orange-700 mb-4">Form-form berikut sudah disubmit oleh assessee dan menunggu untuk diterima review.</p>
+
+                    <div class="space-y-3">
+                        @foreach($pendingSubmissions as $form)
+                            <div class="flex items-center justify-between bg-white rounded-lg p-4 border border-orange-200">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
+                                        {{ strtoupper(substr($form->assessee->full_name, 0, 2)) }}
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900">{{ $form->form_number }}</p>
+                                        <p class="text-sm text-gray-600">{{ $form->assessee->full_name }} - {{ $form->scheme->name }}</p>
+                                        <p class="text-xs text-gray-500">Submitted: {{ $form->submitted_at?->format('d M Y H:i') ?? '-' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('admin.apl01.show', $form) }}" class="px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition text-sm font-medium">
+                                        View
+                                    </a>
+                                    <form action="{{ route('admin.apl01.accept-review', $form) }}" method="POST" class="inline" onsubmit="return confirm('Terima form ini untuk review?')">
+                                        @csrf
+                                        <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm font-semibold flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-sm">check_circle</span>
+                                            Accept
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between mb-4">

@@ -18,6 +18,7 @@ class Assessment extends Model
         'assessee_id',
         'scheme_id',
         'event_id',
+        'apl01_form_id',
         'lead_assessor_id',
         'assessment_method',
         'assessment_type',
@@ -37,6 +38,7 @@ class Assessment extends Model
         'preparation_notes',
         'special_requirements',
         'metadata',
+        'auto_scheduled',
         'created_by',
         'updated_by',
     ];
@@ -48,6 +50,7 @@ class Assessment extends Model
         'completed_at' => 'datetime',
         'overall_score' => 'decimal:2',
         'metadata' => 'array',
+        'auto_scheduled' => 'boolean',
     ];
 
     // Relationships
@@ -64,6 +67,11 @@ class Assessment extends Model
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
+    }
+
+    public function apl01Form(): BelongsTo
+    {
+        return $this->belongsTo(Apl01Form::class, 'apl01_form_id');
     }
 
     public function leadAssessor(): BelongsTo

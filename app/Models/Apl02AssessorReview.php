@@ -250,7 +250,10 @@ class Apl02AssessorReview extends Model
     public function generateReviewNumber(): string
     {
         $year = date('Y');
-        $lastReview = static::where('review_number', 'like', "REV-APL02-{$year}-%")
+
+        // Include soft deleted records to avoid duplicate numbers
+        $lastReview = static::withTrashed()
+            ->where('review_number', 'like', "REV-APL02-{$year}-%")
             ->orderBy('review_number', 'desc')
             ->first();
 

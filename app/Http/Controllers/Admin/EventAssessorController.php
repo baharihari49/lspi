@@ -46,6 +46,11 @@ class EventAssessorController extends Controller
         $validated['event_id'] = $event->id;
         $validated['invited_at'] = now();
 
+        // Set default payment_status if not provided
+        if (empty($validated['payment_status'])) {
+            $validated['payment_status'] = 'pending';
+        }
+
         EventAssessor::create($validated);
 
         return redirect()

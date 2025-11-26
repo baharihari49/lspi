@@ -325,6 +325,16 @@
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
 
                 <div class="space-y-3">
+                    @if($assessmentResult->approval_status === 'pending')
+                        <form action="{{ route('admin.assessment-results.submit-for-approval', $assessmentResult) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full h-12 px-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-sm">send</span>
+                                Submit for Approval
+                            </button>
+                        </form>
+                    @endif
+
                     @if($assessmentResult->approval_status !== 'approved')
                         <a href="{{ route('admin.assessment-results.edit', $assessmentResult) }}" class="block w-full h-12 px-4 bg-blue-900 text-white font-semibold rounded-lg hover:bg-blue-800 text-center leading-[3rem] transition-all">
                             Edit Result

@@ -273,14 +273,29 @@ class Apl02UnitController extends Controller
         $schemeId = $request->get('scheme_id');
 
         $scheme = Scheme::find($schemeId);
-        if (!$scheme || !$scheme->latestVersion) {
-            return response()->json([]);
+        if (!$scheme) {
+            return response()->json(['success' => false, 'units' => []]);
         }
 
-        $units = SchemeUnit::where('scheme_version_id', $scheme->latestVersion->id)
+        // Get current version (is_current = true)
+        $currentVersion = $scheme->currentVersion()->first();
+
+        if (!$currentVersion) {
+            // Fallback: get latest version by id
+            $currentVersion = $scheme->versions()->latest()->first();
+        }
+
+        if (!$currentVersion) {
+            return response()->json(['success' => false, 'units' => []]);
+        }
+
+        $units = SchemeUnit::where('scheme_version_id', $currentVersion->id)
             ->orderBy('order')
             ->get(['id', 'code', 'title']);
 
-        return response()->json($units);
+        return response()->json([
+            'success' => true,
+            'units' => $units
+        ]);
     }
 }

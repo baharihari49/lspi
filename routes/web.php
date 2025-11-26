@@ -64,6 +64,9 @@ Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
+    // Modules Page (App Launcher)
+    Route::get('/modules', [App\Http\Controllers\Admin\ModulesController::class, 'index'])->name('modules.index');
+
     // Profile Management
     Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
@@ -195,7 +198,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // APL-01 Form Management
     Route::resource('apl01', App\Http\Controllers\Admin\Apl01FormController::class);
     Route::post('apl01/{apl01}/submit', [App\Http\Controllers\Admin\Apl01FormController::class, 'submit'])->name('apl01.submit');
+    Route::post('apl01/{apl01}/accept-review', [App\Http\Controllers\Admin\Apl01FormController::class, 'acceptForReview'])->name('apl01.accept-review');
     Route::post('apl01/{apl01}/declaration', [App\Http\Controllers\Admin\Apl01FormController::class, 'updateDeclaration'])->name('apl01.declaration');
+    Route::post('apl01/{apl01}/generate-apl02', [App\Http\Controllers\Admin\Apl01FormController::class, 'generateApl02'])->name('apl01.generate-apl02');
     Route::post('apl01/autofill', [App\Http\Controllers\Admin\Apl01FormController::class, 'autofill'])->name('apl01.autofill');
 
     // APL-01 Form Fields (Form Builder)
@@ -305,6 +310,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     ])->parameters(['assessment-results' => 'assessmentResult']);
     Route::post('assessment-results/{assessmentResult}/publish', [App\Http\Controllers\Admin\AssessmentResultController::class, 'publish'])->name('assessment-results.publish');
     Route::post('assessment-results/{assessmentResult}/issue-certificate', [App\Http\Controllers\Admin\AssessmentResultController::class, 'issueCertificate'])->name('assessment-results.issue-certificate');
+    Route::post('assessment-results/{assessmentResult}/submit-for-approval', [App\Http\Controllers\Admin\AssessmentResultController::class, 'submitForApproval'])->name('assessment-results.submit-for-approval');
 
     // Result Approval Routes
     Route::resource('result-approval', App\Http\Controllers\Admin\ResultApprovalController::class)->parameters(['result-approval' => 'resultApproval']);
@@ -380,6 +386,25 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Assessment Verification Routes
     Route::resource('assessment-verification', App\Http\Controllers\Admin\AssessmentVerificationController::class)->parameters(['assessment-verification' => 'assessmentVerification']);
+
+    // =====================================================
+    // CERTIFICATION FLOW ROUTES
+    // =====================================================
+    Route::prefix('certification-flow')->name('certification-flow.')->group(function () {
+        // Dashboard - shows all APL-01 with their flow status
+        Route::get('/', [App\Http\Controllers\Admin\CertificationFlowController::class, 'dashboard'])->name('dashboard');
+
+        // Get flow status for a specific APL-01 (JSON API)
+        Route::get('/{apl01}/status', [App\Http\Controllers\Admin\CertificationFlowController::class, 'getFlowStatus'])->name('status');
+
+        // Show flow status page for an APL-01
+        Route::get('/{apl01}', [App\Http\Controllers\Admin\CertificationFlowController::class, 'show'])->name('show');
+
+        // Manual trigger actions
+        Route::post('/{apl01}/generate-apl02', [App\Http\Controllers\Admin\CertificationFlowController::class, 'generateApl02'])->name('generate-apl02');
+        Route::post('/{apl01}/schedule-assessment', [App\Http\Controllers\Admin\CertificationFlowController::class, 'scheduleAssessment'])->name('schedule-assessment');
+        Route::post('/assessment/{assessment}/generate-certificate', [App\Http\Controllers\Admin\CertificationFlowController::class, 'generateCertificate'])->name('generate-certificate');
+    });
 
     // =====================================================
     // ASSESSEE SELF-SERVICE ROUTES

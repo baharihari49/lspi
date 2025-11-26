@@ -55,7 +55,14 @@ class Apl01ReviewController extends Controller
             $q->whereIn('name', ['admin', 'reviewer']);
         })->get();
 
-        return view('admin.apl01.reviews.index', compact('reviews', 'reviewers'));
+        // Get pending submissions (forms with status 'submitted' but no review record)
+        $pendingSubmissions = Apl01Form::with(['assessee', 'scheme', 'event'])
+            ->where('status', 'submitted')
+            ->doesntHave('reviews')
+            ->latest()
+            ->get();
+
+        return view('admin.apl01.reviews.index', compact('reviews', 'reviewers', 'pendingSubmissions'));
     }
 
     /**
@@ -122,7 +129,7 @@ class Apl01ReviewController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('admin.apl01.reviews.review', $review)
+                ->route('admin.apl01-reviews.review', $review)
                 ->with('success', 'Review started.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -275,7 +282,7 @@ class Apl01ReviewController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('admin.apl01.reviews.show', $review)
+                ->route('admin.apl01-reviews.show', $review)
                 ->with('success', 'Review escalated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();

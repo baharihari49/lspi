@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\Apl02AllUnitsCompetent;
 use App\Http\Controllers\Controller;
 use App\Models\Apl02AssessorReview;
 use App\Models\Apl02Unit;
 use App\Models\User;
+use App\Services\AssessmentSchedulerService;
 use Illuminate\Http\Request;
 
 class Apl02AssessorReviewController extends Controller
 {
+    protected AssessmentSchedulerService $schedulerService;
+
+    public function __construct(AssessmentSchedulerService $schedulerService)
+    {
+        $this->schedulerService = $schedulerService;
+    }
     public function index(Request $request)
     {
         $query = Apl02AssessorReview::with(['apl02Unit.assessee', 'assessor']);
@@ -192,6 +200,25 @@ class Apl02AssessorReviewController extends Controller
             'interview_notes' => $request->interview_notes,
             'demonstration_notes' => $request->demonstration_notes,
         ]);
+
+        // Update the APL-02 unit assessment result
+        $unit = $review->apl02Unit;
+        if ($unit && $request->decision === 'competent') {
+            $unit->assessment_result = 'competent';
+            $unit->status = 'competent';
+            $unit->completed_at = now();
+            $unit->save();
+
+            // Check if all units are complete and dispatch event
+            $apl01 = $unit->apl01Form;
+            if ($apl01 && $this->schedulerService->areAllApl02UnitsComplete($apl01)) {
+                event(new Apl02AllUnitsCompetent($apl01, $unit));
+            }
+        } elseif ($unit && $request->decision === 'not_yet_competent') {
+            $unit->assessment_result = 'not_yet_competent';
+            $unit->status = 'not_yet_competent';
+            $unit->save();
+        }
 
         return redirect()
             ->route('admin.apl02.reviews.show', $review)

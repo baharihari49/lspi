@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\AssessmentResultApproved;
 use App\Http\Controllers\Controller;
 use App\Models\ResultApproval;
 use App\Models\AssessmentResult;
@@ -301,6 +302,20 @@ class ResultApprovalController extends Controller
                 'approved_at' => now(),
                 'approved_by' => auth()->id(),
             ]);
+
+            // Update the assessment status to approved and dispatch event if competent
+            $assessment = $assessmentResult->assessment;
+            if ($assessment) {
+                $assessment->status = 'approved';
+                $assessment->overall_result = $assessmentResult->final_result;
+                $assessment->save();
+
+                // If result is competent, dispatch event to generate certificate
+                if ($assessmentResult->final_result === 'competent') {
+                    event(new AssessmentResultApproved($assessment));
+                }
+            }
+
             return;
         }
 

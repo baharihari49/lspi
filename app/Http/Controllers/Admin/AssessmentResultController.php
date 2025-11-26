@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AssessmentResult;
 use App\Models\Assessment;
+use App\Models\ResultApproval;
+use App\Models\Certificate;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AssessmentResultController extends Controller
 {
@@ -299,13 +303,132 @@ class AssessmentResultController extends Controller
                 ->with('error', 'Result harus diapprove terlebih dahulu');
         }
 
+        // Check if certificate already exists
+        if ($assessmentResult->certificate()->exists()) {
+            return redirect()->back()
+                ->with('info', 'Sertifikat sudah diterbitkan sebelumnya');
+        }
+
+        // Load relationships
+        $assessmentResult->load(['assessee', 'scheme', 'assessment']);
+
+        // Generate certificate number
+        $year = date('Y');
+        $lastCert = Certificate::where('certificate_number', 'like', "CERT-{$year}-%")
+            ->orderBy('certificate_number', 'desc')
+            ->first();
+
+        if ($lastCert) {
+            $lastNumber = intval(substr($lastCert->certificate_number, -4));
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $newNumber = '0001';
+        }
+
+        $certificateNumber = "CERT-{$year}-{$newNumber}";
+        $registrationNumber = "REG-{$year}-{$newNumber}";
+
+        // Generate verification URL and QR code
+        $verificationUrl = url("/verify/{$certificateNumber}");
+        $qrCode = Str::random(32);
+
+        // Get unit codes from assessment
+        $unitCodes = [];
+        if ($assessmentResult->unit_results) {
+            foreach ($assessmentResult->unit_results as $unit) {
+                if (isset($unit['unit_code'])) {
+                    $unitCodes[] = $unit['unit_code'];
+                }
+            }
+        }
+
+        // Set validity period (default 3 years)
+        $issueDate = now();
+        $validFrom = $issueDate;
+        $validUntil = $issueDate->copy()->addYears(3);
+
+        // Create certificate record
+        $certificate = Certificate::create([
+            'assessment_result_id' => $assessmentResult->id,
+            'assessee_id' => $assessmentResult->assessee_id,
+            'scheme_id' => $assessmentResult->scheme_id,
+            'issued_by' => auth()->id(),
+            'certificate_number' => $certificateNumber,
+            'registration_number' => $registrationNumber,
+            'qr_code' => $qrCode,
+            'verification_url' => $verificationUrl,
+            'status' => 'active',
+            'holder_name' => $assessmentResult->assessee->full_name ?? '',
+            'holder_id_number' => $assessmentResult->assessee->id_number ?? '',
+            'competency_achieved' => $assessmentResult->final_result,
+            'unit_codes' => $unitCodes,
+            'scheme_name' => $assessmentResult->scheme->name ?? '',
+            'scheme_code' => $assessmentResult->scheme->code ?? '',
+            'scheme_level' => $assessmentResult->certification_level,
+            'issuing_organization' => 'LSP-PIE',
+            'issuing_organization_license' => config('app.lsp_license', 'KEP-XXX/BNSP/XX/XXXX'),
+            'issuing_organization_address' => config('app.lsp_address', 'Jakarta, Indonesia'),
+            'assessment_date' => $assessmentResult->assessment->scheduled_date ?? now(),
+            'issue_date' => $issueDate,
+            'valid_from' => $validFrom,
+            'valid_until' => $validUntil,
+            'validity_period_months' => 36,
+            'is_verified' => true,
+            'is_public' => true,
+            'is_renewable' => true,
+            'auto_generated' => true,
+            'created_by' => auth()->id(),
+        ]);
+
+        // Update assessment result
         $assessmentResult->update([
             'certificate_issued' => true,
             'certificate_issued_at' => now(),
+            'certificate_number' => $certificateNumber,
         ]);
 
-        return redirect()->back()
+        return redirect()->route('admin.certificates.show', $certificate)
             ->with('success', 'Sertifikat berhasil diterbitkan');
+    }
+
+    /**
+     * Submit for approval - creates ResultApproval and redirects to approval page
+     */
+    public function submitForApproval(AssessmentResult $assessmentResult)
+    {
+        // Check if already has pending approval
+        $existingApproval = ResultApproval::where('assessment_result_id', $assessmentResult->id)
+            ->whereIn('status', ['pending', 'in_review'])
+            ->first();
+
+        if ($existingApproval) {
+            return redirect()->route('admin.result-approval.show', $existingApproval)
+                ->with('info', 'Approval sudah ada untuk result ini');
+        }
+
+        // Get an admin/manager as approver
+        $approver = User::whereHas('roles', function($q) {
+            $q->whereIn('slug', ['admin', 'super-admin']);
+        })->first();
+
+        if (!$approver) {
+            $approver = auth()->user();
+        }
+
+        // Create ResultApproval
+        $approval = ResultApproval::create([
+            'assessment_result_id' => $assessmentResult->id,
+            'approver_id' => $approver->id,
+            'approval_level' => 1,
+            'sequence_order' => 1,
+            'approver_role' => 'certification_manager',
+            'status' => 'pending',
+            'assigned_at' => now(),
+            'due_date' => now()->addDays(7),
+        ]);
+
+        return redirect()->route('admin.result-approval.show', $approval)
+            ->with('success', 'Result berhasil disubmit untuk approval');
     }
 
     /**

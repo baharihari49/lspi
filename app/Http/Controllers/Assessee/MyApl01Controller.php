@@ -120,14 +120,52 @@ class MyApl01Controller extends Controller
                 ->with('error', 'Form tidak dapat diedit karena sudah disubmit.');
         }
 
-        // Update form data
+        // Validate form data
         $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'id_number' => 'required|string|max:50',
+            'date_of_birth' => 'nullable|date',
+            'place_of_birth' => 'nullable|string|max:100',
+            'gender' => 'nullable|in:male,female',
+            'nationality' => 'nullable|string|max:100',
+            'email' => 'required|email|max:255',
+            'mobile' => 'required|string|max:20',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+            'city' => 'nullable|string|max:100',
+            'province' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:10',
+            'current_company' => 'nullable|string|max:255',
+            'current_position' => 'nullable|string|max:255',
+            'current_industry' => 'nullable|string|max:255',
             'certification_purpose' => 'nullable|string',
             'target_competency' => 'nullable|string',
-            'self_assessment' => 'nullable|array',
+            'declaration_agreed' => 'nullable|boolean',
         ]);
 
+        // Handle declaration
+        $validated['declaration_agreed'] = $request->has('declaration_agreed');
+        if ($validated['declaration_agreed'] && !$apl01->declaration_signed_at) {
+            $validated['declaration_signed_at'] = now();
+        }
+
         $apl01->update($validated);
+
+        // Check if submit action
+        if ($request->input('action') === 'submit') {
+            if (!$validated['declaration_agreed']) {
+                return redirect()->route('admin.my-apl01.edit', $apl01)
+                    ->with('error', 'Anda harus menyetujui pernyataan untuk submit formulir.');
+            }
+
+            $apl01->update([
+                'status' => 'submitted',
+                'submitted_at' => now(),
+            ]);
+
+            return redirect()->route('admin.my-apl01.show', $apl01)
+                ->with('success', 'Form APL-01 berhasil disubmit untuk review.');
+        }
 
         return redirect()->route('admin.my-apl01.show', $apl01)
             ->with('success', 'Form APL-01 berhasil diperbarui.');

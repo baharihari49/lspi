@@ -54,6 +54,7 @@
                             <label for="full_name" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
                             <input type="text" id="full_name" name="full_name" value="{{ old('full_name') }}" required
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('full_name') border-red-500 @enderror">
+                            <p class="mt-1 text-xs text-gray-500">Nama lengkap sesuai KTP/identitas resmi</p>
                             @error('full_name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -64,6 +65,7 @@
                             <label for="id_number" class="block text-sm font-semibold text-gray-700 mb-2">ID Number (NIK/Passport) *</label>
                             <input type="text" id="id_number" name="id_number" value="{{ old('id_number') }}" required maxlength="20"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('id_number') border-red-500 @enderror">
+                            <p class="mt-1 text-xs text-gray-500">NIK: 16 digit, Passport: max 20 karakter</p>
                             @error('id_number')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -164,8 +166,9 @@
                         <!-- Mobile Phone -->
                         <div>
                             <label for="mobile" class="block text-sm font-semibold text-gray-700 mb-2">Mobile Phone</label>
-                            <input type="text" id="mobile" name="mobile" value="{{ old('mobile') }}"
+                            <input type="text" id="mobile" name="mobile" value="{{ old('mobile') }}" placeholder="08xxxxxxxxxx"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('mobile') border-red-500 @enderror">
+                            <p class="mt-1 text-xs text-gray-500">Format: 08xxxxxxxxxx (10-13 digit)</p>
                             @error('mobile')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -174,8 +177,9 @@
                         <!-- Phone -->
                         <div>
                             <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
-                            <input type="text" id="phone" name="phone" value="{{ old('phone') }}"
+                            <input type="text" id="phone" name="phone" value="{{ old('phone') }}" placeholder="021xxxxxxx"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('phone') border-red-500 @enderror">
+                            <p class="mt-1 text-xs text-gray-500">Nomor telepon rumah/kantor (opsional)</p>
                             @error('phone')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -184,8 +188,9 @@
                         <!-- Email -->
                         <div class="md:col-span-2">
                             <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                            <input type="email" id="email" name="email" value="{{ old('email') }}"
+                            <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="contoh@email.com"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('email') border-red-500 @enderror">
+                            <p class="mt-1 text-xs text-gray-500">Email aktif untuk korespondensi sertifikasi</p>
                             @error('email')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -194,8 +199,9 @@
                         <!-- Address -->
                         <div class="md:col-span-2">
                             <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">Address</label>
-                            <textarea id="address" name="address" rows="3"
+                            <textarea id="address" name="address" rows="3" placeholder="Jalan, No. Rumah, RT/RW, Kelurahan, Kecamatan"
                                 class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('address') border-red-500 @enderror">{{ old('address') }}</textarea>
+                            <p class="mt-1 text-xs text-gray-500">Alamat lengkap sesuai KTP/domisili</p>
                             @error('address')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -224,8 +230,9 @@
                         <!-- Postal Code -->
                         <div>
                             <label for="postal_code" class="block text-sm font-semibold text-gray-700 mb-2">Postal Code</label>
-                            <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code') }}" maxlength="10"
+                            <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code') }}" maxlength="10" placeholder="12345"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('postal_code') border-red-500 @enderror">
+                            <p class="mt-1 text-xs text-gray-500">Kode pos 5 digit</p>
                             @error('postal_code')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -298,8 +305,9 @@
                         <!-- Emergency Contact Phone -->
                         <div class="md:col-span-2">
                             <label for="emergency_contact_phone" class="block text-sm font-semibold text-gray-700 mb-2">Contact Phone</label>
-                            <input type="text" id="emergency_contact_phone" name="emergency_contact_phone" value="{{ old('emergency_contact_phone') }}"
+                            <input type="text" id="emergency_contact_phone" name="emergency_contact_phone" value="{{ old('emergency_contact_phone') }}" placeholder="08xxxxxxxxxx"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('emergency_contact_phone') border-red-500 @enderror">
+                            <p class="mt-1 text-xs text-gray-500">Nomor yang bisa dihubungi dalam keadaan darurat</p>
                             @error('emergency_contact_phone')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -313,8 +321,9 @@
 
                     <div>
                         <label for="bio" class="block text-sm font-semibold text-gray-700 mb-2">Biography</label>
-                        <textarea id="bio" name="bio" rows="4"
+                        <textarea id="bio" name="bio" rows="4" placeholder="Tuliskan latar belakang, pengalaman, dan keahlian Anda..."
                             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('bio') border-red-500 @enderror">{{ old('bio') }}</textarea>
+                        <p class="mt-1 text-xs text-gray-500">Maksimal 1000 karakter (opsional)</p>
                         @error('bio')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror

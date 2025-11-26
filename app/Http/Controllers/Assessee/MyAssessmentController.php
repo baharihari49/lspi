@@ -46,7 +46,7 @@ class MyAssessmentController extends Controller
         }
 
         $assessments = $query->with(['scheme', 'event', 'tuk', 'leadAssessor'])
-            ->orderBy('assessment_date', 'desc')
+            ->orderBy('scheduled_date', 'desc')
             ->paginate(10)
             ->withQueryString();
 
@@ -78,8 +78,8 @@ class MyAssessmentController extends Controller
             'event',
             'tuk',
             'leadAssessor',
-            'units',
-            'result',
+            'assessmentUnits',
+            'results',
         ]);
 
         return view('assessee.my-assessments.show', compact('assessment'));

@@ -52,9 +52,9 @@
                 <div>
                     <h3 class="text-xl font-bold text-yellow-800">Asesmen Terjadwal</h3>
                     <p class="text-yellow-700 mt-1">
-                        Jadwal asesmen: <strong>{{ $assessment->assessment_date?->format('d F Y') }}</strong>
-                        @if($assessment->start_time)
-                            pukul <strong>{{ $assessment->start_time }}</strong>
+                        Jadwal asesmen: <strong>{{ $assessment->scheduled_date?->format('d F Y') }}</strong>
+                        @if($assessment->scheduled_time)
+                            pukul <strong>{{ $assessment->scheduled_time->format('H:i') }}</strong>
                         @endif
                     </p>
                 </div>
@@ -114,11 +114,11 @@
             </div>
 
             <!-- Unit Results -->
-            @if($assessment->units && $assessment->units->count() > 0)
+            @if($assessment->assessmentUnits && $assessment->assessmentUnits->count() > 0)
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h2 class="text-lg font-bold text-gray-900 mb-4">Hasil Per Unit Kompetensi</h2>
                     <div class="space-y-3">
-                        @foreach($assessment->units as $unit)
+                        @foreach($assessment->assessmentUnits as $unit)
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                 <div>
                                     <p class="font-mono text-sm text-gray-600">{{ $unit->unit_code }}</p>
@@ -141,31 +141,32 @@
             @endif
 
             <!-- Result Details -->
-            @if($assessment->result)
+            @if($assessment->results->first())
+                @php $result = $assessment->results->first(); @endphp
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h2 class="text-lg font-bold text-gray-900 mb-4">Ringkasan Hasil</h2>
                     <div class="space-y-4">
-                        @if($assessment->result->executive_summary)
+                        @if($result->executive_summary)
                             <div>
                                 <p class="text-sm text-gray-600">Ringkasan</p>
-                                <p class="text-gray-700">{{ $assessment->result->executive_summary }}</p>
+                                <p class="text-gray-700">{{ $result->executive_summary }}</p>
                             </div>
                         @endif
-                        @if($assessment->result->key_strengths)
+                        @if($result->key_strengths)
                             <div>
                                 <p class="text-sm text-gray-600 mb-2">Kekuatan</p>
                                 <ul class="list-disc list-inside text-gray-700 space-y-1">
-                                    @foreach($assessment->result->key_strengths as $strength)
+                                    @foreach($result->key_strengths as $strength)
                                         <li>{{ $strength }}</li>
                                     @endforeach
                                 </ul>
                             </div>
                         @endif
-                        @if($assessment->result->development_areas)
+                        @if($result->development_areas)
                             <div>
                                 <p class="text-sm text-gray-600 mb-2">Area Pengembangan</p>
                                 <ul class="list-disc list-inside text-gray-700 space-y-1">
-                                    @foreach($assessment->result->development_areas as $area)
+                                    @foreach($result->development_areas as $area)
                                         <li>{{ $area }}</li>
                                     @endforeach
                                 </ul>
@@ -186,14 +187,14 @@
                         <span class="material-symbols-outlined text-gray-400">calendar_today</span>
                         <div>
                             <p class="text-sm text-gray-600">Tanggal</p>
-                            <p class="font-medium text-gray-900">{{ $assessment->assessment_date?->format('d F Y') ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $assessment->scheduled_date?->format('d F Y') ?? '-' }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-gray-400">schedule</span>
                         <div>
                             <p class="text-sm text-gray-600">Waktu</p>
-                            <p class="font-medium text-gray-900">{{ $assessment->start_time ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $assessment->scheduled_time?->format('H:i') ?? '-' }}</p>
                         </div>
                     </div>
                 </div>

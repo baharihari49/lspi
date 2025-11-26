@@ -155,6 +155,14 @@
                                     <a href="{{ route('admin.apl01.show', $form) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View">
                                         <span class="material-symbols-outlined text-xl">visibility</span>
                                     </a>
+                                    @if($form->status === 'submitted')
+                                        <form action="{{ route('admin.apl01.accept-review', $form) }}" method="POST" class="inline" onsubmit="return confirm('Terima form ini untuk review?')">
+                                            @csrf
+                                            <button type="submit" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Accept for Review">
+                                                <span class="material-symbols-outlined text-xl">check_circle</span>
+                                            </button>
+                                        </form>
+                                    @endif
                                     @if($form->is_editable)
                                         <a href="{{ route('admin.apl01.edit', $form) }}" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Edit">
                                             <span class="material-symbols-outlined text-xl">edit</span>

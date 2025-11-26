@@ -78,6 +78,11 @@ class ResultApproval extends Model
         return $this->belongsTo(User::class, 'delegated_to');
     }
 
+    public function delegatedTo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'delegated_to');
+    }
+
     // Scopes
     public function scopeApproved($query)
     {

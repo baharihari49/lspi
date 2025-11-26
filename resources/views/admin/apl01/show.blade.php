@@ -345,6 +345,31 @@
                         </form>
                     @endif
 
+                    @if($apl01->status === 'submitted')
+                        <form action="{{ route('admin.apl01.accept-review', $apl01) }}" method="POST" onsubmit="return confirm('Terima form ini untuk review?')">
+                            @csrf
+                            <button type="submit" class="w-full h-12 px-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">check_circle</span>
+                                Accept for Review
+                            </button>
+                        </form>
+                    @endif
+
+                    @if($apl01->status === 'approved' && !$apl01->apl02_generated_at)
+                        <form action="{{ route('admin.apl01.generate-apl02', $apl01) }}" method="POST" onsubmit="return confirm('Generate APL-02 untuk form ini?')">
+                            @csrf
+                            <button type="submit" class="w-full h-12 px-4 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">auto_fix_high</span>
+                                Generate APL-02
+                            </button>
+                        </form>
+                    @elseif($apl01->apl02_generated_at)
+                        <div class="w-full h-12 px-4 bg-purple-100 text-purple-700 font-semibold rounded-lg flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            APL-02 Generated
+                        </div>
+                    @endif
+
                     <a href="{{ route('admin.apl01.index') }}" class="block w-full h-12 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 text-center leading-[3rem] transition-all">
                         Back to List
                     </a>
@@ -407,8 +432,50 @@
                         <span class="text-sm text-gray-600">Answers</span>
                         <span class="font-bold text-gray-900">{{ $apl01->answers->count() }}</span>
                     </div>
+                    @if($apl01->apl02_generated_at)
+                        <div class="flex items-center justify-between pt-3 border-t border-gray-200">
+                            <span class="text-sm text-gray-600">APL-02 Units</span>
+                            <span class="font-bold text-purple-600">{{ $apl01->apl02Units->count() }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
+
+            <!-- APL-02 Status -->
+            @if($apl01->status === 'approved')
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Certification Flow</h3>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            @if($apl01->apl02_generated_at)
+                                <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-sm">check</span>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900">APL-02 Generated</p>
+                                    <p class="text-xs text-gray-500">{{ $apl01->apl02_generated_at->format('d M Y H:i') }}</p>
+                                </div>
+                            @else
+                                <div class="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-sm">pending</span>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900">APL-02 Pending</p>
+                                    <p class="text-xs text-gray-500">Klik "Generate APL-02" untuk membuat</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        @if($apl01->apl02_generated_at)
+                            <a href="{{ route('admin.apl02.units.index', ['apl01_form_id' => $apl01->id]) }}"
+                               class="block w-full text-center px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition text-sm font-medium">
+                                Lihat Unit APL-02 →
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 @endsection

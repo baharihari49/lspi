@@ -81,10 +81,15 @@ class AssesseeController extends Controller
             'emergency_contact_phone' => 'nullable|string|max:255',
             'bio' => 'nullable|string',
             'photo' => 'nullable|image|max:2048',
-            'verification_status' => 'required|in:pending,verified,rejected,suspended',
+            'verification_status' => 'nullable|in:pending,verified,rejected,suspended',
             'status_id' => 'nullable|exists:master_statuses,id',
             'is_active' => 'boolean',
         ]);
+
+        // Set default verification_status if not provided
+        if (empty($validated['verification_status'])) {
+            $validated['verification_status'] = 'pending';
+        }
 
         // Handle photo upload
         if ($request->hasFile('photo')) {

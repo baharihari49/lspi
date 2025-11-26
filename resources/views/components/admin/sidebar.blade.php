@@ -1,7 +1,27 @@
-@props(['active' => 'dashboard'])
-
 @php
     $user = Auth::user();
+    $currentRoute = Route::currentRouteName();
+
+    // Helper function to check if menu item is active based on current route
+    function isMenuItemActive($item, $currentRoute) {
+        // Direct route match
+        if ($currentRoute === $item['route']) {
+            return true;
+        }
+
+        // Prefix match - remove .index suffix and check if current route starts with it
+        $routePrefix = preg_replace('/\.(index|my-reviews)$/', '', $item['route']);
+        if (str_starts_with($currentRoute, $routePrefix . '.')) {
+            return true;
+        }
+
+        // Exact prefix match (for routes without .index suffix)
+        if (str_starts_with($currentRoute, $routePrefix) && $currentRoute !== $routePrefix) {
+            return true;
+        }
+
+        return false;
+    }
 
     // Define menu structure with roles/permissions
     $menuGroups = [
@@ -14,6 +34,13 @@
                     'label' => 'Dashboard',
                     'active' => 'dashboard',
                     'roles' => ['super-admin', 'admin', 'assessor', 'assessee', 'tuk-admin'],
+                ],
+                [
+                    'route' => 'admin.modules.index',
+                    'icon' => 'apps',
+                    'label' => 'Modules',
+                    'active' => 'modules',
+                    'roles' => ['super-admin', 'admin'],
                 ],
             ],
         ],
@@ -432,6 +459,20 @@
             ],
         ],
 
+        // Certification Flow - Admin
+        [
+            'title' => 'Certification Flow',
+            'roles' => ['super-admin', 'admin'],
+            'items' => [
+                [
+                    'route' => 'admin.certification-flow.dashboard',
+                    'icon' => 'conversion_path',
+                    'label' => 'Flow Dashboard',
+                    'active' => 'certification-flow',
+                ],
+            ],
+        ],
+
         // Sertifikasi - Admin
         [
             'title' => 'Sertifikasi',
@@ -575,7 +616,9 @@
                     {{-- Menu Items --}}
                     @foreach($visibleItems as $item)
                         @if(Route::has($item['route']))
-                            <a href="{{ route($item['route']) }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === $item['active'] ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+                            <a href="{{ route($item['route']) }}"
+                               @if(isMenuItemActive($item, $currentRoute)) id="active-menu" @endif
+                               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ isMenuItemActive($item, $currentRoute) ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
                                 <span class="material-symbols-outlined">{{ $item['icon'] }}</span>
                                 <span class="font-medium">{{ $item['label'] }}</span>
                             </a>
@@ -591,7 +634,7 @@
         </div>
 
         <!-- Profile -->
-        <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $active === 'profile' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+        <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $currentRoute === 'admin.profile.edit' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
             <span class="material-symbols-outlined">settings</span>
             <span class="font-medium">Pengaturan Profil</span>
         </a>
@@ -631,3 +674,24 @@
         </div>
     </div>
 </aside>
+
+<script>
+    // Auto-scroll sidebar to active menu on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const activeMenu = document.getElementById('active-menu');
+        const sidebarNav = document.querySelector('.sidebar-nav');
+
+        if (activeMenu && sidebarNav) {
+            // Calculate position to center the active menu in viewport
+            const menuRect = activeMenu.getBoundingClientRect();
+            const navRect = sidebarNav.getBoundingClientRect();
+            const scrollTop = activeMenu.offsetTop - (sidebarNav.clientHeight / 2) + (activeMenu.clientHeight / 2);
+
+            // Smooth scroll to active menu
+            sidebarNav.scrollTo({
+                top: Math.max(0, scrollTop),
+                behavior: 'instant'
+            });
+        }
+    });
+</script>

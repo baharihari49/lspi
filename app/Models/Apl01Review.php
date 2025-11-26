@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\Apl01Approved;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -201,6 +202,9 @@ class Apl01Review extends Model
             $this->form->completed_at = now();
             $this->form->completed_by = $userId ?? auth()->id();
             $this->form->save();
+
+            // Dispatch event to trigger APL-02 generation
+            event(new Apl01Approved($this->form));
         } else {
             // Create next review level
             $this->form->reviews()->create([

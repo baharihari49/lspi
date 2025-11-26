@@ -10,6 +10,20 @@
 @section('page_description', 'Review and process assessment result approval')
 
 @section('content')
+    @if(session('success'))
+        <div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3">
+            <span class="material-symbols-outlined text-green-600">check_circle</span>
+            <p class="text-green-800 font-medium">{{ session('success') }}</p>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+            <span class="material-symbols-outlined text-red-600">error</span>
+            <p class="text-red-800 font-medium">{{ session('error') }}</p>
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Left Column: Main Content -->
         <div class="lg:col-span-2 space-y-6">
@@ -304,6 +318,29 @@
 
                 <div class="space-y-3">
                     @if(in_array($resultApproval->status, ['pending', 'in_review']))
+                        <!-- Approve Button -->
+                        <button type="button" onclick="openDecisionModal('approve')"
+                            class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
+                            <span class="material-symbols-outlined text-sm">check_circle</span>
+                            <span>Approve</span>
+                        </button>
+
+                        <!-- Reject Button -->
+                        <button type="button" onclick="openDecisionModal('reject')"
+                            class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">
+                            <span class="material-symbols-outlined text-sm">cancel</span>
+                            <span>Reject</span>
+                        </button>
+
+                        <!-- Request Revision Button -->
+                        <button type="button" onclick="openDecisionModal('request_revision')"
+                            class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium">
+                            <span class="material-symbols-outlined text-sm">edit_note</span>
+                            <span>Request Revision</span>
+                        </button>
+
+                        <hr class="border-gray-200">
+
                         <a href="{{ route('admin.result-approval.edit', $resultApproval) }}"
                             class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition font-medium">
                             <span class="material-symbols-outlined text-sm">edit</span>
@@ -397,4 +434,152 @@
             @endif
         </div>
     </div>
+
+    <!-- Decision Modal -->
+    @if(in_array($resultApproval->status, ['pending', 'in_review']))
+        <div id="decisionModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <!-- Background overlay -->
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-40" onclick="closeDecisionModal()"></div>
+
+                <!-- Modal panel -->
+                <div class="relative z-50 inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    <form id="decisionForm" action="{{ route('admin.result-approval.process-decision', $resultApproval) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="decision" id="decisionInput">
+
+                        <div class="bg-white px-6 pt-6 pb-4">
+                            <!-- Modal Header -->
+                            <div class="flex items-center gap-3 mb-6">
+                                <div id="modalIconApprove" class="hidden w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-green-600 text-2xl">check_circle</span>
+                                </div>
+                                <div id="modalIconReject" class="hidden w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-red-600 text-2xl">cancel</span>
+                                </div>
+                                <div id="modalIconRevision" class="hidden w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-orange-600 text-2xl">edit_note</span>
+                                </div>
+                                <div>
+                                    <h3 id="modalTitle" class="text-lg font-bold text-gray-900"></h3>
+                                    <p id="modalSubtitle" class="text-sm text-gray-600"></p>
+                                </div>
+                            </div>
+
+                            <!-- Form Fields -->
+                            <div class="space-y-4">
+                                <!-- Comments (Required) -->
+                                <div>
+                                    <label for="comments" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Comments <span class="text-red-500">*</span>
+                                    </label>
+                                    <textarea id="comments" name="comments" rows="4" required
+                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                        placeholder="Berikan komentar atau alasan untuk keputusan ini..."></textarea>
+                                </div>
+
+                                <!-- Recommendations (Optional) -->
+                                <div>
+                                    <label for="recommendations" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Recommendations
+                                    </label>
+                                    <textarea id="recommendations" name="recommendations" rows="3"
+                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                        placeholder="Rekomendasi untuk tindak lanjut (opsional)..."></textarea>
+                                </div>
+
+                                <!-- Conditions (for Approve with conditions) -->
+                                <div id="conditionsField" class="hidden">
+                                    <label for="conditions" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Conditions
+                                    </label>
+                                    <textarea id="conditions" name="conditions" rows="2"
+                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                        placeholder="Syarat/kondisi yang harus dipenuhi (opsional)..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div class="bg-gray-50 px-6 py-4 flex flex-col sm:flex-row-reverse gap-3">
+                            <button type="submit" id="submitBtn"
+                                class="w-full sm:w-auto px-6 py-2.5 rounded-lg font-semibold transition">
+                                Confirm
+                            </button>
+                            <button type="button" onclick="closeDecisionModal()"
+                                class="w-full sm:w-auto px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <script>
+        function openDecisionModal(decision) {
+            const modal = document.getElementById('decisionModal');
+            const decisionInput = document.getElementById('decisionInput');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const submitBtn = document.getElementById('submitBtn');
+            const conditionsField = document.getElementById('conditionsField');
+
+            // Hide all icons first
+            document.getElementById('modalIconApprove').classList.add('hidden');
+            document.getElementById('modalIconReject').classList.add('hidden');
+            document.getElementById('modalIconRevision').classList.add('hidden');
+
+            // Reset button classes
+            submitBtn.className = 'w-full sm:w-auto px-6 py-2.5 rounded-lg font-semibold transition';
+
+            decisionInput.value = decision;
+
+            if (decision === 'approve') {
+                document.getElementById('modalIconApprove').classList.remove('hidden');
+                document.getElementById('modalIconApprove').classList.add('flex');
+                modalTitle.textContent = 'Approve Result';
+                modalSubtitle.textContent = 'Setujui hasil asesmen ini';
+                submitBtn.textContent = 'Approve';
+                submitBtn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-700');
+                conditionsField.classList.remove('hidden');
+            } else if (decision === 'reject') {
+                document.getElementById('modalIconReject').classList.remove('hidden');
+                document.getElementById('modalIconReject').classList.add('flex');
+                modalTitle.textContent = 'Reject Result';
+                modalSubtitle.textContent = 'Tolak hasil asesmen ini';
+                submitBtn.textContent = 'Reject';
+                submitBtn.classList.add('bg-red-600', 'text-white', 'hover:bg-red-700');
+                conditionsField.classList.add('hidden');
+            } else if (decision === 'request_revision') {
+                document.getElementById('modalIconRevision').classList.remove('hidden');
+                document.getElementById('modalIconRevision').classList.add('flex');
+                modalTitle.textContent = 'Request Revision';
+                modalSubtitle.textContent = 'Minta revisi hasil asesmen';
+                submitBtn.textContent = 'Request Revision';
+                submitBtn.classList.add('bg-orange-500', 'text-white', 'hover:bg-orange-600');
+                conditionsField.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDecisionModal() {
+            const modal = document.getElementById('decisionModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+
+            // Reset form
+            document.getElementById('decisionForm').reset();
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDecisionModal();
+            }
+        });
+    </script>
 @endsection

@@ -14,6 +14,10 @@
         @csrf
         @method('PUT')
 
+        <!-- Hidden fields for unit_code and unit_title (required by controller) -->
+        <input type="hidden" name="unit_code" value="{{ $unit->unit_code }}">
+        <input type="hidden" name="unit_title" value="{{ $unit->unit_title }}">
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Left Column: Main Info -->
             <div class="lg:col-span-2 space-y-6">
@@ -59,7 +63,7 @@
                         <!-- Scheme Unit -->
                         <div>
                             <label for="scheme_unit_id" class="block text-sm font-semibold text-gray-700 mb-2">Competency Unit *</label>
-                            <select id="scheme_unit_id" name="scheme_unit_id" required
+                            <select id="scheme_unit_id" name="scheme_unit_id"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('scheme_unit_id') border-red-500 @enderror">
                                 <option value="">Select Scheme First</option>
                                 @if($schemeUnits)

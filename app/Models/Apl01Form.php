@@ -50,6 +50,10 @@ class Apl01Form extends Model
         'admin_notes',
         'rejection_reason',
         'is_active',
+        'flow_status',
+        'apl02_generated_at',
+        'assessment_scheduled_at',
+        'certificate_issued_at',
         'created_by',
         'updated_by',
     ];
@@ -65,6 +69,9 @@ class Apl01Form extends Model
         'completed_at' => 'datetime',
         'is_active' => 'boolean',
         'current_review_level' => 'integer',
+        'apl02_generated_at' => 'datetime',
+        'assessment_scheduled_at' => 'datetime',
+        'certificate_issued_at' => 'datetime',
     ];
 
     // Relationships
@@ -116,6 +123,16 @@ class Apl01Form extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Apl01Review::class);
+    }
+
+    public function apl02Units(): HasMany
+    {
+        return $this->hasMany(Apl02Unit::class, 'apl01_form_id');
+    }
+
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class, 'apl01_form_id');
     }
 
     // Scopes
@@ -290,14 +307,20 @@ class Apl01Form extends Model
         $this->save();
 
         // Create initial review record
+        // Get default reviewer: scheme's default, or find an admin user, or fallback to user ID 2
+        $defaultReviewerId = $this->scheme->default_reviewer_id
+            ?? \App\Models\User::whereHas('roles', fn($q) => $q->whereIn('name', ['super-admin', 'admin']))->first()?->id
+            ?? 2;
+
         $this->reviews()->create([
             'review_level' => 1,
             'review_level_name' => 'Initial Review',
-            'reviewer_id' => $this->scheme->default_reviewer_id ?? 1, // Need to add this to schemes table
+            'reviewer_id' => $defaultReviewerId,
             'decision' => 'pending',
             'assigned_at' => now(),
             'is_current' => true,
-            'created_by' => $userId ?? auth()->id(),
+            'is_final' => true,
+            'created_by' => $userId ?? auth()->id() ?? $defaultReviewerId,
         ]);
 
         $this->current_review_level = 1;
@@ -305,5 +328,81 @@ class Apl01Form extends Model
         $this->save();
 
         return $this;
+    }
+
+    /**
+     * Accept submitted form for review (creates review record and changes status to under_review)
+     */
+    public function acceptForReview($reviewerId = null)
+    {
+        if ($this->status !== 'submitted') {
+            throw new \Exception('Form must be in submitted status to be accepted for review.');
+        }
+
+        $reviewerId = $reviewerId
+            ?? $this->scheme->default_reviewer_id
+            ?? \App\Models\User::whereHas('roles', fn($q) => $q->whereIn('name', ['super-admin', 'admin']))->first()?->id
+            ?? auth()->id();
+
+        $this->reviews()->create([
+            'review_level' => 1,
+            'review_level_name' => 'Initial Review',
+            'reviewer_id' => $reviewerId,
+            'decision' => 'pending',
+            'assigned_at' => now(),
+            'is_current' => true,
+            'is_final' => true,
+            'created_by' => auth()->id() ?? $reviewerId,
+        ]);
+
+        $this->status = 'under_review';
+        $this->current_review_level = 1;
+        $this->current_reviewer_id = $reviewerId;
+        $this->save();
+
+        return $this;
+    }
+
+    // Flow Status Methods
+    public function updateFlowStatus(string $status): void
+    {
+        $timestampField = match($status) {
+            'apl02_generated' => 'apl02_generated_at',
+            'assessment_scheduled' => 'assessment_scheduled_at',
+            'certificate_issued' => 'certificate_issued_at',
+            default => null,
+        };
+
+        $this->flow_status = $status;
+        if ($timestampField) {
+            $this->{$timestampField} = now();
+        }
+        $this->save();
+    }
+
+    public function getFlowProgressAttribute(): array
+    {
+        return [
+            'apl01_approved' => $this->status === 'approved',
+            'apl02_generated' => $this->apl02_generated_at !== null,
+            'apl02_completed' => in_array($this->flow_status, ['apl02_completed', 'assessment_scheduled', 'assessment_completed', 'certificate_issued']),
+            'assessment_scheduled' => $this->assessment_scheduled_at !== null,
+            'assessment_completed' => in_array($this->flow_status, ['assessment_completed', 'certificate_issued']),
+            'certificate_issued' => $this->certificate_issued_at !== null,
+        ];
+    }
+
+    public function getFlowStatusLabelAttribute(): string
+    {
+        $labels = [
+            'pending' => 'Menunggu',
+            'apl02_generated' => 'APL-02 Dibuat',
+            'apl02_completed' => 'APL-02 Selesai',
+            'assessment_scheduled' => 'Asesmen Terjadwal',
+            'assessment_completed' => 'Asesmen Selesai',
+            'certificate_issued' => 'Sertifikat Terbit',
+        ];
+
+        return $labels[$this->flow_status] ?? ucfirst($this->flow_status);
     }
 }

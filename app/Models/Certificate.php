@@ -52,6 +52,7 @@ class Certificate extends Model
         'renewed_from_certificate_id',
         'renewed_by_certificate_id',
         'is_renewable',
+        'auto_generated',
         'renewal_notification_sent_at',
         'revoked_at',
         'revoked_by',
@@ -78,6 +79,7 @@ class Certificate extends Model
         'is_verified' => 'boolean',
         'is_public' => 'boolean',
         'is_renewable' => 'boolean',
+        'auto_generated' => 'boolean',
     ];
 
     // Relationships

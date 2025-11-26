@@ -7,6 +7,7 @@ use App\Models\Apl01Form;
 use App\Models\Assessee;
 use App\Models\Scheme;
 use App\Models\Event;
+use App\Services\CertificationFlowService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -157,6 +158,7 @@ class Apl01FormController extends Controller
             'answers.formField',
             'reviews.reviewer',
             'currentReviewer',
+            'apl02Units',
         ]);
 
         return view('admin.apl01.show', compact('apl01'));
@@ -326,6 +328,49 @@ class Apl01FormController extends Controller
             DB::rollBack();
             return back()->with('error', 'Failed to submit form: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Accept submitted form for review
+     */
+    public function acceptForReview(Apl01Form $apl01)
+    {
+        if ($apl01->status !== 'submitted') {
+            return back()->with('error', 'Form harus dalam status submitted untuk diterima review.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $apl01->acceptForReview(auth()->id());
+            DB::commit();
+
+            return back()->with('success', 'Form berhasil diterima untuk review.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menerima form: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generate APL-02 units manually
+     */
+    public function generateApl02(Apl01Form $apl01, CertificationFlowService $flowService)
+    {
+        if ($apl01->status !== 'approved') {
+            return back()->with('error', 'APL-01 harus disetujui terlebih dahulu sebelum membuat APL-02.');
+        }
+
+        if ($apl01->apl02_generated_at) {
+            return back()->with('warning', 'APL-02 sudah dibuat sebelumnya pada ' . $apl01->apl02_generated_at->format('d M Y H:i'));
+        }
+
+        $result = $flowService->triggerApl02Generation($apl01);
+
+        if ($result['success']) {
+            return back()->with('success', $result['message']);
+        }
+
+        return back()->with('error', $result['message']);
     }
 
     /**
