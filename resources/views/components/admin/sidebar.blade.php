@@ -4,587 +4,202 @@
 
     // Helper function to check if menu item is active based on current route
     function isMenuItemActive($item, $currentRoute) {
-        // Direct route match
         if ($currentRoute === $item['route']) {
             return true;
         }
-
-        // Prefix match - remove .index suffix and check if current route starts with it
         $routePrefix = preg_replace('/\.(index|my-reviews)$/', '', $item['route']);
         if (str_starts_with($currentRoute, $routePrefix . '.')) {
             return true;
         }
-
-        // Exact prefix match (for routes without .index suffix)
         if (str_starts_with($currentRoute, $routePrefix) && $currentRoute !== $routePrefix) {
             return true;
         }
-
         return false;
     }
 
-    // Define menu structure with roles/permissions
+    // Check if any child in group is active
+    function isGroupActive($items, $currentRoute) {
+        foreach ($items as $item) {
+            if (isMenuItemActive($item, $currentRoute)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Simplified menu structure - Collapsed groups
     $menuGroups = [
-        // Dashboard - visible to all
+        // Dashboard & Modules - visible to all
         [
             'items' => [
                 [
                     'route' => 'admin.dashboard',
                     'icon' => 'dashboard',
                     'label' => 'Dashboard',
-                    'active' => 'dashboard',
                     'roles' => ['super-admin', 'admin', 'assessor', 'assessee', 'tuk-admin'],
                 ],
                 [
                     'route' => 'admin.modules.index',
                     'icon' => 'apps',
                     'label' => 'Modules',
-                    'active' => 'modules',
                     'roles' => ['super-admin', 'admin'],
                 ],
             ],
         ],
 
-        // Konten - Admin only
-        [
-            'title' => 'Konten',
-            'roles' => ['super-admin', 'admin'],
-            'items' => [
-                [
-                    'route' => 'admin.news.index',
-                    'icon' => 'article',
-                    'label' => 'Berita & Artikel',
-                    'active' => 'news',
-                    'permission' => 'news.view',
-                ],
-                [
-                    'route' => 'admin.announcements.index',
-                    'icon' => 'campaign',
-                    'label' => 'Pengumuman',
-                    'active' => 'announcements',
-                    'permission' => 'news.view',
-                ],
-                [
-                    'route' => 'admin.organizational-structure.index',
-                    'icon' => 'account_tree',
-                    'label' => 'Struktur Organisasi',
-                    'active' => 'organizational-structure',
-                    'permission' => 'news.view',
-                ],
-            ],
-        ],
-
-        // Master Data - Super Admin only
-        [
-            'title' => 'Master Data',
-            'roles' => ['super-admin'],
-            'items' => [
-                [
-                    'route' => 'admin.master-roles.index',
-                    'icon' => 'shield',
-                    'label' => 'Roles & Permissions',
-                    'active' => 'master-roles',
-                    'permission' => 'roles.manage',
-                ],
-                [
-                    'route' => 'admin.master-statuses.index',
-                    'icon' => 'toggle_on',
-                    'label' => 'Statuses',
-                    'active' => 'master-statuses',
-                    'permission' => 'roles.manage',
-                ],
-                [
-                    'route' => 'admin.master-methods.index',
-                    'icon' => 'category',
-                    'label' => 'Methods',
-                    'active' => 'master-methods',
-                    'permission' => 'roles.manage',
-                ],
-                [
-                    'route' => 'admin.master-document-types.index',
-                    'icon' => 'description',
-                    'label' => 'Document Types',
-                    'active' => 'master-document-types',
-                    'permission' => 'roles.manage',
-                ],
-            ],
-        ],
-
-        // Users - Admin only
-        [
-            'title' => 'Users',
-            'roles' => ['super-admin', 'admin'],
-            'items' => [
-                [
-                    'route' => 'admin.users.index',
-                    'icon' => 'people',
-                    'label' => 'User Management',
-                    'active' => 'users',
-                    'permission' => 'users.view',
-                ],
-            ],
-        ],
-
-        // LSP Configuration - Admin only
-        [
-            'title' => 'LSP Configuration',
-            'roles' => ['super-admin', 'admin'],
-            'items' => [
-                [
-                    'route' => 'admin.lsp-profiles.index',
-                    'icon' => 'corporate_fare',
-                    'label' => 'LSP Profiles',
-                    'active' => 'lsp-profiles',
-                ],
-                [
-                    'route' => 'admin.org-settings.index',
-                    'icon' => 'settings',
-                    'label' => 'Organization Settings',
-                    'active' => 'org-settings',
-                ],
-            ],
-        ],
-
-        // TUK Management - Admin & TUK Admin
-        [
-            'title' => 'TUK Management',
-            'roles' => ['super-admin', 'admin', 'tuk-admin'],
-            'items' => [
-                [
-                    'route' => 'admin.tuk.index',
-                    'icon' => 'location_city',
-                    'label' => 'TUK',
-                    'active' => 'tuk',
-                    'permission' => 'tuk.view',
-                ],
-                [
-                    'route' => 'admin.tuk-facilities.index',
-                    'icon' => 'inventory_2',
-                    'label' => 'TUK Facilities',
-                    'active' => 'tuk-facilities',
-                    'permission' => 'tuk.view',
-                ],
-                [
-                    'route' => 'admin.tuk-documents.index',
-                    'icon' => 'folder',
-                    'label' => 'TUK Documents',
-                    'active' => 'tuk-documents',
-                    'permission' => 'tuk.view',
-                ],
-                [
-                    'route' => 'admin.tuk-schedules.index',
-                    'icon' => 'calendar_month',
-                    'label' => 'TUK Schedules',
-                    'active' => 'tuk-schedules',
-                    'permission' => 'tuk.view',
-                ],
-            ],
-        ],
-
-        // Assessor Management - Admin only
-        [
-            'title' => 'Assessor Management',
-            'roles' => ['super-admin', 'admin'],
-            'items' => [
-                [
-                    'route' => 'admin.assessors.index',
-                    'icon' => 'badge',
-                    'label' => 'Assessors',
-                    'active' => 'assessors',
-                    'permission' => 'assessors.view',
-                ],
-                [
-                    'route' => 'admin.assessor-documents.index',
-                    'icon' => 'description',
-                    'label' => 'Documents',
-                    'active' => 'assessor-documents',
-                    'permission' => 'assessors.view',
-                ],
-                [
-                    'route' => 'admin.assessor-competency-scopes.index',
-                    'icon' => 'workspace_premium',
-                    'label' => 'Competency Scopes',
-                    'active' => 'assessor-competency-scopes',
-                    'permission' => 'assessors.view',
-                ],
-                [
-                    'route' => 'admin.assessor-experiences.index',
-                    'icon' => 'work_history',
-                    'label' => 'Experiences',
-                    'active' => 'assessor-experiences',
-                    'permission' => 'assessors.view',
-                ],
-                [
-                    'route' => 'admin.assessor-bank-info.index',
-                    'icon' => 'account_balance',
-                    'label' => 'Bank Information',
-                    'active' => 'assessor-bank-info',
-                    'permission' => 'assessors.view',
-                ],
-            ],
-        ],
-
-        // Certification Schemes - Admin & Assessor can view
-        [
-            'title' => 'Certification Schemes',
-            'roles' => ['super-admin', 'admin', 'assessor'],
-            'items' => [
-                [
-                    'route' => 'admin.schemes.index',
-                    'icon' => 'verified',
-                    'label' => 'Schemes',
-                    'active' => 'schemes',
-                    'permission' => 'schemes.view',
-                ],
-            ],
-        ],
-
-        // Event Management - Admin & TUK Admin
-        [
-            'title' => 'Event Management',
-            'roles' => ['super-admin', 'admin', 'tuk-admin'],
-            'items' => [
-                [
-                    'route' => 'admin.events.index',
-                    'icon' => 'event',
-                    'label' => 'Events',
-                    'active' => 'events',
-                ],
-            ],
-        ],
-
-        // Assessee Management - Admin only
-        [
-            'title' => 'Assessee Management',
-            'roles' => ['super-admin', 'admin'],
-            'items' => [
-                [
-                    'route' => 'admin.assessees.index',
-                    'icon' => 'school',
-                    'label' => 'Assessees',
-                    'active' => 'assessees',
-                ],
-            ],
-        ],
-
-        // My Applications - Assessee only
+        // Sertifikasi Saya - For Assessee
         [
             'title' => 'Sertifikasi Saya',
-            'roles' => ['assessee', 'admin', 'super-admin'],
+            'icon' => 'school',
+            'roles' => ['assessee'],
+            'collapsible' => true,
             'items' => [
-                [
-                    'route' => 'admin.available-events.index',
-                    'icon' => 'event_available',
-                    'label' => 'Event Sertifikasi',
-                    'active' => 'available-events',
-                ],
-                [
-                    'route' => 'admin.my-apl01.index',
-                    'icon' => 'description',
-                    'label' => 'APL-01 Saya',
-                    'active' => 'my-apl01',
-                ],
-                [
-                    'route' => 'admin.my-apl02.index',
-                    'icon' => 'folder_open',
-                    'label' => 'APL-02 Saya',
-                    'active' => 'my-apl02',
-                ],
-                [
-                    'route' => 'admin.my-assessments.index',
-                    'icon' => 'assignment',
-                    'label' => 'Asesmen Saya',
-                    'active' => 'my-assessments',
-                ],
-                [
-                    'route' => 'admin.my-certificates.index',
-                    'icon' => 'workspace_premium',
-                    'label' => 'Sertifikat Saya',
-                    'active' => 'my-certificates',
-                ],
+                ['route' => 'admin.available-events.index', 'icon' => 'event_available', 'label' => 'Event Sertifikasi'],
+                ['route' => 'admin.my-apl01.index', 'icon' => 'description', 'label' => 'APL-01 Saya'],
+                ['route' => 'admin.my-apl02.index', 'icon' => 'folder_open', 'label' => 'APL-02 Saya'],
+                ['route' => 'admin.my-assessments.index', 'icon' => 'assignment', 'label' => 'Asesmen Saya'],
+                ['route' => 'admin.my-certificates.index', 'icon' => 'workspace_premium', 'label' => 'Sertifikat Saya'],
+                ['route' => 'admin.my-payments.index', 'icon' => 'payments', 'label' => 'Pembayaran Saya'],
             ],
         ],
 
-        // APL-01 Forms - Admin
+        // My Reviews - For Assessor
         [
-            'title' => 'APL-01 Forms',
-            'roles' => ['super-admin', 'admin'],
+            'title' => 'Review Saya',
+            'icon' => 'rate_review',
+            'roles' => ['assessor'],
+            'collapsible' => true,
             'items' => [
-                [
-                    'route' => 'admin.apl01.index',
-                    'icon' => 'description',
-                    'label' => 'APL-01 Forms',
-                    'active' => 'apl01',
-                ],
-                [
-                    'route' => 'admin.apl01-fields.index',
-                    'icon' => 'input',
-                    'label' => 'Form Builder',
-                    'active' => 'apl01-fields',
-                ],
-                [
-                    'route' => 'admin.apl01-reviews.index',
-                    'icon' => 'rate_review',
-                    'label' => 'Reviews',
-                    'active' => 'apl01-reviews',
-                ],
+                ['route' => 'admin.apl01-reviews.my-reviews', 'icon' => 'assignment_ind', 'label' => 'Review APL-01'],
+                ['route' => 'admin.apl02.reviews.my-reviews', 'icon' => 'person_check', 'label' => 'Review APL-02'],
+                ['route' => 'admin.assessments.index', 'icon' => 'assignment', 'label' => 'Assessments', 'permission' => 'assessments.conduct'],
             ],
         ],
 
-        // My APL-01 Reviews - Admin & Assessor (for reviewing)
-        [
-            'title' => 'Review APL-01',
-            'roles' => ['super-admin', 'admin', 'assessor'],
-            'items' => [
-                [
-                    'route' => 'admin.apl01-reviews.my-reviews',
-                    'icon' => 'assignment_ind',
-                    'label' => 'My APL-01 Reviews',
-                    'active' => 'my-reviews',
-                ],
-            ],
-        ],
-
-        // APL-02 Portfolio - Admin
-        [
-            'title' => 'APL-02 Portfolio',
-            'roles' => ['super-admin', 'admin'],
-            'items' => [
-                [
-                    'route' => 'admin.apl02.units.index',
-                    'icon' => 'folder_open',
-                    'label' => 'Portfolio Units',
-                    'active' => 'apl02-units',
-                ],
-                [
-                    'route' => 'admin.apl02.evidence.index',
-                    'icon' => 'upload_file',
-                    'label' => 'Evidence',
-                    'active' => 'apl02-evidence',
-                ],
-                [
-                    'route' => 'admin.apl02.reviews.index',
-                    'icon' => 'fact_check',
-                    'label' => 'Assessor Reviews',
-                    'active' => 'apl02-reviews',
-                ],
-            ],
-        ],
-
-        // My APL-02 Reviews - Assessor
-        [
-            'title' => 'Review APL-02',
-            'roles' => ['super-admin', 'admin', 'assessor'],
-            'items' => [
-                [
-                    'route' => 'admin.apl02.reviews.my-reviews',
-                    'icon' => 'person_check',
-                    'label' => 'My APL-02 Reviews',
-                    'active' => 'my-apl02-reviews',
-                ],
-            ],
-        ],
-
-        // Assessment Module - Admin & Assessor
-        [
-            'title' => 'Assessment Module',
-            'roles' => ['super-admin', 'admin', 'assessor'],
-            'items' => [
-                [
-                    'route' => 'admin.assessments.index',
-                    'icon' => 'assignment',
-                    'label' => 'Assessments',
-                    'active' => 'assessments',
-                    'permission' => 'assessments.conduct',
-                ],
-                [
-                    'route' => 'admin.assessment-units.index',
-                    'icon' => 'view_module',
-                    'label' => 'Assessment Units',
-                    'active' => 'assessment-units',
-                    'roles' => ['super-admin', 'admin'],
-                ],
-                [
-                    'route' => 'admin.assessment-criteria.index',
-                    'icon' => 'checklist',
-                    'label' => 'Criteria (KUK)',
-                    'active' => 'assessment-criteria',
-                    'roles' => ['super-admin', 'admin'],
-                ],
-                [
-                    'route' => 'admin.assessment-documents.index',
-                    'icon' => 'folder_open',
-                    'label' => 'Documents',
-                    'active' => 'assessment-documents',
-                ],
-                [
-                    'route' => 'admin.assessment-observations.index',
-                    'icon' => 'visibility',
-                    'label' => 'Observations',
-                    'active' => 'assessment-observations',
-                ],
-                [
-                    'route' => 'admin.assessment-interviews.index',
-                    'icon' => 'question_answer',
-                    'label' => 'Interviews',
-                    'active' => 'assessment-interviews',
-                ],
-                [
-                    'route' => 'admin.assessment-verification.index',
-                    'icon' => 'verified',
-                    'label' => 'Verification',
-                    'active' => 'assessment-verification',
-                ],
-            ],
-        ],
-
-        // Assessment Results - Admin & Assessor
-        [
-            'title' => 'Hasil Asesmen',
-            'roles' => ['super-admin', 'admin', 'assessor'],
-            'items' => [
-                [
-                    'route' => 'admin.assessment-results.index',
-                    'icon' => 'description',
-                    'label' => 'Results',
-                    'active' => 'assessment-results',
-                ],
-                [
-                    'route' => 'admin.result-approval.index',
-                    'icon' => 'task_alt',
-                    'label' => 'Result Approval',
-                    'active' => 'result-approval',
-                    'permission' => 'assessments.approve',
-                ],
-            ],
-        ],
-
-        // Certification Flow - Admin
-        [
-            'title' => 'Certification Flow',
-            'roles' => ['super-admin', 'admin'],
-            'items' => [
-                [
-                    'route' => 'admin.certification-flow.dashboard',
-                    'icon' => 'conversion_path',
-                    'label' => 'Flow Dashboard',
-                    'active' => 'certification-flow',
-                ],
-            ],
-        ],
-
-        // Sertifikasi - Admin
+        // Sertifikasi - Admin (APL-01, APL-02, Assessment, Certificates)
         [
             'title' => 'Sertifikasi',
+            'icon' => 'workspace_premium',
             'roles' => ['super-admin', 'admin'],
+            'collapsible' => true,
             'items' => [
-                [
-                    'route' => 'admin.certificates.index',
-                    'icon' => 'workspace_premium',
-                    'label' => 'Certificates',
-                    'active' => 'certificates',
-                    'permission' => 'certificates.view',
-                ],
-                [
-                    'route' => 'admin.certificate-renewal.index',
-                    'icon' => 'autorenew',
-                    'label' => 'Renewal',
-                    'active' => 'certificate-renewal',
-                    'permission' => 'certificates.view',
-                ],
-                [
-                    'route' => 'admin.certificate-revoke.index',
-                    'icon' => 'block',
-                    'label' => 'Revocation',
-                    'active' => 'certificate-revoke',
-                    'permission' => 'certificates.revoke',
-                ],
+                ['route' => 'admin.apl01.index', 'icon' => 'description', 'label' => 'APL-01 Forms'],
+                ['route' => 'admin.apl01-reviews.index', 'icon' => 'rate_review', 'label' => 'APL-01 Reviews'],
+                ['route' => 'admin.apl02.units.index', 'icon' => 'folder_open', 'label' => 'APL-02 Portfolio'],
+                ['route' => 'admin.apl02.reviews.index', 'icon' => 'fact_check', 'label' => 'APL-02 Reviews'],
+                ['route' => 'admin.assessments.index', 'icon' => 'assignment', 'label' => 'Assessments'],
+                ['route' => 'admin.assessment-results.index', 'icon' => 'description', 'label' => 'Results'],
+                ['route' => 'admin.result-approval.index', 'icon' => 'task_alt', 'label' => 'Result Approval'],
+                ['route' => 'admin.certificates.index', 'icon' => 'workspace_premium', 'label' => 'Certificates'],
+                ['route' => 'admin.certification-flow.dashboard', 'icon' => 'conversion_path', 'label' => 'Flow Dashboard'],
             ],
         ],
 
-        // Pembayaran - Admin
+        // Master Data - Admin
         [
-            'title' => 'Pembayaran',
+            'title' => 'Master Data',
+            'icon' => 'database',
             'roles' => ['super-admin', 'admin'],
+            'collapsible' => true,
             'items' => [
-                [
-                    'route' => 'admin.payments.index',
-                    'icon' => 'payments',
-                    'label' => 'Payments',
-                    'active' => 'payments',
-                    'permission' => 'payments.view',
-                ],
-                [
-                    'route' => 'admin.payment-methods.index',
-                    'icon' => 'credit_card',
-                    'label' => 'Payment Methods',
-                    'active' => 'payment-methods',
-                    'permission' => 'payments.manage',
-                ],
+                ['route' => 'admin.schemes.index', 'icon' => 'verified', 'label' => 'Skema Sertifikasi'],
+                ['route' => 'admin.tuk.index', 'icon' => 'location_city', 'label' => 'TUK'],
+                ['route' => 'admin.assessors.index', 'icon' => 'badge', 'label' => 'Assessors'],
+                ['route' => 'admin.assessees.index', 'icon' => 'school', 'label' => 'Assessees'],
+                ['route' => 'admin.events.index', 'icon' => 'event', 'label' => 'Events'],
             ],
         ],
 
-        // My Payments - Assessee
+        // Keuangan - Admin
         [
-            'title' => 'Pembayaran Saya',
-            'roles' => ['assessee'],
+            'title' => 'Keuangan',
+            'icon' => 'payments',
+            'roles' => ['super-admin', 'admin'],
+            'collapsible' => true,
             'items' => [
-                [
-                    'route' => 'admin.my-payments.index',
-                    'icon' => 'payments',
-                    'label' => 'Pembayaran Saya',
-                    'active' => 'my-payments',
-                ],
+                ['route' => 'admin.payments.index', 'icon' => 'payments', 'label' => 'Payments'],
+                ['route' => 'admin.payment-methods.index', 'icon' => 'credit_card', 'label' => 'Payment Methods'],
+            ],
+        ],
+
+        // Konten - Admin
+        [
+            'title' => 'Konten',
+            'icon' => 'article',
+            'roles' => ['super-admin', 'admin'],
+            'collapsible' => true,
+            'items' => [
+                ['route' => 'admin.news.index', 'icon' => 'article', 'label' => 'Berita & Artikel'],
+                ['route' => 'admin.announcements.index', 'icon' => 'campaign', 'label' => 'Pengumuman'],
+                ['route' => 'admin.organizational-structure.index', 'icon' => 'account_tree', 'label' => 'Struktur Organisasi'],
+            ],
+        ],
+
+        // Users & Settings - Admin
+        [
+            'title' => 'Pengaturan',
+            'icon' => 'settings',
+            'roles' => ['super-admin', 'admin'],
+            'collapsible' => true,
+            'items' => [
+                ['route' => 'admin.users.index', 'icon' => 'people', 'label' => 'Users'],
+                ['route' => 'admin.lsp-profiles.index', 'icon' => 'corporate_fare', 'label' => 'LSP Profile'],
+                ['route' => 'admin.org-settings.index', 'icon' => 'settings', 'label' => 'Organization'],
+                ['route' => 'admin.master-roles.index', 'icon' => 'shield', 'label' => 'Roles & Permissions', 'roles' => ['super-admin']],
+            ],
+        ],
+
+        // TUK Admin - TUK Management
+        [
+            'title' => 'TUK Management',
+            'icon' => 'location_city',
+            'roles' => ['tuk-admin'],
+            'collapsible' => true,
+            'items' => [
+                ['route' => 'admin.tuk.index', 'icon' => 'location_city', 'label' => 'TUK'],
+                ['route' => 'admin.tuk-facilities.index', 'icon' => 'inventory_2', 'label' => 'Facilities'],
+                ['route' => 'admin.tuk-documents.index', 'icon' => 'folder', 'label' => 'Documents'],
+                ['route' => 'admin.tuk-schedules.index', 'icon' => 'calendar_month', 'label' => 'Schedules'],
             ],
         ],
     ];
 
     // Helper function to check if user can see menu item
     function canSeeMenuItem($user, $item) {
-        // Check role restriction on item level
         if (isset($item['roles']) && !$user->hasAnyRole($item['roles'])) {
             return false;
         }
-
-        // Check permission
         if (isset($item['permission']) && !$user->hasPermission($item['permission'])) {
             return false;
         }
-
         return true;
     }
 
     // Helper function to check if user can see menu group
     function canSeeMenuGroup($user, $group) {
-        // Check role restriction on group level
         if (isset($group['roles']) && !$user->hasAnyRole($group['roles'])) {
             return false;
         }
-
         return true;
     }
 
-    // Get user's primary role for display
     $userRole = $user->roles->first();
     $roleName = $userRole ? $userRole->name : 'User';
 @endphp
 
 <style>
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    .sidebar-nav::-webkit-scrollbar {
-        display: none;
-    }
+    .sidebar-nav::-webkit-scrollbar { display: none; }
+    .sidebar-nav { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Hide scrollbar for IE, Edge and Firefox */
-    .sidebar-nav {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-    }
+    .menu-collapse { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+    .menu-collapse.open { max-height: 500px; }
+    .menu-arrow { transition: transform 0.3s ease; }
+    .menu-arrow.open { transform: rotate(180deg); }
 </style>
 
 <aside class="w-64 bg-blue-900 text-white flex flex-col">
     <!-- Logo/Brand -->
-    <div class="px-6 py-6 border-b border-blue-800">
+    <div class="px-6 py-5 border-b border-blue-800">
         <div class="flex items-center gap-3">
             <span class="material-symbols-outlined text-3xl">verified_user</span>
             <div>
@@ -595,60 +210,71 @@
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="sidebar-nav flex-1 px-3 py-6 space-y-1 overflow-y-auto">
-        @foreach($menuGroups as $group)
+    <nav class="sidebar-nav flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        @foreach($menuGroups as $groupIndex => $group)
             @if(canSeeMenuGroup($user, $group))
                 @php
-                    // Filter visible items in this group
                     $visibleItems = array_filter($group['items'], function($item) use ($user) {
                         return canSeeMenuItem($user, $item);
                     });
+                    $isCollapsible = isset($group['collapsible']) && $group['collapsible'];
+                    $groupActive = isGroupActive($visibleItems, $currentRoute);
                 @endphp
 
                 @if(count($visibleItems) > 0)
-                    {{-- Group Title --}}
-                    @if(isset($group['title']))
-                        <div class="pt-4 pb-2">
-                            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">{{ $group['title'] }}</p>
+                    @if($isCollapsible && isset($group['title']))
+                        {{-- Collapsible Group --}}
+                        <div class="pt-2">
+                            <button type="button"
+                                    onclick="toggleMenu('menu-{{ $groupIndex }}')"
+                                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition {{ $groupActive ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined">{{ $group['icon'] ?? 'folder' }}</span>
+                                    <span class="font-medium">{{ $group['title'] }}</span>
+                                </div>
+                                <span class="material-symbols-outlined text-sm menu-arrow {{ $groupActive ? 'open' : '' }}" id="arrow-{{ $groupIndex }}">expand_more</span>
+                            </button>
+                            <div id="menu-{{ $groupIndex }}" class="menu-collapse {{ $groupActive ? 'open' : '' }} pl-4 mt-1 space-y-1">
+                                @foreach($visibleItems as $item)
+                                    @if(Route::has($item['route']))
+                                        <a href="{{ route($item['route']) }}"
+                                           class="flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm {{ isMenuItemActive($item, $currentRoute) ? 'bg-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }}">
+                                            <span class="material-symbols-outlined text-lg">{{ $item['icon'] }}</span>
+                                            <span>{{ $item['label'] }}</span>
+                                        </a>
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
+                    @else
+                        {{-- Non-collapsible items (Dashboard, Modules) --}}
+                        @foreach($visibleItems as $item)
+                            @if(Route::has($item['route']))
+                                <a href="{{ route($item['route']) }}"
+                                   @if(isMenuItemActive($item, $currentRoute)) id="active-menu" @endif
+                                   class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ isMenuItemActive($item, $currentRoute) ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+                                    <span class="material-symbols-outlined">{{ $item['icon'] }}</span>
+                                    <span class="font-medium">{{ $item['label'] }}</span>
+                                </a>
+                            @endif
+                        @endforeach
                     @endif
-
-                    {{-- Menu Items --}}
-                    @foreach($visibleItems as $item)
-                        @if(Route::has($item['route']))
-                            <a href="{{ route($item['route']) }}"
-                               @if(isMenuItemActive($item, $currentRoute)) id="active-menu" @endif
-                               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ isMenuItemActive($item, $currentRoute) ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
-                                <span class="material-symbols-outlined">{{ $item['icon'] }}</span>
-                                <span class="font-medium">{{ $item['label'] }}</span>
-                            </a>
-                        @endif
-                    @endforeach
                 @endif
             @endif
         @endforeach
 
-        {{-- Account Section - Always visible --}}
-        <div class="pt-4 pb-2">
-            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Akun</p>
+        {{-- Akun Section --}}
+        <div class="pt-4">
+            <a href="{{ route('admin.profile.edit') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $currentRoute === 'admin.profile.edit' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span class="font-medium">Profil Saya</span>
+            </a>
+            <a href="/" target="_blank" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-blue-100 hover:bg-blue-800">
+                <span class="material-symbols-outlined">open_in_new</span>
+                <span class="font-medium">Lihat Website</span>
+            </a>
         </div>
-
-        <!-- Profile -->
-        <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ $currentRoute === 'admin.profile.edit' ? 'bg-blue-800 text-white' : 'text-blue-100 hover:bg-blue-800' }}">
-            <span class="material-symbols-outlined">settings</span>
-            <span class="font-medium">Pengaturan Profil</span>
-        </a>
-
-        {{-- Other Section - Always visible --}}
-        <div class="pt-4 pb-2">
-            <p class="px-4 text-xs font-semibold text-blue-300 uppercase tracking-wider">Lainnya</p>
-        </div>
-
-        <!-- View Website -->
-        <a href="/" target="_blank" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-blue-100 hover:bg-blue-800">
-            <span class="material-symbols-outlined">open_in_new</span>
-            <span class="font-medium">Lihat Website</span>
-        </a>
     </nav>
 
     <!-- User Info & Logout -->
@@ -676,22 +302,27 @@
 </aside>
 
 <script>
-    // Auto-scroll sidebar to active menu on page load
+    function toggleMenu(menuId) {
+        const menu = document.getElementById(menuId);
+        const arrow = document.getElementById('arrow-' + menuId.replace('menu-', ''));
+
+        if (menu.classList.contains('open')) {
+            menu.classList.remove('open');
+            arrow.classList.remove('open');
+        } else {
+            menu.classList.add('open');
+            arrow.classList.add('open');
+        }
+    }
+
+    // Auto-scroll to active menu on page load
     document.addEventListener('DOMContentLoaded', function() {
         const activeMenu = document.getElementById('active-menu');
         const sidebarNav = document.querySelector('.sidebar-nav');
 
         if (activeMenu && sidebarNav) {
-            // Calculate position to center the active menu in viewport
-            const menuRect = activeMenu.getBoundingClientRect();
-            const navRect = sidebarNav.getBoundingClientRect();
             const scrollTop = activeMenu.offsetTop - (sidebarNav.clientHeight / 2) + (activeMenu.clientHeight / 2);
-
-            // Smooth scroll to active menu
-            sidebarNav.scrollTo({
-                top: Math.max(0, scrollTop),
-                behavior: 'instant'
-            });
+            sidebarNav.scrollTo({ top: Math.max(0, scrollTop), behavior: 'instant' });
         }
     });
 </script>
