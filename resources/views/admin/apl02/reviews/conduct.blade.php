@@ -136,18 +136,103 @@
                                                 {{ ucfirst(str_replace('_', ' ', $evidence->verification_status)) }}
                                             </span>
                                         </div>
-                                        @if($evidence->evidenceMaps->isNotEmpty())
-                                            <div class="mt-2">
-                                                <p class="text-xs text-gray-600 font-semibold mb-1">Mapped to:</p>
-                                                <div class="flex flex-wrap gap-1">
+                                        <!-- Element Mapping Section -->
+                                        <div class="mt-2">
+                                            <p class="text-xs text-gray-600 font-semibold mb-1">Mapped to Elements:</p>
+                                            @if($evidence->evidenceMaps->isNotEmpty())
+                                                <div class="flex flex-wrap gap-1 mb-2">
                                                     @foreach($evidence->evidenceMaps as $map)
-                                                        <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs">
-                                                            {{ $map->schemeElement->code }}
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs group">
+                                                            {{ $map->schemeElement->code }} - {{ Str::limit($map->schemeElement->title, 20) }}
+                                                            <button type="button" onclick="removeMapping({{ $evidence->id }}, {{ $map->id }})" class="text-blue-600 hover:text-red-600 transition" title="Remove mapping">
+                                                                <span class="material-symbols-outlined text-xs">close</span>
+                                                            </button>
                                                         </span>
                                                     @endforeach
                                                 </div>
-                                            </div>
-                                        @endif
+                                            @else
+                                                <p class="text-xs text-yellow-600 mb-2 italic">Belum dipetakan ke elemen</p>
+                                            @endif
+
+                                            <!-- Inline Mapping Form -->
+                                            @php
+                                                $mappedElementIds = $evidence->evidenceMaps->pluck('scheme_element_id')->toArray();
+                                                $unmappedElements = $availableElements->filter(fn($el) => !in_array($el->id, $mappedElementIds));
+                                            @endphp
+                                            @if($unmappedElements->isNotEmpty())
+                                                <div id="mapping-form-{{ $evidence->id }}" class="hidden mt-2 p-3 bg-gray-100 rounded-lg border border-gray-300">
+                                                    <div class="grid grid-cols-1 gap-2">
+                                                        <select id="element-select-{{ $evidence->id }}" class="w-full h-8 px-2 text-xs rounded border border-gray-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                                            <option value="">-- Pilih Elemen --</option>
+                                                            @foreach($unmappedElements as $element)
+                                                                <option value="{{ $element->id }}">{{ $element->code }} - {{ $element->title }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <select id="coverage-select-{{ $evidence->id }}" class="w-full h-8 px-2 text-xs rounded border border-gray-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                                            <option value="full">Full - Memenuhi seluruh kriteria</option>
+                                                            <option value="partial">Partial - Memenuhi sebagian</option>
+                                                            <option value="supplementary">Supplementary - Bukti pendukung</option>
+                                                        </select>
+                                                        <div class="flex gap-2">
+                                                            <button type="button" onclick="submitMapping({{ $evidence->id }})" class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition">
+                                                                <span class="material-symbols-outlined text-sm">add_link</span>
+                                                                Map
+                                                            </button>
+                                                            <button type="button" onclick="toggleMappingForm({{ $evidence->id }})" class="px-2 py-1 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded text-xs font-medium transition">
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <!-- Evidence Actions -->
+                                        <div class="mt-3 pt-3 border-t border-gray-200 flex flex-wrap items-center gap-2">
+                                            @if($evidence->file_path)
+                                                <a href="{{ asset('storage/' . $evidence->file_path) }}" target="_blank" class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs font-medium transition">
+                                                    <span class="material-symbols-outlined text-sm">visibility</span>
+                                                    View File
+                                                </a>
+                                            @endif
+
+                                            @if($evidence->verification_status === 'pending')
+                                                <button type="button" onclick="verifyEvidence({{ $evidence->id }}, 'verified')" class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded text-xs font-medium transition">
+                                                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                                                    Verify
+                                                </button>
+                                                <button type="button" onclick="verifyEvidence({{ $evidence->id }}, 'rejected')" class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-xs font-medium transition">
+                                                    <span class="material-symbols-outlined text-sm">cancel</span>
+                                                    Reject
+                                                </button>
+                                                <button type="button" onclick="verifyEvidence({{ $evidence->id }}, 'requires_clarification')" class="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded text-xs font-medium transition">
+                                                    <span class="material-symbols-outlined text-sm">help</span>
+                                                    Need Clarification
+                                                </button>
+                                            @elseif($evidence->verification_status === 'verified')
+                                                <span class="inline-flex items-center gap-1 text-green-600 text-xs">
+                                                    <span class="material-symbols-outlined text-sm">verified</span>
+                                                    Verified by {{ $evidence->verifiedBy?->name ?? 'Assessor' }}
+                                                </span>
+                                            @elseif($evidence->verification_status === 'rejected')
+                                                <span class="inline-flex items-center gap-1 text-red-600 text-xs">
+                                                    <span class="material-symbols-outlined text-sm">block</span>
+                                                    Rejected
+                                                </span>
+                                                <button type="button" onclick="verifyEvidence({{ $evidence->id }}, 'verified')" class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded text-xs font-medium transition">
+                                                    <span class="material-symbols-outlined text-sm">undo</span>
+                                                    Revert to Verified
+                                                </button>
+                                            @endif
+
+                                            <!-- Map to Element Button -->
+                                            @if($unmappedElements->isNotEmpty())
+                                                <button type="button" onclick="toggleMappingForm({{ $evidence->id }})" class="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded text-xs font-medium transition">
+                                                    <span class="material-symbols-outlined text-sm">add_link</span>
+                                                    Map to Element
+                                                </button>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -538,6 +623,128 @@
                 </button>
             `;
             container.appendChild(div);
+        }
+
+        async function verifyEvidence(evidenceId, status) {
+            const statusLabels = {
+                'verified': 'Verify',
+                'rejected': 'Reject',
+                'requires_clarification': 'Request Clarification'
+            };
+
+            const confirmMessage = status === 'rejected'
+                ? 'Are you sure you want to reject this evidence? Please provide a reason.'
+                : `Are you sure you want to ${statusLabels[status]?.toLowerCase() || status} this evidence?`;
+
+            let notes = null;
+            if (status === 'rejected' || status === 'requires_clarification') {
+                notes = prompt(confirmMessage + '\n\nPlease enter notes (required for rejection):');
+                if (notes === null) return; // User cancelled
+                if (status === 'rejected' && !notes.trim()) {
+                    alert('Notes are required for rejection.');
+                    return;
+                }
+            } else {
+                if (!confirm(confirmMessage)) return;
+            }
+
+            try {
+                const response = await fetch(`/admin/apl02/evidence/${evidenceId}/update-verification-status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: status,
+                        notes: notes
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Reload the page to reflect changes
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to update verification status.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating verification status.');
+            }
+        }
+
+        // Toggle mapping form visibility
+        function toggleMappingForm(evidenceId) {
+            const form = document.getElementById(`mapping-form-${evidenceId}`);
+            if (form) {
+                form.classList.toggle('hidden');
+            }
+        }
+
+        // Submit mapping to element
+        async function submitMapping(evidenceId) {
+            const elementSelect = document.getElementById(`element-select-${evidenceId}`);
+            const coverageSelect = document.getElementById(`coverage-select-${evidenceId}`);
+
+            const elementId = elementSelect.value;
+            const coverageLevel = coverageSelect.value;
+
+            if (!elementId) {
+                alert('Pilih elemen terlebih dahulu.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/apl02/evidence/${evidenceId}/map-to-element`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        scheme_element_id: elementId,
+                        coverage_level: coverageLevel
+                    })
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Gagal mapping evidence ke elemen.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mapping evidence.');
+            }
+        }
+
+        // Remove mapping from element
+        async function removeMapping(evidenceId, mapId) {
+            if (!confirm('Hapus mapping ini?')) return;
+
+            try {
+                const response = await fetch(`/admin/apl02/evidence/${evidenceId}/unmap/${mapId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Gagal menghapus mapping.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menghapus mapping.');
+            }
         }
     </script>
 @endsection

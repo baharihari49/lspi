@@ -45,27 +45,29 @@
                                 'workshop' => 'bg-purple-100 text-purple-700',
                                 'other' => 'bg-gray-100 text-gray-700',
                             ];
+                            $statusColors = [
+                                'draft' => 'bg-yellow-100 text-yellow-700',
+                                'published' => 'bg-green-100 text-green-700',
+                                'ongoing' => 'bg-blue-100 text-blue-700',
+                                'completed' => 'bg-indigo-100 text-indigo-700',
+                                'cancelled' => 'bg-red-100 text-red-700',
+                            ];
                         @endphp
                         <span class="px-3 py-1 {{ $typeColors[$event->event_type] ?? 'bg-gray-100 text-gray-700' }} rounded-full text-xs font-semibold uppercase">
                             {{ $event->event_type }}
                         </span>
-                        @if($event->is_published)
-                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                                Published
-                            </span>
-                        @else
-                            <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
-                                Draft
+                        @if($event->status)
+                            <span class="px-3 py-1 {{ $statusColors[$event->status->code] ?? 'bg-gray-100 text-gray-700' }} rounded-full text-xs font-semibold">
+                                {{ $event->status->label }}
                             </span>
                         @endif
                         @if($event->is_active)
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold">
                                 Active
                             </span>
-                        @endif
-                        @if($event->status)
-                            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">
-                                {{ $event->status->label }}
+                        @else
+                            <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
+                                Inactive
                             </span>
                         @endif
                     </div>
@@ -538,43 +540,25 @@
 
                     <!-- Actions -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-3">Actions</h3>
+                        <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-3">Aksi</h3>
                         <div class="space-y-2">
-                            @if(!$event->is_published)
-                                <form action="{{ route('admin.events.publish', $event) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition text-sm">
-                                        <span class="material-symbols-outlined text-lg">public</span>
-                                        <span>Publish Event</span>
-                                    </button>
-                                </form>
-                            @else
-                                <form action="{{ route('admin.events.unpublish', $event) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition text-sm">
-                                        <span class="material-symbols-outlined text-lg">visibility_off</span>
-                                        <span>Unpublish Event</span>
-                                    </button>
-                                </form>
-                            @endif
-
-                            <a href="{{ route('admin.events.edit', $event) }}" class="w-full flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg font-semibold transition text-sm">
+                            <a href="{{ route('admin.events.edit', $event) }}" class="w-full flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition text-sm">
                                 <span class="material-symbols-outlined text-lg">edit</span>
                                 <span>Edit Event</span>
                             </a>
 
-                            <form action="{{ route('admin.events.destroy', $event) }}" method="POST" onsubmit="return confirm('Delete this event? This action cannot be undone.')">
+                            <form action="{{ route('admin.events.destroy', $event) }}" method="POST" onsubmit="return confirm('Hapus event ini? Tindakan ini tidak dapat dibatalkan.')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition text-sm">
                                     <span class="material-symbols-outlined text-lg">delete</span>
-                                    <span>Delete Event</span>
+                                    <span>Hapus Event</span>
                                 </button>
                             </form>
 
                             <a href="{{ route('admin.events.index') }}" class="w-full flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg font-semibold transition text-sm">
                                 <span class="material-symbols-outlined text-lg">arrow_back</span>
-                                <span>Back to Events</span>
+                                <span>Kembali ke Daftar</span>
                             </a>
                         </div>
                     </div>

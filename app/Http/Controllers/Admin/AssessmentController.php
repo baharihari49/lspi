@@ -68,13 +68,88 @@ class AssessmentController extends Controller
      */
     public function create()
     {
-        $assessees = Assessee::orderBy('full_name')->get();
-        $schemes = Scheme::orderBy('name')->get();
-        $events = Event::orderBy('name')->get();
-        $tuks = Tuk::active()->orderBy('name')->get();
-        $assessors = User::withRole('assessor')->orderBy('name')->get();
+        // Get active/published events with their relations
+        $events = Event::with(['scheme', 'assessors.assessor', 'apl01Forms.assessee', 'tuks.tuk'])
+            ->where('is_active', true)
+            ->where('is_published', true)
+            ->orderBy('start_date', 'desc')
+            ->get();
 
-        return view('admin.assessments.create', compact('assessees', 'schemes', 'events', 'tuks', 'assessors'));
+        $tuks = Tuk::active()->orderBy('name')->get();
+
+        return view('admin.assessments.create', compact('events', 'tuks'));
+    }
+
+    /**
+     * Get event data for AJAX request (scheme, assessors, assessees)
+     */
+    public function getEventData(Event $event)
+    {
+        $event->load(['scheme', 'assessors.assessor', 'apl01Forms.assessee', 'tuks.tuk']);
+
+        // Get lead assessor (confirmed with lead role)
+        $leadAssessor = $event->assessors()
+            ->where('status', 'confirmed')
+            ->where('role', 'lead')
+            ->with('assessor')
+            ->first();
+
+        // Get all confirmed assessors
+        $assessors = $event->assessors()
+            ->where('status', 'confirmed')
+            ->with('assessor')
+            ->get()
+            ->map(function ($ea) {
+                return [
+                    'id' => $ea->assessor?->user_id,
+                    'name' => $ea->assessor?->full_name ?? $ea->assessor?->name,
+                    'role' => $ea->role,
+                ];
+            })
+            ->filter(fn($a) => $a['id'] !== null);
+
+        // Get assessees from approved APL-01 forms
+        $assessees = $event->apl01Forms()
+            ->whereIn('status', ['approved', 'under_review', 'submitted'])
+            ->with('assessee')
+            ->get()
+            ->map(function ($form) {
+                return [
+                    'id' => $form->assessee_id,
+                    'full_name' => $form->assessee?->full_name,
+                    'assessee_number' => $form->assessee?->assessee_number,
+                    'apl01_form_id' => $form->id,
+                ];
+            })
+            ->filter(fn($a) => $a['id'] !== null);
+
+        // Get TUKs assigned to event
+        $tuks = $event->tuks()->with('tuk')->get()->map(function ($et) {
+            return [
+                'id' => $et->tuk_id,
+                'name' => $et->tuk?->name,
+            ];
+        })->filter(fn($t) => $t['id'] !== null);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'scheme' => $event->scheme ? [
+                    'id' => $event->scheme->id,
+                    'name' => $event->scheme->name,
+                    'code' => $event->scheme->code,
+                ] : null,
+                'lead_assessor' => $leadAssessor ? [
+                    'id' => $leadAssessor->assessor?->user_id,
+                    'name' => $leadAssessor->assessor?->full_name ?? $leadAssessor->assessor?->name,
+                ] : null,
+                'assessors' => $assessors->values(),
+                'assessees' => $assessees->values(),
+                'tuks' => $tuks->values(),
+                'start_date' => $event->start_date?->format('Y-m-d'),
+                'location' => $event->location,
+            ],
+        ]);
     }
 
     /**
@@ -83,11 +158,11 @@ class AssessmentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'event_id' => 'required|exists:events,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'assessee_id' => 'required|exists:assessees,id',
             'scheme_id' => 'required|exists:schemes,id',
-            'event_id' => 'nullable|exists:events,id',
             'lead_assessor_id' => 'required|exists:users,id',
             'assessment_method' => 'required|in:portfolio,observation,interview,demonstration,written_test,mixed',
             'assessment_type' => 'required|in:initial,verification,surveillance,re_assessment',
@@ -134,7 +209,7 @@ class AssessmentController extends Controller
             'assessee',
             'scheme',
             'leadAssessor',
-            'event',
+            'event.tuks.tuk',
             'tuk',
             'assessmentUnits.criteria',
             'assessmentUnits.assessor',

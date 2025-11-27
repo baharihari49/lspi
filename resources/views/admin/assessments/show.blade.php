@@ -125,13 +125,17 @@
                             </div>
                         </div>
 
+                        @php
+                            // Fallback: use TUK from event if assessment TUK is not set
+                            $tuk = $assessment->tuk ?? $assessment->event?->tuks?->first()?->tuk;
+                        @endphp
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-gray-400">location_on</span>
                             <div>
-                                <p class="text-xs text-gray-600">Venue</p>
-                                <p class="font-semibold text-gray-900">{{ $assessment->venue ?? 'No venue' }}</p>
-                                @if($assessment->tuk)
-                                    <p class="text-xs text-gray-500">{{ $assessment->tuk->name }}</p>
+                                <p class="text-xs text-gray-600">Venue / TUK</p>
+                                <p class="font-semibold text-gray-900">{{ $tuk?->name ?? $assessment->venue ?? 'No venue' }}</p>
+                                @if($tuk?->address)
+                                    <p class="text-xs text-gray-500">{{ $tuk->address }}</p>
                                 @endif
                             </div>
                         </div>

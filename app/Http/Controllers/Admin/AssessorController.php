@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assessor;
-use App\Models\MasterStatus;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -53,10 +52,9 @@ class AssessorController extends Controller
 
     public function create()
     {
-        $statuses = MasterStatus::all();
         $users = User::whereDoesntHave('assessor')->get();
 
-        return view('admin.assessors.create', compact('statuses', 'users'));
+        return view('admin.assessors.create', compact('users'));
     }
 
     public function store(Request $request)
@@ -84,7 +82,6 @@ class AssessorController extends Controller
             'registration_date' => 'required|date',
             'valid_until' => 'required|date|after:registration_date',
             'registration_status' => 'required|in:active,inactive,suspended,expired',
-            'status_id' => 'required|exists:master_statuses,id',
             'is_active' => 'boolean',
         ]);
 
@@ -136,12 +133,11 @@ class AssessorController extends Controller
 
     public function edit(Assessor $assessor)
     {
-        $statuses = MasterStatus::all();
         $users = User::whereDoesntHave('assessor')
             ->orWhere('id', $assessor->user_id)
             ->get();
 
-        return view('admin.assessors.edit', compact('assessor', 'statuses', 'users'));
+        return view('admin.assessors.edit', compact('assessor', 'users'));
     }
 
     public function update(Request $request, Assessor $assessor)
@@ -169,10 +165,19 @@ class AssessorController extends Controller
             'registration_date' => 'required|date',
             'valid_until' => 'required|date|after:registration_date',
             'registration_status' => 'required|in:active,inactive,suspended,expired',
-            'status_id' => 'required|exists:master_statuses,id',
             'is_active' => 'boolean',
             'met_number' => 'nullable|string|max:50|unique:assessors,met_number,' . $assessor->id,
+            'verification_status' => 'required|in:pending,verified,rejected',
         ]);
+
+        // Update verification timestamp if status changed to verified
+        if ($validated['verification_status'] === 'verified' && $assessor->verification_status !== 'verified') {
+            $validated['verified_at'] = now();
+            $validated['verified_by'] = auth()->id();
+        } elseif ($validated['verification_status'] !== 'verified') {
+            $validated['verified_at'] = null;
+            $validated['verified_by'] = null;
+        }
 
         // Handle photo upload
         if ($request->hasFile('photo')) {

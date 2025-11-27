@@ -145,8 +145,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Event Management
     Route::resource('events', App\Http\Controllers\Admin\EventController::class);
-    Route::post('events/{event}/publish', [App\Http\Controllers\Admin\EventController::class, 'publish'])->name('events.publish');
-    Route::post('events/{event}/unpublish', [App\Http\Controllers\Admin\EventController::class, 'unpublish'])->name('events.unpublish');
 
     // Event Sessions (nested under events)
     Route::prefix('events/{event}')->name('events.')->group(function () {
@@ -202,6 +200,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('apl01/{apl01}/declaration', [App\Http\Controllers\Admin\Apl01FormController::class, 'updateDeclaration'])->name('apl01.declaration');
     Route::post('apl01/{apl01}/generate-apl02', [App\Http\Controllers\Admin\Apl01FormController::class, 'generateApl02'])->name('apl01.generate-apl02');
     Route::post('apl01/autofill', [App\Http\Controllers\Admin\Apl01FormController::class, 'autofill'])->name('apl01.autofill');
+    Route::post('apl01/scheme-fields', [App\Http\Controllers\Admin\Apl01FormController::class, 'getSchemeFields'])->name('apl01.scheme-fields');
 
     // APL-01 Form Fields (Form Builder)
     Route::resource('apl01-fields', App\Http\Controllers\Admin\Apl01FormFieldController::class)->parameters([
@@ -264,6 +263,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('apl02/evidence/{evidence}/map-to-element', [App\Http\Controllers\Admin\Apl02EvidenceController::class, 'mapToElement'])->name('apl02.evidence.map-to-element');
     Route::delete('apl02/evidence/{evidence}/unmap/{map}', [App\Http\Controllers\Admin\Apl02EvidenceController::class, 'unmapFromElement'])->name('apl02.evidence.unmap-from-element');
     Route::get('apl02/evidence/{evidence}/download', [App\Http\Controllers\Admin\Apl02EvidenceController::class, 'download'])->name('apl02.evidence.download');
+    Route::post('apl02/evidence/{evidence}/update-verification-status', [App\Http\Controllers\Admin\Apl02EvidenceController::class, 'updateVerificationStatus'])->name('apl02.evidence.update-verification-status');
 
     // APL-02 Assessor Reviews
     Route::get('apl02/reviews/my-reviews', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'myReviews'])->name('apl02.reviews.my-reviews');
@@ -297,6 +297,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     ]);
     Route::post('assessments/{assessment}/update-status', [App\Http\Controllers\Admin\AssessmentController::class, 'updateStatus'])->name('assessments.update-status');
     Route::post('assessments/{assessment}/generate-units', [App\Http\Controllers\Admin\AssessmentController::class, 'generateUnits'])->name('assessments.generate-units');
+    Route::get('assessments/event/{event}/data', [App\Http\Controllers\Admin\AssessmentController::class, 'getEventData'])->name('assessments.event-data');
 
     // Assessment Results Routes
     Route::resource('assessment-results', App\Http\Controllers\Admin\AssessmentResultController::class)->names([

@@ -203,16 +203,20 @@
             <!-- Location -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h2 class="text-lg font-bold text-gray-900 mb-4">Lokasi TUK</h2>
-                @if($assessment->tuk)
+                @php
+                    // Fallback: use TUK from event if assessment TUK is not set
+                    $tuk = $assessment->tuk ?? $assessment->event?->tuks?->first()?->tuk;
+                @endphp
+                @if($tuk)
                     <div class="space-y-3">
                         <div>
                             <p class="text-sm text-gray-600">Nama TUK</p>
-                            <p class="font-medium text-gray-900">{{ $assessment->tuk->name }}</p>
+                            <p class="font-medium text-gray-900">{{ $tuk->name }}</p>
                         </div>
-                        @if($assessment->tuk->address)
+                        @if($tuk->address)
                             <div>
                                 <p class="text-sm text-gray-600">Alamat</p>
-                                <p class="text-gray-700">{{ $assessment->tuk->address }}</p>
+                                <p class="text-gray-700">{{ $tuk->address }}</p>
                             </div>
                         @endif
                     </div>

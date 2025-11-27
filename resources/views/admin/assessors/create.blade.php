@@ -295,23 +295,6 @@
                             @enderror
                         </div>
 
-                        <!-- Status -->
-                        <div>
-                            <label for="status_id" class="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
-                            <select id="status_id" name="status_id" required
-                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('status_id') border-red-500 @enderror">
-                                <option value="">Select Status</option>
-                                @foreach($statuses as $status)
-                                    <option value="{{ $status->id }}" {{ old('status_id') == $status->id ? 'selected' : '' }}>
-                                        {{ $status->label }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('status_id')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                         <!-- Is Active -->
                         <div class="md:col-span-2">
                             <label class="flex items-center gap-3 cursor-pointer">

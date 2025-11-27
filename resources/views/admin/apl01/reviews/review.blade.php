@@ -100,19 +100,19 @@
                             </div>
 
                             <div class="mt-2">
-                                @if($answer->answer_text)
+                                @if($answer->answer_value)
                                     <div class="bg-gray-50 rounded-lg p-3">
-                                        <p class="text-sm text-gray-800 whitespace-pre-wrap">{{ $answer->answer_text }}</p>
+                                        <p class="text-sm text-gray-800 whitespace-pre-wrap">{{ $answer->answer_value }}</p>
                                     </div>
                                 @elseif($answer->answer_json)
                                     <div class="bg-gray-50 rounded-lg p-3">
                                         <pre class="text-xs text-gray-700 overflow-x-auto">{{ json_encode($answer->answer_json, JSON_PRETTY_PRINT) }}</pre>
                                     </div>
-                                @elseif($answer->file_path)
+                                @elseif($answer->answer_file)
                                     <div class="bg-gray-50 rounded-lg p-3">
-                                        <a href="{{ asset('storage/' . $answer->file_path) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-2">
+                                        <a href="{{ asset('storage/' . $answer->answer_file) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-2">
                                             <span class="material-symbols-outlined text-sm">attach_file</span>
-                                            {{ $answer->original_filename ?? 'View File' }}
+                                            {{ basename($answer->answer_file) }}
                                         </a>
                                     </div>
                                 @else

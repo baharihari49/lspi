@@ -354,26 +354,8 @@
                             @enderror
                         </div>
 
-                        <!-- Status -->
-                        <div>
-                            <label for="status_id" class="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
-                            <select id="status_id" name="status_id" required
-                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('status_id') border-red-500 @enderror">
-                                <option value="">Select Status</option>
-                                @foreach ($statuses as $status)
-                                    <option value="{{ $status->id }}"
-                                        {{ old('status_id', $assessor->status_id) == $status->id ? 'selected' : '' }}>
-                                        {{ $status->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('status_id')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                         <!-- MET Number -->
-                        <div class="md:col-span-2">
+                        <div>
                             <label for="met_number" class="block text-sm font-semibold text-gray-700 mb-2">MET
                                 Number</label>
                             <input type="text" id="met_number" name="met_number"
@@ -382,6 +364,27 @@
                             @error('met_number')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                        </div>
+
+                        <!-- Verification Status -->
+                        <div>
+                            <label for="verification_status" class="block text-sm font-semibold text-gray-700 mb-2">Verification Status *</label>
+                            <select id="verification_status" name="verification_status" required
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('verification_status') border-red-500 @enderror">
+                                <option value="pending" {{ old('verification_status', $assessor->verification_status) === 'pending' ? 'selected' : '' }}>
+                                    Pending
+                                </option>
+                                <option value="verified" {{ old('verification_status', $assessor->verification_status) === 'verified' ? 'selected' : '' }}>
+                                    Verified
+                                </option>
+                                <option value="rejected" {{ old('verification_status', $assessor->verification_status) === 'rejected' ? 'selected' : '' }}>
+                                    Rejected
+                                </option>
+                            </select>
+                            @error('verification_status')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1 text-xs text-gray-500">Assessor harus "Verified" untuk bisa di-assign ke event</p>
                         </div>
 
                         <!-- Is Active -->

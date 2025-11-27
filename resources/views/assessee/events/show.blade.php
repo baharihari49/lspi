@@ -151,6 +151,175 @@
                 </div>
             @endif
 
+            <!-- Sessions -->
+            @if($event->sessions && $event->sessions->count() > 0)
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">
+                        <span class="material-symbols-outlined align-middle mr-1 text-blue-600">calendar_month</span>
+                        Jadwal Sesi ({{ $event->sessions->count() }} sesi)
+                    </h2>
+
+                    <div class="space-y-3">
+                        @foreach($event->sessions as $session)
+                            <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="font-mono text-xs text-blue-600 bg-blue-100 px-2 py-0.5 rounded">{{ $session->session_code }}</span>
+                                            @php
+                                                $statusColors = [
+                                                    'scheduled' => 'bg-yellow-100 text-yellow-700',
+                                                    'ongoing' => 'bg-blue-100 text-blue-700',
+                                                    'completed' => 'bg-green-100 text-green-700',
+                                                    'cancelled' => 'bg-red-100 text-red-700',
+                                                ];
+                                            @endphp
+                                            <span class="text-xs px-2 py-0.5 rounded {{ $statusColors[$session->status] ?? 'bg-gray-100 text-gray-700' }}">
+                                                {{ ucfirst($session->status) }}
+                                            </span>
+                                        </div>
+                                        <p class="font-semibold text-gray-900">{{ $session->name }}</p>
+                                        @if($session->description)
+                                            <p class="text-sm text-gray-600 mt-1">{{ Str::limit($session->description, 100) }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-600">
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-base">event</span>
+                                        {{ \Carbon\Carbon::parse($session->session_date)->format('d M Y') }}
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-base">schedule</span>
+                                        {{ \Carbon\Carbon::parse($session->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($session->end_time)->format('H:i') }}
+                                    </div>
+                                    @if($session->room)
+                                        <div class="flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-base">meeting_room</span>
+                                            {{ $session->room }}
+                                        </div>
+                                    @endif
+                                    @if($session->max_participants)
+                                        <div class="flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-base">groups</span>
+                                            {{ $session->current_participants ?? 0 }}/{{ $session->max_participants }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            <!-- TUK (Tempat Uji Kompetensi) -->
+            @if($event->tuks && $event->tuks->count() > 0)
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">
+                        <span class="material-symbols-outlined align-middle mr-1 text-green-600">location_on</span>
+                        Tempat Uji Kompetensi (TUK)
+                    </h2>
+
+                    <div class="space-y-3">
+                        @foreach($event->tuks as $eventTuk)
+                            @if($eventTuk->tuk)
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 {{ $eventTuk->is_primary ? 'ring-2 ring-blue-500' : '' }}">
+                                    <div class="flex items-start gap-3">
+                                        <div class="p-2 bg-green-100 rounded-lg flex-shrink-0">
+                                            <span class="material-symbols-outlined text-green-600">apartment</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <p class="font-semibold text-gray-900">{{ $eventTuk->tuk->name }}</p>
+                                                @if($eventTuk->is_primary)
+                                                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Utama</span>
+                                                @endif
+                                                @php
+                                                    $tukStatusColors = [
+                                                        'pending' => 'bg-yellow-100 text-yellow-700',
+                                                        'confirmed' => 'bg-green-100 text-green-700',
+                                                        'cancelled' => 'bg-red-100 text-red-700',
+                                                    ];
+                                                @endphp
+                                                <span class="text-xs px-2 py-0.5 rounded {{ $tukStatusColors[$eventTuk->status] ?? 'bg-gray-100 text-gray-700' }}">
+                                                    {{ ucfirst($eventTuk->status) }}
+                                                </span>
+                                            </div>
+                                            @if($eventTuk->tuk->code)
+                                                <p class="font-mono text-xs text-gray-500 mb-1">{{ $eventTuk->tuk->code }}</p>
+                                            @endif
+                                            @if($eventTuk->tuk->address)
+                                                <p class="text-sm text-gray-600">{{ $eventTuk->tuk->address }}</p>
+                                            @endif
+                                            @if($eventTuk->tuk->city || $eventTuk->tuk->province)
+                                                <p class="text-sm text-gray-500">
+                                                    {{ $eventTuk->tuk->city }}{{ $eventTuk->tuk->city && $eventTuk->tuk->province ? ', ' : '' }}{{ $eventTuk->tuk->province }}
+                                                </p>
+                                            @endif
+                                            @if($eventTuk->tuk->phone || $eventTuk->tuk->email)
+                                                <div class="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-600">
+                                                    @if($eventTuk->tuk->phone)
+                                                        <span class="flex items-center gap-1">
+                                                            <span class="material-symbols-outlined text-base">phone</span>
+                                                            {{ $eventTuk->tuk->phone }}
+                                                        </span>
+                                                    @endif
+                                                    @if($eventTuk->tuk->email)
+                                                        <span class="flex items-center gap-1">
+                                                            <span class="material-symbols-outlined text-base">mail</span>
+                                                            {{ $eventTuk->tuk->email }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            <!-- Assessors -->
+            @if($event->assessors && $event->assessors->where('status', 'confirmed')->count() > 0)
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">
+                        <span class="material-symbols-outlined align-middle mr-1 text-purple-600">person</span>
+                        Tim Asesor
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($event->assessors->where('status', 'confirmed') as $eventAssessor)
+                            @if($eventAssessor->assessor)
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                            @if($eventAssessor->assessor->photo)
+                                                <img src="{{ $eventAssessor->assessor->photo }}" alt="{{ $eventAssessor->assessor->full_name }}" class="w-12 h-12 rounded-full object-cover">
+                                            @else
+                                                <span class="material-symbols-outlined text-purple-600">person</span>
+                                            @endif
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-semibold text-gray-900 truncate">{{ $eventAssessor->assessor->full_name }}</p>
+                                            @if($eventAssessor->assessor->registration_number)
+                                                <p class="font-mono text-xs text-gray-500">{{ $eventAssessor->assessor->registration_number }}</p>
+                                            @endif
+                                            @if($eventAssessor->role)
+                                                <span class="inline-block mt-1 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
+                                                    {{ ucfirst($eventAssessor->role) }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <!-- Location -->
             @if($event->location || $event->location_address)
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -252,6 +421,49 @@
                             </form>
                         @endif
                     </div>
+                </div>
+            </div>
+
+            <!-- Event Stats -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Ringkasan Event</h2>
+                <div class="space-y-3">
+                    @if($event->sessions && $event->sessions->count() > 0)
+                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                            <div class="flex items-center gap-2 text-gray-600">
+                                <span class="material-symbols-outlined text-base">calendar_month</span>
+                                <span class="text-sm">Jumlah Sesi</span>
+                            </div>
+                            <span class="font-semibold text-gray-900">{{ $event->sessions->count() }}</span>
+                        </div>
+                    @endif
+                    @if($event->tuks && $event->tuks->count() > 0)
+                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                            <div class="flex items-center gap-2 text-gray-600">
+                                <span class="material-symbols-outlined text-base">apartment</span>
+                                <span class="text-sm">TUK</span>
+                            </div>
+                            <span class="font-semibold text-gray-900">{{ $event->tuks->count() }}</span>
+                        </div>
+                    @endif
+                    @if($event->assessors && $event->assessors->where('status', 'confirmed')->count() > 0)
+                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                            <div class="flex items-center gap-2 text-gray-600">
+                                <span class="material-symbols-outlined text-base">person</span>
+                                <span class="text-sm">Asesor</span>
+                            </div>
+                            <span class="font-semibold text-gray-900">{{ $event->assessors->where('status', 'confirmed')->count() }}</span>
+                        </div>
+                    @endif
+                    @if($event->scheme && $event->scheme->units)
+                        <div class="flex items-center justify-between py-2">
+                            <div class="flex items-center gap-2 text-gray-600">
+                                <span class="material-symbols-outlined text-base">checklist</span>
+                                <span class="text-sm">Unit Kompetensi</span>
+                            </div>
+                            <span class="font-semibold text-gray-900">{{ $event->scheme->units->count() }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
 

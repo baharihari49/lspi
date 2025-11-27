@@ -117,10 +117,17 @@ class Apl02AssessorReviewController extends Controller
     {
         $validated = $request->validate([
             'review_type' => 'required|in:initial_review,verification,validation,final_assessment,re_assessment',
+            'status' => 'required|in:draft,in_progress,completed,submitted,approved,revision_required',
+            'decision' => 'required|in:pending,competent,not_yet_competent,requires_more_evidence,requires_demonstration,deferred',
             'overall_comments' => 'nullable|string',
             'recommendations' => 'nullable|string',
             'deadline' => 'nullable|date',
         ]);
+
+        // Set completed_at timestamp when status changes to completed
+        if ($validated['status'] === 'completed' && $review->status !== 'completed') {
+            $validated['review_completed_at'] = now();
+        }
 
         $review->update($validated);
 
@@ -144,10 +151,14 @@ class Apl02AssessorReviewController extends Controller
         $review->load([
             'apl02Unit.assessee',
             'apl02Unit.schemeUnit.elements',
-            'apl02Unit.evidence.evidenceMaps.schemeElement'
+            'apl02Unit.evidence.evidenceMaps.schemeElement',
+            'apl02Unit.evidence.verifiedBy'
         ]);
 
-        return view('admin.apl02.reviews.conduct', compact('review'));
+        // Get available elements for mapping
+        $availableElements = $review->apl02Unit->schemeUnit->elements ?? collect();
+
+        return view('admin.apl02.reviews.conduct', compact('review', 'availableElements'));
     }
 
     public function submitReview(Request $request, Apl02AssessorReview $review)

@@ -299,6 +299,29 @@ class Apl01Form extends Model
             && $this->completion_percentage >= 100;
     }
 
+    /**
+     * Get reviewer user_id from event's confirmed assessors.
+     * Prioritizes: lead assessor first, then any confirmed assessor with a user account.
+     */
+    public function getReviewerFromEventAssessors(): ?int
+    {
+        if (!$this->event_id || !$this->event) {
+            return null;
+        }
+
+        // Get confirmed assessors from the event, prioritizing lead assessor
+        $eventAssessor = $this->event->assessors()
+            ->where('status', 'confirmed')
+            ->whereHas('assessor', function ($query) {
+                $query->whereNotNull('user_id');
+            })
+            ->with('assessor')
+            ->orderByRaw("CASE WHEN role = 'lead' THEN 0 ELSE 1 END")
+            ->first();
+
+        return $eventAssessor?->assessor?->user_id;
+    }
+
     public function submit($userId = null)
     {
         $this->status = 'submitted';
@@ -307,8 +330,9 @@ class Apl01Form extends Model
         $this->save();
 
         // Create initial review record
-        // Get default reviewer: scheme's default, or find an admin user, or fallback to user ID 2
-        $defaultReviewerId = $this->scheme->default_reviewer_id
+        // Get reviewer: from event's assessors first, then scheme's default, or find an admin user
+        $defaultReviewerId = $this->getReviewerFromEventAssessors()
+            ?? $this->scheme->default_reviewer_id
             ?? \App\Models\User::whereHas('roles', fn($q) => $q->whereIn('name', ['super-admin', 'admin']))->first()?->id
             ?? 2;
 
@@ -339,7 +363,9 @@ class Apl01Form extends Model
             throw new \Exception('Form must be in submitted status to be accepted for review.');
         }
 
+        // Get reviewer: from event's assessors first, then scheme's default, or find an admin user
         $reviewerId = $reviewerId
+            ?? $this->getReviewerFromEventAssessors()
             ?? $this->scheme->default_reviewer_id
             ?? \App\Models\User::whereHas('roles', fn($q) => $q->whereIn('name', ['super-admin', 'admin']))->first()?->id
             ?? auth()->id();

@@ -93,7 +93,17 @@ class EventRegistrationController extends Controller
             abort(404);
         }
 
-        $event->load(['scheme.units']);
+        $event->load([
+            'scheme.units',
+            'sessions' => function ($query) {
+                $query->where('is_active', true)
+                    ->orderBy('session_date')
+                    ->orderBy('start_time');
+            },
+            'tuks.tuk',
+            'assessors.assessor',
+            'status',
+        ]);
 
         // Check if already registered
         $assessee = auth()->user()->assessee;

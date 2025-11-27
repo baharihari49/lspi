@@ -66,6 +66,11 @@ class Event extends Model
         return $this->hasMany(EventAttendance::class);
     }
 
+    public function apl01Forms(): HasMany
+    {
+        return $this->hasMany(Apl01Form::class);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

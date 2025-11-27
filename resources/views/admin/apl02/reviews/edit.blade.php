@@ -75,43 +75,43 @@
                     </div>
                 </div>
 
-                <!-- Current Status -->
+                <!-- Status & Decision -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Current Status</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Status & Decision</h3>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Status -->
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                            @php
-                                $statusColors = [
-                                    'draft' => 'bg-gray-100 text-gray-800',
-                                    'in_progress' => 'bg-blue-100 text-blue-800',
-                                    'completed' => 'bg-green-100 text-green-800',
-                                    'submitted' => 'bg-indigo-100 text-indigo-800',
-                                    'approved' => 'bg-purple-100 text-purple-800',
-                                    'revision_required' => 'bg-yellow-100 text-yellow-800',
-                                ];
-                            @endphp
-                            <span class="inline-block px-3 py-2 rounded-lg text-sm font-semibold {{ $statusColors[$review->status] ?? 'bg-gray-100 text-gray-800' }}">
-                                {{ ucfirst(str_replace('_', ' ', $review->status)) }}
-                            </span>
+                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
+                            <select id="status" name="status" required
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('status') border-red-500 @enderror">
+                                <option value="draft" {{ old('status', $review->status) === 'draft' ? 'selected' : '' }}>Draft</option>
+                                <option value="in_progress" {{ old('status', $review->status) === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                <option value="completed" {{ old('status', $review->status) === 'completed' ? 'selected' : '' }}>Completed</option>
+                                <option value="submitted" {{ old('status', $review->status) === 'submitted' ? 'selected' : '' }}>Submitted</option>
+                                <option value="approved" {{ old('status', $review->status) === 'approved' ? 'selected' : '' }}>Approved</option>
+                                <option value="revision_required" {{ old('status', $review->status) === 'revision_required' ? 'selected' : '' }}>Revision Required</option>
+                            </select>
+                            @error('status')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
+                        <!-- Decision -->
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Decision</label>
-                            @php
-                                $decisionColors = [
-                                    'pending' => 'bg-gray-100 text-gray-800',
-                                    'competent' => 'bg-green-100 text-green-800',
-                                    'not_yet_competent' => 'bg-red-100 text-red-800',
-                                    'requires_more_evidence' => 'bg-orange-100 text-orange-800',
-                                    'requires_demonstration' => 'bg-yellow-100 text-yellow-800',
-                                    'deferred' => 'bg-gray-100 text-gray-800',
-                                ];
-                            @endphp
-                            <span class="inline-block px-3 py-2 rounded-lg text-sm font-semibold {{ $decisionColors[$review->decision] ?? 'bg-gray-100 text-gray-800' }}">
-                                {{ ucfirst(str_replace('_', ' ', $review->decision)) }}
-                            </span>
+                            <label for="decision" class="block text-sm font-semibold text-gray-700 mb-2">Decision *</label>
+                            <select id="decision" name="decision" required
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('decision') border-red-500 @enderror">
+                                <option value="pending" {{ old('decision', $review->decision) === 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="competent" {{ old('decision', $review->decision) === 'competent' ? 'selected' : '' }}>Competent</option>
+                                <option value="not_yet_competent" {{ old('decision', $review->decision) === 'not_yet_competent' ? 'selected' : '' }}>Not Yet Competent</option>
+                                <option value="requires_more_evidence" {{ old('decision', $review->decision) === 'requires_more_evidence' ? 'selected' : '' }}>Requires More Evidence</option>
+                                <option value="requires_demonstration" {{ old('decision', $review->decision) === 'requires_demonstration' ? 'selected' : '' }}>Requires Demonstration</option>
+                                <option value="deferred" {{ old('decision', $review->decision) === 'deferred' ? 'selected' : '' }}>Deferred</option>
+                            </select>
+                            @error('decision')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         @if($review->overall_score)
@@ -127,11 +127,6 @@
                                 <p class="text-sm text-gray-900">{{ $review->review_started_at->format('d M Y H:i') }}</p>
                             </div>
                         @endif
-                    </div>
-
-                    <div class="mt-4 p-4 bg-blue-50 rounded-lg">
-                        <p class="text-xs text-blue-800 font-semibold">Note:</p>
-                        <p class="text-xs text-blue-700 mt-1">Status and decision can only be changed through the "Conduct Review" process. Use this form to update basic review information only.</p>
                     </div>
                 </div>
 
@@ -241,6 +236,7 @@
                         <p class="text-xs text-blue-800 mb-2 font-semibold">Editable Fields:</p>
                         <ul class="text-xs text-blue-700 space-y-1">
                             <li>• Review type</li>
+                            <li>• Status & decision</li>
                             <li>• Deadline</li>
                             <li>• Overall comments</li>
                             <li>• Recommendations</li>
@@ -253,10 +249,9 @@
                             <li>• Review number</li>
                             <li>• Portfolio unit</li>
                             <li>• Assessor</li>
-                            <li>• Status & decision</li>
                             <li>• VATUK scores</li>
                         </ul>
-                        <p class="text-xs text-yellow-700 mt-2">Use "Conduct Review" to update scores and decision.</p>
+                        <p class="text-xs text-yellow-700 mt-2">Use "Conduct Review" to update VATUK scores.</p>
                     </div>
 
                     <!-- Metadata -->

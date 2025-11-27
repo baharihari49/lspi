@@ -61,17 +61,16 @@ class EventController extends Controller
             'registration_end' => 'nullable|date|after_or_equal:registration_start',
             'max_participants' => 'nullable|integer|min:1',
             'registration_fee' => 'nullable|numeric|min:0',
-            'status_id' => 'nullable|exists:master_statuses,id',
-            'is_published' => 'nullable|boolean',
+            'status_id' => 'required|exists:master_statuses,id',
             'is_active' => 'nullable|boolean',
             'location' => 'nullable|string|max:255',
             'location_address' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $event = Event::create([
             ...$validated,
             'current_participants' => 0,
-            'is_published' => !empty($validated['is_published']),
             'is_active' => !empty($validated['is_active']),
             'created_by' => Auth::id(),
             'updated_by' => Auth::id(),
@@ -79,7 +78,7 @@ class EventController extends Controller
 
         return redirect()
             ->route('admin.events.show', $event)
-            ->with('success', 'Event created successfully');
+            ->with('success', 'Event berhasil dibuat');
     }
 
     public function show(Event $event)
@@ -123,23 +122,22 @@ class EventController extends Controller
             'registration_end' => 'nullable|date|after_or_equal:registration_start',
             'max_participants' => 'nullable|integer|min:1',
             'registration_fee' => 'nullable|numeric|min:0',
-            'status_id' => 'nullable|exists:master_statuses,id',
-            'is_published' => 'nullable|boolean',
+            'status_id' => 'required|exists:master_statuses,id',
             'is_active' => 'nullable|boolean',
             'location' => 'nullable|string|max:255',
             'location_address' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $event->update([
             ...$validated,
-            'is_published' => !empty($validated['is_published']),
             'is_active' => !empty($validated['is_active']),
             'updated_by' => Auth::id(),
         ]);
 
         return redirect()
             ->route('admin.events.show', $event)
-            ->with('success', 'Event updated successfully');
+            ->with('success', 'Event berhasil diperbarui');
     }
 
     public function destroy(Event $event)
@@ -148,26 +146,6 @@ class EventController extends Controller
 
         return redirect()
             ->route('admin.events.index')
-            ->with('success', 'Event deleted successfully');
-    }
-
-    public function publish(Event $event)
-    {
-        $event->update([
-            'is_published' => true,
-            'updated_by' => Auth::id(),
-        ]);
-
-        return back()->with('success', 'Event published successfully');
-    }
-
-    public function unpublish(Event $event)
-    {
-        $event->update([
-            'is_published' => false,
-            'updated_by' => Auth::id(),
-        ]);
-
-        return back()->with('success', 'Event unpublished successfully');
+            ->with('success', 'Event berhasil dihapus');
     }
 }

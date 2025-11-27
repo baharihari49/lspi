@@ -346,6 +346,18 @@
                     @endif
 
                     @if($apl01->status === 'submitted')
+                        @php
+                            // Get the auto-assigned reviewer info
+                            $autoReviewerId = $apl01->getReviewerFromEventAssessors();
+                            $autoReviewer = $autoReviewerId ? \App\Models\User::find($autoReviewerId) : null;
+                        @endphp
+                        @if($autoReviewer)
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                                <p class="text-xs text-blue-700 mb-1">Reviewer akan di-assign ke:</p>
+                                <p class="font-semibold text-blue-900">{{ $autoReviewer->name }}</p>
+                                <p class="text-xs text-blue-600">{{ $autoReviewer->email }}</p>
+                            </div>
+                        @endif
                         <form action="{{ route('admin.apl01.accept-review', $apl01) }}" method="POST" onsubmit="return confirm('Terima form ini untuk review?')">
                             @csrf
                             <button type="submit" class="w-full h-12 px-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2">

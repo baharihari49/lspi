@@ -246,7 +246,55 @@ class Apl02Unit extends Model
         $this->status = 'submitted';
         $this->submitted_at = now();
         $this->submitted_by = $userId;
-        return $this->save();
+
+        // Auto-assign assessor from event if not already assigned
+        $autoAssignedAssessor = null;
+        if (!$this->assessor_id) {
+            $assessorUserId = $this->getAssessorFromEventAssessors();
+            if ($assessorUserId) {
+                $this->assessor_id = $assessorUserId;
+                $this->assigned_at = now();
+                $this->status = 'under_review';
+                $autoAssignedAssessor = $assessorUserId;
+            }
+        }
+
+        $saved = $this->save();
+
+        // Auto-create initial review record if assessor was auto-assigned
+        if ($saved && $autoAssignedAssessor && !$this->assessorReviews()->where('review_type', 'initial_review')->exists()) {
+            $this->assessorReviews()->create([
+                'assessor_id' => $autoAssignedAssessor,
+                'review_type' => 'initial_review',
+                'decision' => 'pending',
+                'status' => 'draft',
+            ]);
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Get assessor user_id from event's confirmed assessors.
+     * Prioritizes: lead assessor first, then any confirmed assessor with a user account.
+     */
+    public function getAssessorFromEventAssessors(): ?int
+    {
+        if (!$this->event_id || !$this->event) {
+            return null;
+        }
+
+        // Get confirmed assessors from the event, prioritizing lead assessor
+        $eventAssessor = $this->event->assessors()
+            ->where('status', 'confirmed')
+            ->whereHas('assessor', function ($query) {
+                $query->whereNotNull('user_id');
+            })
+            ->with('assessor')
+            ->orderByRaw("CASE WHEN role = 'lead' THEN 0 ELSE 1 END")
+            ->first();
+
+        return $eventAssessor?->assessor?->user_id;
     }
 
     public function assignToAssessor($assessorId): bool
@@ -254,7 +302,19 @@ class Apl02Unit extends Model
         $this->assessor_id = $assessorId;
         $this->assigned_at = now();
         $this->status = 'under_review';
-        return $this->save();
+        $saved = $this->save();
+
+        // Auto-create initial review record if not exists
+        if ($saved && !$this->assessorReviews()->where('review_type', 'initial_review')->exists()) {
+            $this->assessorReviews()->create([
+                'assessor_id' => $assessorId,
+                'review_type' => 'initial_review',
+                'decision' => 'pending',
+                'status' => 'draft',
+            ]);
+        }
+
+        return $saved;
     }
 
     public function startAssessment(): bool

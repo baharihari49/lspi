@@ -4,6 +4,13 @@
 
 @php
     $active = 'apl01';
+    // Get assessee data as fallback for empty fields
+    $assessee = $apl01->assessee;
+
+    // Helper function to get value with fallback (handles empty strings)
+    $getValue = function($apl01Value, $assesseeValue) {
+        return (old(null) === null && empty($apl01Value)) ? $assesseeValue : $apl01Value;
+    };
 @endphp
 
 @section('page_title', 'Edit APL-01 Form')
@@ -83,7 +90,7 @@
                         <!-- Full Name -->
                         <div class="md:col-span-2">
                             <label for="full_name" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-                            <input type="text" id="full_name" name="full_name" value="{{ old('full_name', $apl01->full_name) }}" required
+                            <input type="text" id="full_name" name="full_name" value="{{ old('full_name', $apl01->full_name ?? $assessee?->full_name) }}" required
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('full_name') border-red-500 @enderror">
                             @error('full_name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -93,7 +100,7 @@
                         <!-- ID Number -->
                         <div>
                             <label for="id_number" class="block text-sm font-semibold text-gray-700 mb-2">ID Number (NIK/Passport) *</label>
-                            <input type="text" id="id_number" name="id_number" value="{{ old('id_number', $apl01->id_number) }}" required
+                            <input type="text" id="id_number" name="id_number" value="{{ old('id_number', !empty($apl01->id_number) ? $apl01->id_number : $assessee?->id_number) }}" required
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('id_number') border-red-500 @enderror">
                             @error('id_number')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -103,7 +110,7 @@
                         <!-- Date of Birth -->
                         <div>
                             <label for="date_of_birth" class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label>
-                            <input type="date" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth', $apl01->date_of_birth?->format('Y-m-d')) }}"
+                            <input type="date" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth', $apl01->date_of_birth?->format('Y-m-d') ?? $assessee?->date_of_birth?->format('Y-m-d')) }}"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('date_of_birth') border-red-500 @enderror">
                             @error('date_of_birth')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -113,7 +120,7 @@
                         <!-- Place of Birth -->
                         <div>
                             <label for="place_of_birth" class="block text-sm font-semibold text-gray-700 mb-2">Place of Birth</label>
-                            <input type="text" id="place_of_birth" name="place_of_birth" value="{{ old('place_of_birth', $apl01->place_of_birth) }}"
+                            <input type="text" id="place_of_birth" name="place_of_birth" value="{{ old('place_of_birth', $apl01->place_of_birth ?? $assessee?->place_of_birth) }}"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('place_of_birth') border-red-500 @enderror">
                             @error('place_of_birth')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -121,13 +128,16 @@
                         </div>
 
                         <!-- Gender -->
+                        @php
+                            $genderValue = old('gender', $apl01->gender ?? $assessee?->gender);
+                        @endphp
                         <div>
                             <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
                             <select id="gender" name="gender"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('gender') border-red-500 @enderror">
                                 <option value="">Select Gender</option>
-                                <option value="male" {{ old('gender', $apl01->gender) === 'male' ? 'selected' : '' }}>Male</option>
-                                <option value="female" {{ old('gender', $apl01->gender) === 'female' ? 'selected' : '' }}>Female</option>
+                                <option value="male" {{ $genderValue === 'male' ? 'selected' : '' }}>Male</option>
+                                <option value="female" {{ $genderValue === 'female' ? 'selected' : '' }}>Female</option>
                             </select>
                             @error('gender')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -137,7 +147,7 @@
                         <!-- Nationality -->
                         <div>
                             <label for="nationality" class="block text-sm font-semibold text-gray-700 mb-2">Nationality</label>
-                            <input type="text" id="nationality" name="nationality" value="{{ old('nationality', $apl01->nationality ?? 'Indonesia') }}"
+                            <input type="text" id="nationality" name="nationality" value="{{ old('nationality', $apl01->nationality ?? $assessee?->nationality ?? 'Indonesia') }}"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('nationality') border-red-500 @enderror">
                             @error('nationality')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -147,7 +157,7 @@
                         <!-- Email -->
                         <div>
                             <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
-                            <input type="email" id="email" name="email" value="{{ old('email', $apl01->email) }}" required
+                            <input type="email" id="email" name="email" value="{{ old('email', $apl01->email ?? $assessee?->email) }}" required
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('email') border-red-500 @enderror">
                             @error('email')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -157,7 +167,7 @@
                         <!-- Mobile -->
                         <div>
                             <label for="mobile" class="block text-sm font-semibold text-gray-700 mb-2">Mobile Phone *</label>
-                            <input type="text" id="mobile" name="mobile" value="{{ old('mobile', $apl01->mobile) }}" required
+                            <input type="text" id="mobile" name="mobile" value="{{ old('mobile', $apl01->mobile ?? $assessee?->mobile ?? $assessee?->phone) }}" required
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('mobile') border-red-500 @enderror">
                             @error('mobile')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -167,7 +177,7 @@
                         <!-- Phone -->
                         <div>
                             <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone (Optional)</label>
-                            <input type="text" id="phone" name="phone" value="{{ old('phone', $apl01->phone) }}"
+                            <input type="text" id="phone" name="phone" value="{{ old('phone', $apl01->phone ?? $assessee?->phone) }}"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('phone') border-red-500 @enderror">
                             @error('phone')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -178,7 +188,7 @@
                         <div class="md:col-span-2">
                             <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">Address</label>
                             <textarea id="address" name="address" rows="3"
-                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('address') border-red-500 @enderror">{{ old('address', $apl01->address) }}</textarea>
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('address') border-red-500 @enderror">{{ old('address', $apl01->address ?? $assessee?->address) }}</textarea>
                             @error('address')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -187,7 +197,7 @@
                         <!-- City -->
                         <div>
                             <label for="city" class="block text-sm font-semibold text-gray-700 mb-2">City</label>
-                            <input type="text" id="city" name="city" value="{{ old('city', $apl01->city) }}"
+                            <input type="text" id="city" name="city" value="{{ old('city', $apl01->city ?? $assessee?->city) }}"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('city') border-red-500 @enderror">
                             @error('city')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -197,7 +207,7 @@
                         <!-- Province -->
                         <div>
                             <label for="province" class="block text-sm font-semibold text-gray-700 mb-2">Province</label>
-                            <input type="text" id="province" name="province" value="{{ old('province', $apl01->province) }}"
+                            <input type="text" id="province" name="province" value="{{ old('province', $apl01->province ?? $assessee?->province) }}"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('province') border-red-500 @enderror">
                             @error('province')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -207,7 +217,7 @@
                         <!-- Postal Code -->
                         <div>
                             <label for="postal_code" class="block text-sm font-semibold text-gray-700 mb-2">Postal Code</label>
-                            <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code', $apl01->postal_code) }}"
+                            <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code', $apl01->postal_code ?? $assessee?->postal_code) }}"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('postal_code') border-red-500 @enderror">
                             @error('postal_code')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -224,7 +234,7 @@
                         <!-- Current Company -->
                         <div class="md:col-span-2">
                             <label for="current_company" class="block text-sm font-semibold text-gray-700 mb-2">Current Company</label>
-                            <input type="text" id="current_company" name="current_company" value="{{ old('current_company', $apl01->current_company) }}"
+                            <input type="text" id="current_company" name="current_company" value="{{ old('current_company', $apl01->current_company ?? $assessee?->current_company) }}"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('current_company') border-red-500 @enderror">
                             @error('current_company')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -234,7 +244,7 @@
                         <!-- Current Position -->
                         <div>
                             <label for="current_position" class="block text-sm font-semibold text-gray-700 mb-2">Current Position</label>
-                            <input type="text" id="current_position" name="current_position" value="{{ old('current_position', $apl01->current_position) }}"
+                            <input type="text" id="current_position" name="current_position" value="{{ old('current_position', $apl01->current_position ?? $assessee?->current_position) }}"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('current_position') border-red-500 @enderror">
                             @error('current_position')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -244,7 +254,7 @@
                         <!-- Current Industry -->
                         <div>
                             <label for="current_industry" class="block text-sm font-semibold text-gray-700 mb-2">Industry</label>
-                            <input type="text" id="current_industry" name="current_industry" value="{{ old('current_industry', $apl01->current_industry) }}"
+                            <input type="text" id="current_industry" name="current_industry" value="{{ old('current_industry', $apl01->current_industry ?? $assessee?->current_industry) }}"
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('current_industry') border-red-500 @enderror">
                             @error('current_industry')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -279,6 +289,14 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Dynamic Form Fields -->
+                @if($apl01->scheme && $apl01->scheme->formFields->count() > 0)
+                    <x-dynamic-form-fields
+                        :fields="$apl01->scheme->formFields"
+                        :answers="$apl01->answers"
+                    />
+                @endif
             </div>
 
             <!-- Right Column: Actions -->

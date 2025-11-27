@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Apl01Answer;
 use App\Models\Apl01Form;
+use App\Models\Apl01FormField;
 use App\Models\Assessee;
 use App\Models\Scheme;
 use App\Models\Event;
 use App\Services\CertificationFlowService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class Apl01FormController extends Controller
 {
@@ -128,6 +131,9 @@ class Apl01FormController extends Controller
             $form->created_by = auth()->id();
             $form->save();
 
+            // Save dynamic field answers
+            $this->saveFieldAnswers($form, $request);
+
             DB::commit();
 
             return redirect()
@@ -236,6 +242,9 @@ class Apl01FormController extends Controller
             $apl01->updated_by = auth()->id();
             $apl01->save();
 
+            // Save dynamic field answers
+            $this->saveFieldAnswers($apl01, $request);
+
             DB::commit();
 
             return redirect()
@@ -341,7 +350,8 @@ class Apl01FormController extends Controller
 
         DB::beginTransaction();
         try {
-            $apl01->acceptForReview(auth()->id());
+            // Don't pass auth()->id() - let the model auto-assign from event assessors
+            $apl01->acceptForReview();
             DB::commit();
 
             return back()->with('success', 'Form berhasil diterima untuk review.');
@@ -402,6 +412,101 @@ class Apl01FormController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Failed to update declaration: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get dynamic form fields for a scheme (AJAX)
+     */
+    public function getSchemeFields(Request $request)
+    {
+        $request->validate([
+            'scheme_id' => 'required|exists:schemes,id',
+            'apl01_form_id' => 'nullable|exists:apl01_forms,id',
+        ]);
+
+        $fields = Apl01FormField::where('scheme_id', $request->scheme_id)
+            ->active()
+            ->visible()
+            ->orderBy('section')
+            ->orderBy('order')
+            ->get();
+
+        // If editing, get existing answers
+        $answers = [];
+        if ($request->filled('apl01_form_id')) {
+            $answers = Apl01Answer::where('apl01_form_id', $request->apl01_form_id)
+                ->pluck('answer_value', 'form_field_id')
+                ->toArray();
+        }
+
+        return response()->json([
+            'success' => true,
+            'fields' => $fields->map(function ($field) use ($answers) {
+                return [
+                    'id' => $field->id,
+                    'field_name' => $field->field_name,
+                    'field_label' => $field->field_label,
+                    'field_description' => $field->field_description,
+                    'field_type' => $field->field_type,
+                    'field_options' => $field->field_options,
+                    'is_required' => $field->is_required,
+                    'placeholder' => $field->placeholder,
+                    'help_text' => $field->help_text,
+                    'section' => $field->section,
+                    'default_value' => $field->default_value,
+                    'answer' => $answers[$field->id] ?? null,
+                ];
+            }),
+        ]);
+    }
+
+    /**
+     * Save dynamic field answers
+     */
+    protected function saveFieldAnswers(Apl01Form $form, Request $request): void
+    {
+        $fields = Apl01FormField::where('scheme_id', $form->scheme_id)
+            ->active()
+            ->visible()
+            ->get();
+
+        foreach ($fields as $field) {
+            $fieldKey = 'dynamic_field_' . $field->id;
+            $value = $request->input($fieldKey);
+
+            // Handle file uploads
+            if ($field->field_type === 'file' && $request->hasFile($fieldKey)) {
+                $file = $request->file($fieldKey);
+                $path = $file->store('apl01-answers/' . $form->id, 'public');
+                $value = $path;
+            }
+
+            // Skip if no value and not required
+            if ($value === null && !$field->is_required) {
+                continue;
+            }
+
+            // Handle array values (checkboxes, multi-select)
+            $answerJson = null;
+            if (is_array($value)) {
+                $answerJson = $value;
+                $value = implode(', ', $value);
+            }
+
+            // Update or create answer
+            Apl01Answer::updateOrCreate(
+                [
+                    'apl01_form_id' => $form->id,
+                    'form_field_id' => $field->id,
+                ],
+                [
+                    'answer_value' => $value,
+                    'answer_json' => $answerJson,
+                    'is_valid' => true,
+                    'review_status' => 'pending',
+                ]
+            );
         }
     }
 }

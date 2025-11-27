@@ -278,6 +278,11 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Dynamic Form Fields Container -->
+                <div id="dynamic-fields-container">
+                    <!-- Dynamic fields will be loaded here via JavaScript -->
+                </div>
             </div>
 
             <!-- Right Column: Actions -->
@@ -310,37 +315,231 @@
         </div>
     </form>
 
-    @if($selectedAssessee)
-        <script>
-            // Auto-fill data when assessee is selected
-            document.getElementById('assessee_id').addEventListener('change', function() {
-                if (this.value) {
-                    // Call autofill API
-                    fetch('{{ route('admin.apl01.autofill') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            assessee_id: this.value
-                        })
+    <script>
+        // Auto-fill data when assessee is selected
+        document.getElementById('assessee_id').addEventListener('change', function() {
+            if (this.value) {
+                // Call autofill API
+                fetch('{{ route('admin.apl01.autofill') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        assessee_id: this.value
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Fill form fields
-                            Object.keys(data.data).forEach(key => {
-                                const field = document.getElementById(key);
-                                if (field && data.data[key]) {
-                                    field.value = data.data[key];
-                                }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Fill form fields
+                        Object.keys(data.data).forEach(key => {
+                            const field = document.getElementById(key);
+                            if (field && data.data[key]) {
+                                field.value = data.data[key];
+                            }
+                        });
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        });
+
+        // Load dynamic fields when scheme is selected
+        document.getElementById('scheme_id').addEventListener('change', function() {
+            loadDynamicFields(this.value);
+        });
+
+        function loadDynamicFields(schemeId) {
+            const container = document.getElementById('dynamic-fields-container');
+
+            if (!schemeId) {
+                container.innerHTML = '';
+                return;
+            }
+
+            // Show loading
+            container.innerHTML = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"><div class="flex items-center gap-2 text-gray-500"><span class="material-symbols-outlined animate-spin">progress_activity</span><span>Memuat field tambahan...</span></div></div>';
+
+            fetch('{{ route('admin.apl01.scheme-fields') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    scheme_id: schemeId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.fields.length > 0) {
+                    container.innerHTML = renderDynamicFields(data.fields);
+                } else {
+                    container.innerHTML = '';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading dynamic fields:', error);
+                container.innerHTML = '';
+            });
+        }
+
+        function renderDynamicFields(fields) {
+            let html = `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-600">dynamic_form</span>
+                        Informasi Tambahan
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            `;
+
+            fields.forEach(field => {
+                const fieldName = 'dynamic_field_' + field.id;
+                const required = field.is_required ? '<span class="text-red-500">*</span>' : '';
+                const requiredAttr = field.is_required ? 'required' : '';
+                const value = field.answer || field.default_value || '';
+
+                switch(field.field_type) {
+                    case 'textarea':
+                        html += `
+                            <div class="md:col-span-2">
+                                <label for="${fieldName}" class="block text-sm font-semibold text-gray-700 mb-2">${field.field_label} ${required}</label>
+                                <textarea id="${fieldName}" name="${fieldName}" rows="3" placeholder="${field.placeholder || ''}" ${requiredAttr}
+                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">${value}</textarea>
+                                ${field.help_text ? `<p class="mt-1 text-xs text-gray-500">${field.help_text}</p>` : ''}
+                            </div>
+                        `;
+                        break;
+
+                    case 'select':
+                        let options = '<option value="">Pilih...</option>';
+                        if (field.field_options) {
+                            field.field_options.forEach(opt => {
+                                const optValue = typeof opt === 'object' ? (opt.value || opt) : opt;
+                                const optLabel = typeof opt === 'object' ? (opt.label || opt) : opt;
+                                const selected = value == optValue ? 'selected' : '';
+                                options += `<option value="${optValue}" ${selected}>${optLabel}</option>`;
                             });
                         }
-                    })
-                    .catch(error => console.error('Error:', error));
+                        html += `
+                            <div>
+                                <label for="${fieldName}" class="block text-sm font-semibold text-gray-700 mb-2">${field.field_label} ${required}</label>
+                                <select id="${fieldName}" name="${fieldName}" ${requiredAttr}
+                                    class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                    ${options}
+                                </select>
+                                ${field.help_text ? `<p class="mt-1 text-xs text-gray-500">${field.help_text}</p>` : ''}
+                            </div>
+                        `;
+                        break;
+
+                    case 'radio':
+                        let radioOptions = '';
+                        if (field.field_options) {
+                            field.field_options.forEach(opt => {
+                                const optValue = typeof opt === 'object' ? (opt.value || opt) : opt;
+                                const optLabel = typeof opt === 'object' ? (opt.label || opt) : opt;
+                                const checked = value == optValue ? 'checked' : '';
+                                radioOptions += `
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="${fieldName}" value="${optValue}" ${checked} ${requiredAttr}
+                                            class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">${optLabel}</span>
+                                    </label>
+                                `;
+                            });
+                        }
+                        html += `
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">${field.field_label} ${required}</label>
+                                <div class="flex flex-wrap gap-4">${radioOptions}</div>
+                                ${field.help_text ? `<p class="mt-1 text-xs text-gray-500">${field.help_text}</p>` : ''}
+                            </div>
+                        `;
+                        break;
+
+                    case 'yesno':
+                        html += `
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">${field.field_label} ${required}</label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="${fieldName}" value="yes" ${value === 'yes' ? 'checked' : ''} ${requiredAttr}
+                                            class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Ya</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="${fieldName}" value="no" ${value === 'no' ? 'checked' : ''}
+                                            class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Tidak</span>
+                                    </label>
+                                </div>
+                                ${field.help_text ? `<p class="mt-1 text-xs text-gray-500">${field.help_text}</p>` : ''}
+                            </div>
+                        `;
+                        break;
+
+                    case 'date':
+                        html += `
+                            <div>
+                                <label for="${fieldName}" class="block text-sm font-semibold text-gray-700 mb-2">${field.field_label} ${required}</label>
+                                <input type="date" id="${fieldName}" name="${fieldName}" value="${value}" ${requiredAttr}
+                                    class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                ${field.help_text ? `<p class="mt-1 text-xs text-gray-500">${field.help_text}</p>` : ''}
+                            </div>
+                        `;
+                        break;
+
+                    case 'number':
+                        html += `
+                            <div>
+                                <label for="${fieldName}" class="block text-sm font-semibold text-gray-700 mb-2">${field.field_label} ${required}</label>
+                                <input type="number" id="${fieldName}" name="${fieldName}" value="${value}" placeholder="${field.placeholder || ''}" ${requiredAttr}
+                                    class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                ${field.help_text ? `<p class="mt-1 text-xs text-gray-500">${field.help_text}</p>` : ''}
+                            </div>
+                        `;
+                        break;
+
+                    case 'file':
+                        html += `
+                            <div>
+                                <label for="${fieldName}" class="block text-sm font-semibold text-gray-700 mb-2">${field.field_label} ${required}</label>
+                                <input type="file" id="${fieldName}" name="${fieldName}" ${requiredAttr}
+                                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                ${field.help_text ? `<p class="mt-1 text-xs text-gray-500">${field.help_text}</p>` : ''}
+                            </div>
+                        `;
+                        break;
+
+                    default: // text, email, url, phone
+                        const inputType = ['email', 'url'].includes(field.field_type) ? field.field_type : 'text';
+                        html += `
+                            <div>
+                                <label for="${fieldName}" class="block text-sm font-semibold text-gray-700 mb-2">${field.field_label} ${required}</label>
+                                <input type="${inputType}" id="${fieldName}" name="${fieldName}" value="${value}" placeholder="${field.placeholder || ''}" ${requiredAttr}
+                                    class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                ${field.help_text ? `<p class="mt-1 text-xs text-gray-500">${field.help_text}</p>` : ''}
+                            </div>
+                        `;
                 }
             });
-        </script>
-    @endif
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        // Load fields on page load if scheme is already selected
+        const schemeSelect = document.getElementById('scheme_id');
+        if (schemeSelect.value) {
+            loadDynamicFields(schemeSelect.value);
+        }
+    </script>
 @endsection

@@ -217,15 +217,41 @@
                 @endif
             </div>
 
+            <!-- Assessor Assignment -->
+            @if(!$unit->assessor_id && $unit->is_submitted && $unit->event_id)
+                @php
+                    $autoAssessorId = $unit->getAssessorFromEventAssessors();
+                    $autoAssessor = $autoAssessorId ? \App\Models\User::find($autoAssessorId) : null;
+                @endphp
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Assign Assessor</h3>
+
+                    @if($autoAssessor)
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                            <p class="text-xs text-blue-700 mb-1">Assessor dari Event:</p>
+                            <p class="font-semibold text-blue-900">{{ $autoAssessor->name }}</p>
+                            <p class="text-xs text-blue-600">{{ $autoAssessor->email }}</p>
+                        </div>
+                        <form action="{{ route('admin.apl02.units.assign-assessor', $unit) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="assessor_id" value="{{ $autoAssessorId }}">
+                            <button type="submit" class="w-full h-12 px-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">person_add</span>
+                                Assign Assessor dari Event
+                            </button>
+                        </form>
+                    @else
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <p class="text-sm text-yellow-800">Tidak ada assessor yang tersedia dari event ini. Silakan assign assessor secara manual.</p>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             <!-- Assessment Reviews -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-900">Assessment Reviews</h3>
-                    @if($unit->assessor_id)
-                        <a href="{{ route('admin.apl02.reviews.create', ['unit_id' => $unit->id]) }}" class="text-sm text-blue-600 hover:text-blue-800 font-semibold">
-                            + Create Review
-                        </a>
-                    @endif
                 </div>
 
                 @if($unit->assessorReviews->count() > 0)
@@ -237,13 +263,32 @@
                                         <div class="flex items-center gap-2 mb-2">
                                             <span class="text-sm font-semibold text-gray-900">{{ $review->review_number }}</span>
                                             <span class="px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-800">{{ $review->review_type_label }}</span>
+                                            @php
+                                                $reviewStatusColors = [
+                                                    'draft' => 'bg-gray-100 text-gray-800',
+                                                    'in_progress' => 'bg-blue-100 text-blue-800',
+                                                    'completed' => 'bg-green-100 text-green-800',
+                                                    'approved' => 'bg-green-100 text-green-800',
+                                                    'revision_required' => 'bg-orange-100 text-orange-800',
+                                                ];
+                                            @endphp
+                                            <span class="px-2 py-0.5 rounded text-xs font-semibold {{ $reviewStatusColors[$review->status] ?? 'bg-gray-100 text-gray-800' }}">
+                                                {{ $review->status_label }}
+                                            </span>
                                         </div>
-                                        <p class="text-sm text-gray-700 mb-1">by {{ $review->assessor->name }}</p>
+                                        <p class="text-sm text-gray-700 mb-1">Assessor: {{ $review->assessor->name }}</p>
                                         <p class="text-xs text-gray-600">Decision: {{ $review->decision_label }}</p>
                                     </div>
-                                    <a href="{{ route('admin.apl02.reviews.show', $review) }}" class="text-blue-600 hover:text-blue-800">
-                                        <span class="material-symbols-outlined">arrow_forward</span>
-                                    </a>
+                                    <div class="flex items-center gap-2">
+                                        @if($review->status === 'draft' || $review->status === 'in_progress')
+                                            <a href="{{ route('admin.apl02.reviews.conduct', $review) }}" class="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded hover:bg-blue-700">
+                                                Conduct Review
+                                            </a>
+                                        @endif
+                                        <a href="{{ route('admin.apl02.reviews.show', $review) }}" class="text-blue-600 hover:text-blue-800">
+                                            <span class="material-symbols-outlined">arrow_forward</span>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
@@ -251,7 +296,10 @@
                 @else
                     <div class="text-center py-8 text-gray-500">
                         <span class="material-symbols-outlined text-5xl mb-2 block text-gray-300">rate_review</span>
-                        <p class="text-sm">No reviews conducted yet</p>
+                        <p class="text-sm">No reviews yet</p>
+                        @if(!$unit->assessor_id)
+                            <p class="text-xs text-gray-400 mt-1">Assign assessor first to create review</p>
+                        @endif
                     </div>
                 @endif
             </div>

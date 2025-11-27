@@ -33,7 +33,7 @@ class EventTukController extends Controller
     public function store(Request $request, Event $event)
     {
         $validated = $request->validate([
-            'tuk_id' => 'required|exists:tuks,id',
+            'tuk_id' => 'required|exists:tuk,id',
             'event_session_id' => 'nullable|exists:event_sessions,id',
             'notes' => 'nullable|string',
             'is_primary' => 'boolean',
@@ -62,7 +62,7 @@ class EventTukController extends Controller
     public function update(Request $request, Event $event, EventTuk $tuk)
     {
         $validated = $request->validate([
-            'tuk_id' => 'required|exists:tuks,id',
+            'tuk_id' => 'required|exists:tuk,id',
             'event_session_id' => 'nullable|exists:event_sessions,id',
             'notes' => 'nullable|string',
             'is_primary' => 'boolean',

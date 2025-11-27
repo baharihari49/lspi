@@ -75,7 +75,7 @@ class MyAssessmentController extends Controller
 
         $assessment->load([
             'scheme',
-            'event',
+            'event.tuks.tuk',
             'tuk',
             'leadAssessor',
             'assessmentUnits',

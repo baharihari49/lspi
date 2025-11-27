@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Assessee;
 
 use App\Http\Controllers\Controller;
+use App\Models\Apl01Answer;
 use App\Models\Apl01Form;
+use App\Models\Apl01FormField;
 use App\Models\Assessee;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class MyApl01Controller extends Controller
 {
@@ -99,7 +103,16 @@ class MyApl01Controller extends Controller
                 ->with('error', 'Form tidak dapat diedit karena sudah disubmit.');
         }
 
-        $apl01->load(['scheme', 'event', 'answers']);
+        $apl01->load([
+            'scheme.formFields' => function ($query) {
+                $query->active()
+                    ->visible()
+                    ->orderBy('section')
+                    ->orderBy('order');
+            },
+            'event',
+            'answers.formField',
+        ]);
 
         return view('assessee.my-apl01.edit', compact('apl01'));
     }
@@ -149,7 +162,20 @@ class MyApl01Controller extends Controller
             $validated['declaration_signed_at'] = now();
         }
 
-        $apl01->update($validated);
+        DB::beginTransaction();
+        try {
+            $apl01->update($validated);
+
+            // Save dynamic field answers
+            $this->saveFieldAnswers($apl01, $request);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.my-apl01.edit', $apl01)
+                ->withInput()
+                ->with('error', 'Gagal menyimpan formulir: ' . $e->getMessage());
+        }
 
         // Check if submit action
         if ($request->input('action') === 'submit') {
@@ -194,5 +220,54 @@ class MyApl01Controller extends Controller
 
         return redirect()->route('admin.my-apl01.show', $apl01)
             ->with('success', 'Form APL-01 berhasil disubmit untuk review.');
+    }
+
+    /**
+     * Save dynamic field answers
+     */
+    protected function saveFieldAnswers(Apl01Form $form, Request $request): void
+    {
+        $fields = Apl01FormField::where('scheme_id', $form->scheme_id)
+            ->active()
+            ->visible()
+            ->get();
+
+        foreach ($fields as $field) {
+            $fieldKey = 'dynamic_field_' . $field->id;
+            $value = $request->input($fieldKey);
+
+            // Handle file uploads
+            if ($field->field_type === 'file' && $request->hasFile($fieldKey)) {
+                $file = $request->file($fieldKey);
+                $path = $file->store('apl01-answers/' . $form->id, 'public');
+                $value = $path;
+            }
+
+            // Skip if no value and not required
+            if ($value === null && !$field->is_required) {
+                continue;
+            }
+
+            // Handle array values (checkboxes, multi-select)
+            $answerJson = null;
+            if (is_array($value)) {
+                $answerJson = $value;
+                $value = implode(', ', $value);
+            }
+
+            // Update or create answer
+            Apl01Answer::updateOrCreate(
+                [
+                    'apl01_form_id' => $form->id,
+                    'form_field_id' => $field->id,
+                ],
+                [
+                    'answer_value' => $value,
+                    'answer_json' => $answerJson,
+                    'is_valid' => true,
+                    'review_status' => 'pending',
+                ]
+            );
+        }
     }
 }

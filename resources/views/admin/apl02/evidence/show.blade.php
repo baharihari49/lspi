@@ -162,11 +162,11 @@
             @endif
 
             <!-- Element Mappings -->
-            @if($evidence->evidenceMaps->isNotEmpty())
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Mapped to Competency Elements</h3>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Competency Element Mapping</h3>
 
-                    <div class="space-y-3">
+                @if($evidence->evidenceMaps->isNotEmpty())
+                    <div class="space-y-3 mb-6">
                         @foreach($evidence->evidenceMaps as $map)
                             <div class="border border-gray-200 rounded-lg p-4">
                                 <div class="flex items-start justify-between mb-2">
@@ -174,16 +174,25 @@
                                         <p class="font-semibold text-gray-900">{{ $map->schemeElement->code }}</p>
                                         <p class="text-sm text-gray-600">{{ $map->schemeElement->title }}</p>
                                     </div>
-                                    @php
-                                        $coverageColors = [
-                                            'full' => 'bg-green-100 text-green-800',
-                                            'partial' => 'bg-yellow-100 text-yellow-800',
-                                            'supplementary' => 'bg-blue-100 text-blue-800',
-                                        ];
-                                    @endphp
-                                    <span class="px-2 py-1 rounded text-xs font-semibold {{ $coverageColors[$map->coverage_level] ?? 'bg-gray-100 text-gray-800' }}">
-                                        {{ ucfirst($map->coverage_level) }}
-                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        @php
+                                            $coverageColors = [
+                                                'full' => 'bg-green-100 text-green-800',
+                                                'partial' => 'bg-yellow-100 text-yellow-800',
+                                                'supplementary' => 'bg-blue-100 text-blue-800',
+                                            ];
+                                        @endphp
+                                        <span class="px-2 py-1 rounded text-xs font-semibold {{ $coverageColors[$map->coverage_level] ?? 'bg-gray-100 text-gray-800' }}">
+                                            {{ ucfirst($map->coverage_level) }}
+                                        </span>
+                                        <form action="{{ route('admin.apl02.evidence.unmap-from-element', [$evidence, $map]) }}" method="POST" class="inline" onsubmit="return confirm('Remove this mapping?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-800 p-1">
+                                                <span class="material-symbols-outlined text-sm">close</span>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
 
                                 @if($map->assessor_evaluation !== 'pending')
@@ -209,8 +218,68 @@
                             </div>
                         @endforeach
                     </div>
-                </div>
-            @endif
+                @else
+                    <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="flex items-start gap-2">
+                            <span class="material-symbols-outlined text-yellow-600">info</span>
+                            <p class="text-sm text-yellow-800">Evidence ini belum dipetakan ke elemen kompetensi. Petakan evidence ke elemen untuk menghitung progress unit.</p>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Add Mapping Form -->
+                @if($availableElements->isNotEmpty())
+                    @php
+                        $mappedElementIds = $evidence->evidenceMaps->pluck('scheme_element_id')->toArray();
+                        $unmappedElements = $availableElements->filter(fn($el) => !in_array($el->id, $mappedElementIds));
+                    @endphp
+
+                    @if($unmappedElements->isNotEmpty())
+                        <div class="border-t border-gray-200 pt-4">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Map to Element</h4>
+                            <form action="{{ route('admin.apl02.evidence.map-to-element', $evidence) }}" method="POST" class="space-y-3">
+                                @csrf
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Select Element</label>
+                                    <select name="scheme_element_id" required class="w-full h-10 px-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                                        <option value="">-- Pilih Elemen --</option>
+                                        @foreach($unmappedElements as $element)
+                                            <option value="{{ $element->id }}">{{ $element->code }} - {{ $element->title }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Coverage Level</label>
+                                    <select name="coverage_level" required class="w-full h-10 px-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                                        <option value="full">Full - Memenuhi seluruh kriteria elemen</option>
+                                        <option value="partial">Partial - Memenuhi sebagian kriteria</option>
+                                        <option value="supplementary">Supplementary - Bukti pendukung</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+                                    <textarea name="mapping_notes" rows="2" class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" placeholder="Catatan mapping..."></textarea>
+                                </div>
+                                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition">
+                                    <span class="material-symbols-outlined text-sm">add_link</span>
+                                    <span>Map to Element</span>
+                                </button>
+                            </form>
+                        </div>
+                    @else
+                        <div class="border-t border-gray-200 pt-4">
+                            <p class="text-sm text-green-600 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">check_circle</span>
+                                Semua elemen sudah dipetakan.
+                            </p>
+                        </div>
+                    @endif
+                @else
+                    <div class="border-t border-gray-200 pt-4">
+                        <p class="text-sm text-gray-500">Tidak ada elemen kompetensi tersedia untuk unit ini.</p>
+                    </div>
+                @endif
+            </div>
 
             <!-- Assessment Notes -->
             @if($evidence->assessor_notes || $evidence->verification_notes || $evidence->notes)

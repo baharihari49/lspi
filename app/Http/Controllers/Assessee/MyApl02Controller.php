@@ -249,12 +249,20 @@ class MyApl02Controller extends Controller
                 ->with('error', 'Harap upload minimal 1 bukti sebelum submit.');
         }
 
-        $unit->update([
-            'status' => 'submitted',
-            'submitted_at' => now(),
-        ]);
+        // Use model's submit method which auto-assigns assessor and creates review
+        $unit->submit(auth()->id());
+
+        // Reload to get fresh assessor relationship
+        $unit->load('assessor');
+
+        // Prepare success message based on what happened
+        $message = 'Unit berhasil disubmit untuk review.';
+        if ($unit->assessor_id) {
+            $assessorName = $unit->assessor?->name ?? 'Assessor';
+            $message = "Unit berhasil disubmit dan di-assign ke {$assessorName} untuk review.";
+        }
 
         return redirect()->route('admin.my-apl02.show', $unit)
-            ->with('success', 'Unit berhasil disubmit untuk review asesor.');
+            ->with('success', $message);
     }
 }

@@ -29,26 +29,32 @@ class EventSessionController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'session_type' => 'required|in:theory,practice,exam,other',
             'session_date' => 'required|date',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after:start_time',
-            'location' => 'nullable|string|max:255',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'room' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'max_participants' => 'nullable|integer|min:1',
-            'is_mandatory' => 'boolean',
+            'notes' => 'nullable|string',
+            'status' => 'nullable|in:scheduled,ongoing,completed,cancelled',
+            'is_active' => 'boolean',
         ]);
 
+        // Generate session code: EVT-001-S001
+        $sessionCount = $event->sessions()->count() + 1;
+        $validated['session_code'] = $event->code . '-S' . str_pad($sessionCount, 3, '0', STR_PAD_LEFT);
+
         $validated['event_id'] = $event->id;
-        $validated['is_mandatory'] = $request->has('is_mandatory');
-        $validated['created_by'] = Auth::id();
-        $validated['updated_by'] = Auth::id();
+        $validated['is_active'] = $request->has('is_active') ? 1 : 1; // Default active
+        $validated['status'] = $validated['status'] ?? 'scheduled';
+        $validated['current_participants'] = 0;
+        $validated['order'] = $sessionCount;
 
         EventSession::create($validated);
 
         return redirect()
             ->route('admin.events.sessions.index', $event)
-            ->with('success', 'Session created successfully');
+            ->with('success', 'Session berhasil dibuat');
     }
 
     public function edit(Event $event, EventSession $session)
@@ -60,24 +66,24 @@ class EventSessionController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'session_type' => 'required|in:theory,practice,exam,other',
             'session_date' => 'required|date',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after:start_time',
-            'location' => 'nullable|string|max:255',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'room' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'max_participants' => 'nullable|integer|min:1',
-            'is_mandatory' => 'boolean',
+            'notes' => 'nullable|string',
+            'status' => 'nullable|in:scheduled,ongoing,completed,cancelled',
+            'is_active' => 'boolean',
         ]);
 
-        $validated['is_mandatory'] = $request->has('is_mandatory');
-        $validated['updated_by'] = Auth::id();
+        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
 
         $session->update($validated);
 
         return redirect()
             ->route('admin.events.sessions.index', $event)
-            ->with('success', 'Session updated successfully');
+            ->with('success', 'Session berhasil diperbarui');
     }
 
     public function destroy(Event $event, EventSession $session)

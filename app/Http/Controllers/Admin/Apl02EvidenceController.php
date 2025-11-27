@@ -261,39 +261,73 @@ class Apl02EvidenceController extends Controller
             'mapping_notes' => 'nullable|string',
         ]);
 
-        // Check if mapping already exists
-        $existing = Apl02EvidenceMap::where('apl02_evidence_id', $evidence->id)
+        // Check if mapping already exists (including soft deleted)
+        $existing = Apl02EvidenceMap::withTrashed()
+            ->where('apl02_evidence_id', $evidence->id)
             ->where('scheme_element_id', $request->scheme_element_id)
             ->first();
 
         if ($existing) {
-            return back()->with('error', 'This evidence is already mapped to this element.');
+            // If soft deleted, restore it and update
+            if ($existing->trashed()) {
+                $existing->restore();
+                $existing->update([
+                    'coverage_level' => $request->coverage_level,
+                    'coverage_percentage' => $request->coverage_percentage,
+                    'mapping_notes' => $request->mapping_notes,
+                ]);
+                $map = $existing;
+            } else {
+                // Already exists and not deleted
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'This evidence is already mapped to this element.',
+                    ], 422);
+                }
+                return back()->with('error', 'This evidence is already mapped to this element.');
+            }
+        } else {
+            $map = Apl02EvidenceMap::create([
+                'apl02_evidence_id' => $evidence->id,
+                'scheme_element_id' => $request->scheme_element_id,
+                'coverage_level' => $request->coverage_level,
+                'coverage_percentage' => $request->coverage_percentage,
+                'mapping_notes' => $request->mapping_notes,
+            ]);
         }
-
-        Apl02EvidenceMap::create([
-            'apl02_evidence_id' => $evidence->id,
-            'scheme_element_id' => $request->scheme_element_id,
-            'coverage_level' => $request->coverage_level,
-            'coverage_percentage' => $request->coverage_percentage,
-            'mapping_notes' => $request->mapping_notes,
-        ]);
 
         // Update completion percentage
         $evidence->apl02Unit->calculateCompletionPercentage();
         $evidence->apl02Unit->save();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Evidence mapped to element successfully.',
+                'map' => $map->load('schemeElement'),
+            ]);
+        }
 
         return redirect()
             ->route('admin.apl02.evidence.show', $evidence)
             ->with('success', 'Evidence mapped to element successfully.');
     }
 
-    public function unmapFromElement(Apl02Evidence $evidence, Apl02EvidenceMap $map)
+    public function unmapFromElement(Request $request, Apl02Evidence $evidence, Apl02EvidenceMap $map)
     {
         $map->delete();
 
         // Update completion percentage
         $evidence->apl02Unit->calculateCompletionPercentage();
         $evidence->apl02Unit->save();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Evidence unmapped from element.',
+            ]);
+        }
 
         return redirect()
             ->route('admin.apl02.evidence.show', $evidence)
@@ -314,5 +348,33 @@ class Apl02EvidenceController extends Controller
             $evidence->file_path,
             $evidence->original_filename ?? $evidence->file_name
         );
+    }
+
+    /**
+     * Update verification status via AJAX
+     */
+    public function updateVerificationStatus(Request $request, Apl02Evidence $evidence)
+    {
+        $request->validate([
+            'status' => 'required|in:verified,rejected,requires_clarification,pending',
+            'notes' => 'nullable|string',
+        ]);
+
+        $status = $request->status;
+        $notes = $request->notes;
+
+        $evidence->verification_status = $status;
+        $evidence->verified_by = auth()->id();
+        $evidence->verified_at = now();
+        $evidence->verification_notes = $notes;
+        $evidence->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Evidence verification status updated successfully.',
+            'status' => $status,
+            'status_label' => ucfirst(str_replace('_', ' ', $status)),
+            'verified_by' => auth()->user()->name,
+        ]);
     }
 }
