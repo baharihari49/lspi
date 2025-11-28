@@ -119,16 +119,21 @@ class AssessmentSchedulerService
     }
 
     /**
-     * Get lead assessor ID from event or default.
+     * Get lead assessor ID from event.
+     * Returns the Assessor ID (not EventAssessor ID) for the lead assessor of the event.
      */
     protected function getLeadAssessorId(Apl01Form $apl01): ?int
     {
         if ($apl01->event_id) {
-            $event = Event::with('assessors')->find($apl01->event_id);
+            $event = Event::with(['assessors.assessor'])->find($apl01->event_id);
             if ($event && $event->assessors->isNotEmpty()) {
-                // Return first assessor marked as lead, or first assessor
-                $leadAssessor = $event->assessors->firstWhere('pivot.is_lead', true);
-                return $leadAssessor ? $leadAssessor->id : $event->assessors->first()->id;
+                // Get lead assessor first (role = 'lead'), or fall back to first confirmed assessor
+                $eventAssessor = $event->assessors->firstWhere('role', 'lead')
+                    ?? $event->assessors->firstWhere('status', 'confirmed')
+                    ?? $event->assessors->first();
+
+                // Return the actual Assessor ID, not the EventAssessor ID
+                return $eventAssessor->assessor_id;
             }
         }
 
@@ -137,13 +142,19 @@ class AssessmentSchedulerService
 
     /**
      * Get TUK ID from event.
+     * Gets the actual TUK ID from the event's primary TUK assignment.
      */
     protected function getTukId(Apl01Form $apl01): ?int
     {
         if ($apl01->event_id) {
-            $event = Event::with('tuks')->find($apl01->event_id);
+            $event = Event::with(['tuks.tuk'])->find($apl01->event_id);
             if ($event && $event->tuks->isNotEmpty()) {
-                return $event->tuks->first()->id;
+                // Get primary TUK first, or fall back to first TUK
+                $eventTuk = $event->tuks->firstWhere('is_primary', true)
+                    ?? $event->tuks->first();
+
+                // Return the actual TUK ID, not the EventTuk ID
+                return $eventTuk->tuk_id;
             }
         }
 
@@ -152,16 +163,27 @@ class AssessmentSchedulerService
 
     /**
      * Get venue from event or TUK.
+     * Uses the event's location or the TUK's address.
      */
     protected function getVenue(Apl01Form $apl01): ?string
     {
         if ($apl01->event_id) {
-            $event = Event::with('tuks')->find($apl01->event_id);
+            $event = Event::with(['tuks.tuk'])->find($apl01->event_id);
             if ($event) {
-                // Use event location or TUK address
+                // First try to use event's own location
+                if ($event->location) {
+                    return $event->location . ($event->location_address ? ' - ' . $event->location_address : '');
+                }
+
+                // Fall back to TUK address
                 if ($event->tuks->isNotEmpty()) {
-                    $tuk = $event->tuks->first();
-                    return $tuk->name . ' - ' . ($tuk->address ?? '');
+                    $eventTuk = $event->tuks->firstWhere('is_primary', true)
+                        ?? $event->tuks->first();
+
+                    if ($eventTuk->tuk) {
+                        $tuk = $eventTuk->tuk;
+                        return $tuk->name . ' - ' . ($tuk->address ?? '');
+                    }
                 }
             }
         }

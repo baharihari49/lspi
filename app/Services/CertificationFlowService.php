@@ -214,9 +214,22 @@ class CertificationFlowService
             ->orderBy('created_at', 'desc')
             ->first();
 
+        // Find certificate - check by assessee_id and scheme_id, or by any assessment from this APL-01
         $certificate = null;
-        if ($assessment) {
-            $certificate = Certificate::where('assessment_result_id', $assessment->id)->first();
+        if ($apl01->assessee_id && $apl01->scheme_id) {
+            // First try to find by assessee and scheme
+            $certificate = Certificate::where('assessee_id', $apl01->assessee_id)
+                ->where('scheme_id', $apl01->scheme_id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+
+        // Fallback: check by any assessment linked to this APL-01
+        if (!$certificate) {
+            $assessmentIds = Assessment::where('apl01_form_id', $apl01->id)->pluck('id');
+            if ($assessmentIds->isNotEmpty()) {
+                $certificate = Certificate::whereIn('assessment_result_id', $assessmentIds)->first();
+            }
         }
 
         return [

@@ -109,17 +109,17 @@
         </div>
         <div class="divide-y divide-gray-100">
             @forelse($pending_apl01_reviews ?? [] as $review)
-                <a href="{{ route('admin.apl01-reviews.conduct', $review) }}" class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition">
+                <a href="{{ route('admin.apl01-reviews.review', $review) }}" class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition">
                     <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <span class="material-symbols-outlined text-indigo-600">person</span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="font-medium text-gray-900 truncate">{{ $review->apl01Form->assessee->full_name ?? 'N/A' }}</p>
-                        <p class="text-xs text-gray-500 truncate">{{ $review->apl01Form->scheme->name ?? 'N/A' }}</p>
+                        <p class="font-medium text-gray-900 truncate">{{ $review->form->assessee->full_name ?? 'N/A' }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ $review->form->scheme->name ?? 'N/A' }}</p>
                     </div>
                     <div class="flex-shrink-0">
                         <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">
-                            {{ ucfirst(str_replace('_', ' ', $review->status)) }}
+                            {{ $review->decision_label ?? ucfirst($review->decision ?? 'Pending') }}
                         </span>
                     </div>
                 </a>

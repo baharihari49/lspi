@@ -453,36 +453,48 @@
                 </div>
             </div>
 
-            <!-- APL-02 Status -->
+            <!-- Certification Flow Status -->
             @if($apl01->status === 'approved')
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 class="text-lg font-bold text-gray-900 mb-4">Certification Flow</h3>
 
-                    <div class="space-y-3">
-                        <div class="flex items-center gap-3">
-                            @if($apl01->apl02_generated_at)
-                                <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-sm">check</span>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="font-medium text-gray-900">APL-02 Generated</p>
-                                    <p class="text-xs text-gray-500">{{ $apl01->apl02_generated_at->format('d M Y H:i') }}</p>
-                                </div>
-                            @else
-                                <div class="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-sm">pending</span>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="font-medium text-gray-900">APL-02 Pending</p>
-                                    <p class="text-xs text-gray-500">Klik "Generate APL-02" untuk membuat</p>
-                                </div>
-                            @endif
-                        </div>
+                    {{-- Use the certification flow status component --}}
+                    <x-admin.certification-flow-status :apl01="$apl01" :compact="true" />
 
+                    {{-- Flow Details --}}
+                    <div class="mt-4 space-y-2 text-sm">
+                        @if($apl01->apl02_generated_at)
+                            <div class="flex items-center justify-between text-gray-600">
+                                <span>APL-02 dibuat:</span>
+                                <span class="font-medium">{{ $apl01->apl02_generated_at->format('d M Y H:i') }}</span>
+                            </div>
+                        @endif
+                        @if($apl01->assessment_scheduled_at)
+                            <div class="flex items-center justify-between text-gray-600">
+                                <span>Asesmen dijadwalkan:</span>
+                                <span class="font-medium">{{ $apl01->assessment_scheduled_at->format('d M Y H:i') }}</span>
+                            </div>
+                        @endif
+                        @if($apl01->certificate_issued_at)
+                            <div class="flex items-center justify-between text-gray-600">
+                                <span>Sertifikat diterbitkan:</span>
+                                <span class="font-medium">{{ $apl01->certificate_issued_at->format('d M Y H:i') }}</span>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Quick Links --}}
+                    <div class="mt-4 space-y-2">
                         @if($apl01->apl02_generated_at)
                             <a href="{{ route('admin.apl02.units.index', ['apl01_form_id' => $apl01->id]) }}"
                                class="block w-full text-center px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition text-sm font-medium">
                                 Lihat Unit APL-02 →
+                            </a>
+                        @endif
+                        @if($apl01->flow_status === 'certificate_issued')
+                            <a href="{{ route('admin.certificates.index', ['assessee_id' => $apl01->assessee_id]) }}"
+                               class="block w-full text-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition text-sm font-medium">
+                                Lihat Sertifikat →
                             </a>
                         @endif
                     </div>

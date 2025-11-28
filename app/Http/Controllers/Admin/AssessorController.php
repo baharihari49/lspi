@@ -52,7 +52,10 @@ class AssessorController extends Controller
 
     public function create()
     {
-        $users = User::whereDoesntHave('assessor')->get();
+        // Only get users with 'assessor' role who don't have an assessor profile yet
+        $users = User::whereHas('roles', function ($query) {
+            $query->where('slug', 'assessor');
+        })->whereDoesntHave('assessor')->get();
 
         return view('admin.assessors.create', compact('users'));
     }

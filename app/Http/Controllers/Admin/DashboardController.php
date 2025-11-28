@@ -202,11 +202,12 @@ class DashboardController extends Controller
         }
 
         // Assessor's review statistics
+        // Note: apl01_review.reviewer_id stores User ID, not Assessor ID
         $reviewStats = [
-            'total_apl01_reviews' => Apl01Review::where('reviewer_id', $assessor->id)->count(),
-            'pending_apl01_reviews' => Apl01Review::where('reviewer_id', $assessor->id)
+            'total_apl01_reviews' => Apl01Review::where('reviewer_id', $user->id)->count(),
+            'pending_apl01_reviews' => Apl01Review::where('reviewer_id', $user->id)
                 ->where('decision', 'pending')->count(),
-            'completed_apl01_reviews' => Apl01Review::where('reviewer_id', $assessor->id)
+            'completed_apl01_reviews' => Apl01Review::where('reviewer_id', $user->id)
                 ->whereNotNull('completed_at')->count(),
 
             'total_apl02_reviews' => Apl02AssessorReview::where('assessor_id', $user->id)->count(),
@@ -223,8 +224,9 @@ class DashboardController extends Controller
         ];
 
         // My pending reviews
-        $pendingApl01Reviews = Apl01Review::with(['apl01Form.assessee', 'apl01Form.scheme'])
-            ->where('reviewer_id', $assessor->id)
+        // Note: Apl01Review model uses 'form' relationship, not 'apl01Form'
+        $pendingApl01Reviews = Apl01Review::with(['form.assessee', 'form.scheme'])
+            ->where('reviewer_id', $user->id)
             ->where('decision', 'pending')
             ->latest()
             ->take(5)

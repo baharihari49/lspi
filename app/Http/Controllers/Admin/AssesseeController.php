@@ -44,7 +44,11 @@ class AssesseeController extends Controller
 
     public function create()
     {
+        // Only get users with 'assessee' role who don't have an assessee profile yet
         $users = User::where('is_active', true)
+            ->whereHas('roles', function ($query) {
+                $query->where('slug', 'assessee');
+            })
             ->whereDoesntHave('assessee')
             ->orderBy('name')
             ->get();
@@ -131,7 +135,11 @@ class AssesseeController extends Controller
 
     public function edit(Assessee $assessee)
     {
+        // Only get users with 'assessee' role who don't have an assessee profile yet, or the current user
         $users = User::where('is_active', true)
+            ->whereHas('roles', function ($query) {
+                $query->where('slug', 'assessee');
+            })
             ->where(function ($q) use ($assessee) {
                 $q->whereDoesntHave('assessee')
                     ->orWhere('id', $assessee->user_id);

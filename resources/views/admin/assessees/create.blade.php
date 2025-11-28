@@ -28,7 +28,11 @@
                                 class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('user_id') border-red-500 @enderror">
                                 <option value="">Select User</option>
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
+                                    <option value="{{ $user->id }}"
+                                            data-email="{{ $user->email }}"
+                                            data-name="{{ $user->name }}"
+                                            data-phone="{{ $user->phone }}"
+                                            {{ old('user_id') == $user->id ? 'selected' : '' }}>
                                         {{ $user->name }} ({{ $user->email }})
                                     </option>
                                 @endforeach
@@ -368,4 +372,50 @@
             </div>
         </div>
     </form>
+@endsection
+
+@section('extra_js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userSelect = document.getElementById('user_id');
+    const emailInput = document.getElementById('email');
+    const fullNameInput = document.getElementById('full_name');
+    const mobileInput = document.getElementById('mobile');
+
+    userSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+
+        if (selectedOption.value) {
+            // Auto-fill email from selected user
+            const userEmail = selectedOption.dataset.email;
+            const userName = selectedOption.dataset.name;
+            const userPhone = selectedOption.dataset.phone;
+
+            if (userEmail && emailInput) {
+                emailInput.value = userEmail;
+            }
+
+            // Auto-fill full name if empty
+            if (userName && fullNameInput && !fullNameInput.value) {
+                fullNameInput.value = userName;
+            }
+
+            // Auto-fill mobile if empty
+            if (userPhone && mobileInput && !mobileInput.value) {
+                mobileInput.value = userPhone;
+            }
+        } else {
+            // Clear fields when no user selected
+            if (emailInput) emailInput.value = '';
+            if (fullNameInput) fullNameInput.value = '';
+            if (mobileInput) mobileInput.value = '';
+        }
+    });
+
+    // Trigger change event if there's a pre-selected value (for old() values)
+    if (userSelect.value) {
+        userSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
 @endsection
