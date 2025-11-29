@@ -21,7 +21,7 @@ class MyApl02Controller extends Controller
     }
 
     /**
-     * Display a listing of user's APL-02 units.
+     * Display a listing of user's APL-02 units grouped by event.
      */
     public function index(Request $request)
     {
@@ -30,9 +30,9 @@ class MyApl02Controller extends Controller
 
         // If no assessee profile, show empty state
         if (!$assesseeId) {
-            $units = new LengthAwarePaginator([], 0, 10);
+            $eventGroups = collect();
             $stats = ['total' => 0, 'not_started' => 0, 'in_progress' => 0, 'submitted' => 0, 'competent' => 0];
-            return view('assessee.my-apl02.index', compact('units', 'stats'));
+            return view('assessee.my-apl02.index', compact('eventGroups', 'stats'));
         }
 
         $query = Apl02Unit::where('assessee_id', $assesseeId);
@@ -42,21 +42,38 @@ class MyApl02Controller extends Controller
             $query->where('status', $request->status);
         }
 
-        $units = $query->with(['scheme', 'schemeUnit', 'evidence'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10)
-            ->withQueryString();
+        // Get all units with event relationship
+        $units = $query->with(['scheme', 'schemeUnit', 'evidence', 'event.scheme'])
+            ->orderBy('event_id')
+            ->orderBy('unit_code')
+            ->get();
 
-        // Statistics
+        // Group by event
+        $eventGroups = $units->groupBy('event_id')->map(function ($eventUnits) {
+            $event = $eventUnits->first()->event;
+            return [
+                'event' => $event,
+                'units' => $eventUnits,
+                'stats' => [
+                    'total' => $eventUnits->count(),
+                    'not_started' => $eventUnits->where('status', 'not_started')->count(),
+                    'in_progress' => $eventUnits->where('status', 'in_progress')->count(),
+                    'submitted' => $eventUnits->whereIn('status', ['submitted', 'under_review'])->count(),
+                    'competent' => $eventUnits->where('status', 'competent')->count(),
+                ],
+            ];
+        });
+
+        // Global Statistics
         $stats = [
             'total' => Apl02Unit::where('assessee_id', $assesseeId)->count(),
             'not_started' => Apl02Unit::where('assessee_id', $assesseeId)->where('status', 'not_started')->count(),
             'in_progress' => Apl02Unit::where('assessee_id', $assesseeId)->where('status', 'in_progress')->count(),
-            'submitted' => Apl02Unit::where('assessee_id', $assesseeId)->where('status', 'submitted')->count(),
+            'submitted' => Apl02Unit::where('assessee_id', $assesseeId)->whereIn('status', ['submitted', 'under_review'])->count(),
             'competent' => Apl02Unit::where('assessee_id', $assesseeId)->where('status', 'competent')->count(),
         ];
 
-        return view('assessee.my-apl02.index', compact('units', 'stats'));
+        return view('assessee.my-apl02.index', compact('eventGroups', 'stats'));
     }
 
     /**

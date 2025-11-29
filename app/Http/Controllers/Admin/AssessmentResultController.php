@@ -19,38 +19,41 @@ class AssessmentResultController extends Controller
      */
     public function index(Request $request)
     {
-        $query = AssessmentResult::with(['assessee', 'scheme', 'leadAssessor', 'assessment'])
+        $activeTab = $request->get('tab', 'results');
+
+        // Results Query
+        $resultsQuery = AssessmentResult::with(['assessee', 'scheme', 'leadAssessor', 'assessment'])
             ->orderBy('created_at', 'desc');
 
         // Filter by result
         if ($request->filled('final_result')) {
-            $query->where('final_result', $request->final_result);
+            $resultsQuery->where('final_result', $request->final_result);
         }
 
         // Filter by approval status
         if ($request->filled('approval_status')) {
-            $query->where('approval_status', $request->approval_status);
+            $resultsQuery->where('approval_status', $request->approval_status);
         }
 
         // Filter by assessee
         if ($request->filled('assessee_id')) {
-            $query->where('assessee_id', $request->assessee_id);
+            $resultsQuery->where('assessee_id', $request->assessee_id);
         }
 
         // Filter by scheme
         if ($request->filled('scheme_id')) {
-            $query->where('scheme_id', $request->scheme_id);
+            $resultsQuery->where('scheme_id', $request->scheme_id);
         }
 
         // Filter published
         if ($request->filled('is_published')) {
-            $query->where('is_published', $request->is_published);
+            $resultsQuery->where('is_published', $request->is_published);
         }
 
-        // Search
-        if ($request->filled('search')) {
+        // Search for results
+        if ($request->filled('search') && $activeTab === 'results') {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $resultsQuery->where(function($q) use ($search) {
                 $q->where('result_number', 'like', "%{$search}%")
                   ->orWhere('certificate_number', 'like', "%{$search}%")
                   ->orWhereHas('assessee', function($q) use ($search) {
@@ -59,9 +62,53 @@ class AssessmentResultController extends Controller
             });
         }
 
-        $results = $query->paginate(15);
+        $results = $resultsQuery->paginate(15)->withQueryString();
 
-        return view('admin.assessment-results.index', compact('results'));
+        // Approvals Query
+        $approvalsQuery = ResultApproval::with(['assessmentResult.assessee', 'assessmentResult.scheme', 'approver'])
+            ->orderBy('created_at', 'desc');
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $approvalsQuery->where('status', $request->status);
+        }
+
+        // Filter by decision
+        if ($request->filled('decision')) {
+            $approvalsQuery->where('decision', $request->decision);
+        }
+
+        // Filter overdue
+        if ($request->filled('is_overdue')) {
+            $approvalsQuery->where('is_overdue', $request->is_overdue);
+        }
+
+        // Search for approvals
+        if ($request->filled('search') && $activeTab === 'approvals') {
+            $search = $request->search;
+            $approvalsQuery->where(function($q) use ($search) {
+                $q->whereHas('assessmentResult', function($q) use ($search) {
+                    $q->where('result_number', 'like', "%{$search}%")
+                      ->orWhere('certificate_number', 'like', "%{$search}%");
+                })
+                ->orWhereHas('approver', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $approvals = $approvalsQuery->paginate(15)->withQueryString();
+
+        // Statistics
+        $stats = [
+            'total_results' => AssessmentResult::count(),
+            'pending_approval' => AssessmentResult::where('approval_status', 'pending')->count(),
+            'approved' => AssessmentResult::where('approval_status', 'approved')->count(),
+            'published' => AssessmentResult::where('is_published', true)->count(),
+            'pending_approvals' => ResultApproval::whereIn('status', ['pending', 'in_review'])->count(),
+        ];
+
+        return view('admin.assessment-results.index', compact('results', 'approvals', 'activeTab', 'stats'));
     }
 
     /**

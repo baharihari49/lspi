@@ -331,8 +331,11 @@ class Apl02AssessorReviewController extends Controller
     // My reviews (for current assessor)
     public function myReviews(Request $request)
     {
-        $query = Apl02AssessorReview::with(['apl02Unit.assessee', 'assessor'])
-            ->where('assessor_id', auth()->id());
+        $assessorId = auth()->id();
+        $groupBy = $request->get('group_by', 'event'); // 'event' or 'assessee'
+
+        $query = Apl02AssessorReview::with(['apl02Unit.assessee', 'apl02Unit.event.scheme', 'assessor'])
+            ->where('assessor_id', $assessorId);
 
         // Filters
         if ($request->filled('status')) {
@@ -343,8 +346,58 @@ class Apl02AssessorReviewController extends Controller
             $query->where('decision', $request->decision);
         }
 
-        $reviews = $query->orderBy('created_at', 'desc')->paginate(20);
+        // Get all reviews (not paginated for grouping)
+        $allReviews = $query->orderBy('created_at', 'desc')->get();
 
-        return view('admin.apl02.reviews.my-reviews', compact('reviews'));
+        // Group by event or assessee
+        if ($groupBy === 'assessee') {
+            // Group by assessee
+            $groups = $allReviews->groupBy(function ($review) {
+                return $review->apl02Unit->assessee_id ?? 0;
+            })->map(function ($assesseeReviews) {
+                $assessee = $assesseeReviews->first()->apl02Unit->assessee;
+                return [
+                    'assessee' => $assessee,
+                    'reviews' => $assesseeReviews,
+                    'stats' => [
+                        'total' => $assesseeReviews->count(),
+                        'draft' => $assesseeReviews->where('status', 'draft')->count(),
+                        'in_progress' => $assesseeReviews->where('status', 'in_progress')->count(),
+                        'completed' => $assesseeReviews->whereIn('status', ['completed', 'submitted', 'approved'])->count(),
+                        'competent' => $assesseeReviews->where('decision', 'competent')->count(),
+                        'not_yet_competent' => $assesseeReviews->where('decision', 'not_yet_competent')->count(),
+                    ],
+                ];
+            });
+        } else {
+            // Group by event (default)
+            $groups = $allReviews->groupBy(function ($review) {
+                return $review->apl02Unit->event_id ?? 0;
+            })->map(function ($eventReviews) {
+                $event = $eventReviews->first()->apl02Unit->event;
+                return [
+                    'event' => $event,
+                    'reviews' => $eventReviews,
+                    'stats' => [
+                        'total' => $eventReviews->count(),
+                        'draft' => $eventReviews->where('status', 'draft')->count(),
+                        'in_progress' => $eventReviews->where('status', 'in_progress')->count(),
+                        'completed' => $eventReviews->whereIn('status', ['completed', 'submitted', 'approved'])->count(),
+                        'competent' => $eventReviews->where('decision', 'competent')->count(),
+                        'not_yet_competent' => $eventReviews->where('decision', 'not_yet_competent')->count(),
+                    ],
+                ];
+            });
+        }
+
+        // Global Statistics
+        $stats = [
+            'total' => Apl02AssessorReview::where('assessor_id', $assessorId)->count(),
+            'draft' => Apl02AssessorReview::where('assessor_id', $assessorId)->where('status', 'draft')->count(),
+            'in_progress' => Apl02AssessorReview::where('assessor_id', $assessorId)->where('status', 'in_progress')->count(),
+            'completed' => Apl02AssessorReview::where('assessor_id', $assessorId)->whereIn('status', ['completed', 'submitted', 'approved'])->count(),
+        ];
+
+        return view('admin.apl02.reviews.my-reviews', compact('groups', 'stats', 'groupBy'));
     }
 }
