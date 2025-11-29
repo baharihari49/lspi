@@ -214,21 +214,26 @@ class CertificationFlowService
             ->orderBy('created_at', 'desc')
             ->first();
 
-        // Find certificate - check by assessee_id and scheme_id, or by any assessment from this APL-01
+        // Find certificate ONLY by assessment linked to this specific APL-01
+        // This ensures each APL-01 shows only its own certificate status
+        // Note: certificates.assessment_result_id -> assessment_results.id -> assessments.id
         $certificate = null;
-        if ($apl01->assessee_id && $apl01->scheme_id) {
-            // First try to find by assessee and scheme
-            $certificate = Certificate::where('assessee_id', $apl01->assessee_id)
-                ->where('scheme_id', $apl01->scheme_id)
-                ->orderBy('created_at', 'desc')
-                ->first();
+        if ($assessment) {
+            // First find assessment_result for this assessment
+            $assessmentResult = \App\Models\AssessmentResult::where('assessment_id', $assessment->id)->first();
+            if ($assessmentResult) {
+                $certificate = Certificate::where('assessment_result_id', $assessmentResult->id)->first();
+            }
         }
 
-        // Fallback: check by any assessment linked to this APL-01
+        // Also check if there's any certificate linked to assessment results from this APL-01
         if (!$certificate) {
             $assessmentIds = Assessment::where('apl01_form_id', $apl01->id)->pluck('id');
             if ($assessmentIds->isNotEmpty()) {
-                $certificate = Certificate::whereIn('assessment_result_id', $assessmentIds)->first();
+                $assessmentResultIds = \App\Models\AssessmentResult::whereIn('assessment_id', $assessmentIds)->pluck('id');
+                if ($assessmentResultIds->isNotEmpty()) {
+                    $certificate = Certificate::whereIn('assessment_result_id', $assessmentResultIds)->first();
+                }
             }
         }
 

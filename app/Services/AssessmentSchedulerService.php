@@ -6,6 +6,7 @@ use App\Models\Apl01Form;
 use App\Models\Apl02Unit;
 use App\Models\Assessment;
 use App\Models\Event;
+use App\Models\EventSession;
 use Illuminate\Support\Collection;
 
 class AssessmentSchedulerService
@@ -54,7 +55,7 @@ class AssessmentSchedulerService
     public function hasScheduledAssessment(Apl01Form $apl01): bool
     {
         return Assessment::where('apl01_form_id', $apl01->id)
-            ->whereIn('status', ['draft', 'scheduled', 'in_progress'])
+            ->whereIn('status', ['draft', 'pending_confirmation', 'scheduled', 'in_progress'])
             ->exists();
     }
 
@@ -63,7 +64,14 @@ class AssessmentSchedulerService
      */
     public function scheduleAssessment(Apl01Form $apl01, ?int $daysFromNow = null): Assessment
     {
-        $scheduledDate = now()->addDays($daysFromNow ?? $this->defaultScheduleDays);
+        // Get available session from event
+        $sessionId = $this->getAvailableSessionId($apl01);
+        $session = $sessionId ? EventSession::find($sessionId) : null;
+
+        // Use session date if available, otherwise use default schedule
+        $scheduledDate = $session
+            ? $session->session_date
+            : now()->addDays($daysFromNow ?? $this->defaultScheduleDays);
 
         // Get lead assessor from event or default
         $leadAssessorId = $this->getLeadAssessorId($apl01);
@@ -78,17 +86,24 @@ class AssessmentSchedulerService
             'assessee_id' => $apl01->assessee_id,
             'scheme_id' => $apl01->scheme_id,
             'event_id' => $apl01->event_id,
+            'event_session_id' => $sessionId,
             'apl01_form_id' => $apl01->id,
             'lead_assessor_id' => $leadAssessorId,
             'assessment_method' => 'portfolio', // Default method
             'assessment_type' => 'initial', // Initial certification
             'scheduled_date' => $scheduledDate,
+            'scheduled_time' => $session?->start_time,
             'venue' => $this->getVenue($apl01),
             'tuk_id' => $tukId,
-            'status' => 'scheduled',
+            'status' => 'pending_confirmation', // Menunggu konfirmasi admin
             'auto_scheduled' => true,
             'created_by' => auth()->id() ?? 1,
         ]);
+
+        // Increment session participant count
+        if ($sessionId) {
+            $this->incrementSessionParticipants($sessionId);
+        }
 
         // Update APL-01 flow status
         $apl01->updateFlowStatus('assessment_scheduled');
@@ -214,5 +229,52 @@ class AssessmentSchedulerService
     {
         $this->defaultScheduleDays = $days;
         return $this;
+    }
+
+    /**
+     * Get available session ID from event.
+     * Returns the first session with available capacity.
+     */
+    protected function getAvailableSessionId(Apl01Form $apl01): ?int
+    {
+        if (!$apl01->event_id) {
+            return null;
+        }
+
+        $event = Event::with('sessions')->find($apl01->event_id);
+        if (!$event || !$event->sessions || $event->sessions->isEmpty()) {
+            return null;
+        }
+
+        // Find session with available capacity, ordered by date/time
+        $availableSession = $event->sessions
+            ->where('is_active', true)
+            ->filter(function ($session) {
+                // Session date must be today or in the future
+                return $session->session_date >= now()->toDateString()
+                    && $session->current_participants < $session->max_participants;
+            })
+            ->sortBy(['session_date', 'start_time'])
+            ->first();
+
+        return $availableSession?->id;
+    }
+
+    /**
+     * Increment session participant count.
+     */
+    protected function incrementSessionParticipants(int $sessionId): void
+    {
+        EventSession::where('id', $sessionId)->increment('current_participants');
+    }
+
+    /**
+     * Decrement session participant count (for cancellation).
+     */
+    public function decrementSessionParticipants(int $sessionId): void
+    {
+        EventSession::where('id', $sessionId)
+            ->where('current_participants', '>', 0)
+            ->decrement('current_participants');
     }
 }

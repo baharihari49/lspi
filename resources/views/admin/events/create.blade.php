@@ -21,15 +21,15 @@
                     <h3 class="text-lg font-bold text-gray-900 mb-4">Informasi Dasar</h3>
 
                     <div class="space-y-4">
-                        <!-- Code -->
+                        <!-- Code (Auto-generated) -->
                         <div>
-                            <label for="code" class="block text-sm font-semibold text-gray-700 mb-2">Kode Event *</label>
-                            <input type="text" id="code" name="code" value="{{ old('code') }}" required maxlength="255"
-                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-mono @error('code') border-red-500 @enderror"
-                                placeholder="e.g., EVT-2025-001">
-                            @error('code')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                            <label for="code" class="block text-sm font-semibold text-gray-700 mb-2">Kode Event</label>
+                            <input type="text" id="code" value="{{ $nextCode }}" readonly
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 bg-gray-100 cursor-not-allowed outline-none font-mono text-gray-600">
+                            <p class="mt-1 text-xs text-gray-500">
+                                <span class="material-symbols-outlined text-xs align-middle">auto_awesome</span>
+                                Kode akan di-generate otomatis saat event disimpan
+                            </p>
                         </div>
 
                         <!-- Name -->
@@ -252,7 +252,7 @@
                                 <h4 class="font-semibold text-blue-900 mb-2">Panduan Event</h4>
                                 <ul class="text-sm text-blue-800 space-y-1">
                                     <li>• Isi semua field wajib (*)</li>
-                                    <li>• Gunakan kode event yang unik</li>
+                                    <li>• Kode event otomatis di-generate</li>
                                     <li>• Atur tanggal event dan registrasi</li>
                                     <li>• Konfigurasi batas peserta</li>
                                     <li>• Tambahkan detail lokasi</li>

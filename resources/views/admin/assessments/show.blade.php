@@ -114,6 +114,20 @@
                             </div>
                         @endif
 
+                        @if($assessment->eventSession)
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-gray-400">schedule</span>
+                                <div>
+                                    <p class="text-xs text-gray-600">Sesi</p>
+                                    <p class="font-semibold text-gray-900">{{ $assessment->eventSession->name }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $assessment->eventSession->session_date?->format('d M Y') }}
+                                        {{ $assessment->eventSession->start_time?->format('H:i') }} - {{ $assessment->eventSession->end_time?->format('H:i') }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-gray-400">calendar_today</span>
                             <div>
@@ -304,6 +318,7 @@
                         @csrf
                         <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
                             <option value="draft" {{ $assessment->status === 'draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="pending_confirmation" {{ $assessment->status === 'pending_confirmation' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
                             <option value="scheduled" {{ $assessment->status === 'scheduled' ? 'selected' : '' }}>Scheduled</option>
                             <option value="in_progress" {{ $assessment->status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
                             <option value="completed" {{ $assessment->status === 'completed' ? 'selected' : '' }}>Completed</option>

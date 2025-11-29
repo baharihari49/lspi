@@ -118,6 +118,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Certification Scheme Management
     Route::resource('schemes', App\Http\Controllers\Admin\SchemeController::class);
 
+    // KUK (Kriteria Unjuk Kerja) - Standalone view for all scheme elements
+    Route::get('kuk', [App\Http\Controllers\Admin\KukController::class, 'index'])->name('kuk.index');
+    Route::get('kuk/{kuk}', [App\Http\Controllers\Admin\KukController::class, 'show'])->name('kuk.show');
+
     // Scheme Versions (nested under schemes)
     Route::prefix('schemes/{scheme}')->name('schemes.')->group(function () {
         Route::resource('versions', App\Http\Controllers\Admin\SchemeVersionController::class);
@@ -284,6 +288,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('apl02/reviews/{review}/require-revision', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'requireRevision'])->name('apl02.reviews.require-revision');
     Route::post('apl02/reviews/{review}/mark-as-final', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'markAsFinal'])->name('apl02.reviews.mark-as-final');
     Route::post('apl02/reviews/{review}/schedule-re-assessment', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'scheduleReAssessment'])->name('apl02.reviews.schedule-re-assessment');
+    Route::post('apl02/reviews/{review}/reopen', [App\Http\Controllers\Admin\Apl02AssessorReviewController::class, 'reopen'])->name('apl02.reviews.reopen');
 
     // Assessment Module Routes (Module K)
     Route::resource('assessments', App\Http\Controllers\Admin\AssessmentController::class)->names([

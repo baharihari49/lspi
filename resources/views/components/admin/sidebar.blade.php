@@ -103,6 +103,7 @@
             'collapsible' => true,
             'items' => [
                 ['route' => 'admin.schemes.index', 'icon' => 'verified', 'label' => 'Skema Sertifikasi'],
+                ['route' => 'admin.kuk.index', 'icon' => 'checklist', 'label' => 'KUK'],
                 ['route' => 'admin.tuk.index', 'icon' => 'location_city', 'label' => 'TUK'],
                 ['route' => 'admin.assessors.index', 'icon' => 'badge', 'label' => 'Assessors'],
                 ['route' => 'admin.assessees.index', 'icon' => 'school', 'label' => 'Assessees'],

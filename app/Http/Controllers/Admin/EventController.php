@@ -44,13 +44,39 @@ class EventController extends Controller
         $schemes = Scheme::active()->get();
         $statuses = MasterStatus::where('category', 'event')->get();
 
-        return view('admin.events.create', compact('schemes', 'statuses'));
+        // Generate next event code for preview
+        $nextCode = $this->generateEventCode();
+
+        return view('admin.events.create', compact('schemes', 'statuses', 'nextCode'));
+    }
+
+    /**
+     * Generate unique event code.
+     * Format: EVT-YYYYMM-XXXX (e.g., EVT-202511-0001)
+     */
+    protected function generateEventCode(): string
+    {
+        $year = date('Y');
+        $month = date('m');
+        $prefix = "EVT-{$year}{$month}-";
+
+        $lastEvent = Event::where('code', 'like', "{$prefix}%")
+            ->orderBy('code', 'desc')
+            ->first();
+
+        if ($lastEvent) {
+            $lastNumber = (int) substr($lastEvent->code, -4);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'required|string|max:255|unique:events,code',
             'name' => 'required|string|max:255',
             'scheme_id' => 'nullable|exists:schemes,id',
             'description' => 'nullable|string',
@@ -67,6 +93,9 @@ class EventController extends Controller
             'location_address' => 'nullable|string',
             'notes' => 'nullable|string',
         ]);
+
+        // Auto-generate event code
+        $validated['code'] = $this->generateEventCode();
 
         $event = Event::create([
             ...$validated,

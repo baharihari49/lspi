@@ -7,6 +7,7 @@ use App\Models\Assessment;
 use App\Models\Assessee;
 use App\Models\Scheme;
 use App\Models\Event;
+use App\Models\EventSession;
 use App\Models\Tuk;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -81,11 +82,11 @@ class AssessmentController extends Controller
     }
 
     /**
-     * Get event data for AJAX request (scheme, assessors, assessees)
+     * Get event data for AJAX request (scheme, assessors, assessees, sessions)
      */
     public function getEventData(Event $event)
     {
-        $event->load(['scheme', 'assessors.assessor', 'apl01Forms.assessee', 'tuks.tuk']);
+        $event->load(['scheme', 'assessors.assessor', 'apl01Forms.assessee', 'tuks.tuk', 'sessions']);
 
         // Get lead assessor (confirmed with lead role)
         $leadAssessor = $event->assessors()
@@ -131,6 +132,26 @@ class AssessmentController extends Controller
             ];
         })->filter(fn($t) => $t['id'] !== null);
 
+        // Get sessions with availability info
+        $sessions = $event->sessions()
+            ->where('is_active', true)
+            ->orderBy('session_date')
+            ->orderBy('start_time')
+            ->get()
+            ->map(function ($session) {
+                return [
+                    'id' => $session->id,
+                    'name' => $session->name,
+                    'session_date' => $session->session_date?->format('Y-m-d'),
+                    'start_time' => $session->start_time?->format('H:i'),
+                    'end_time' => $session->end_time?->format('H:i'),
+                    'max_participants' => $session->max_participants,
+                    'current_participants' => $session->current_participants,
+                    'available_slots' => $session->available_slots,
+                    'room' => $session->room,
+                ];
+            });
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -146,6 +167,7 @@ class AssessmentController extends Controller
                 'assessors' => $assessors->values(),
                 'assessees' => $assessees->values(),
                 'tuks' => $tuks->values(),
+                'sessions' => $sessions->values(),
                 'start_date' => $event->start_date?->format('Y-m-d'),
                 'location' => $event->location,
             ],
@@ -159,6 +181,7 @@ class AssessmentController extends Controller
     {
         $validated = $request->validate([
             'event_id' => 'required|exists:events,id',
+            'event_session_id' => 'nullable|exists:event_sessions,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'assessee_id' => 'required|exists:assessees,id',
@@ -196,6 +219,11 @@ class AssessmentController extends Controller
 
         $assessment = Assessment::create($validated);
 
+        // Increment session participant count if session selected
+        if (!empty($validated['event_session_id'])) {
+            EventSession::where('id', $validated['event_session_id'])->increment('current_participants');
+        }
+
         return redirect()->route('admin.assessments.show', $assessment)
             ->with('success', 'Assessment berhasil dibuat');
     }
@@ -210,6 +238,7 @@ class AssessmentController extends Controller
             'scheme',
             'leadAssessor',
             'event.tuks.tuk',
+            'eventSession',
             'tuk',
             'assessmentUnits.criteria',
             'assessmentUnits.assessor',
@@ -233,13 +262,25 @@ class AssessmentController extends Controller
                 ->with('error', 'Assessment tidak dapat diubah karena sudah dalam proses');
         }
 
+        $assessment->load('eventSession');
+
         $assessees = Assessee::orderBy('full_name')->get();
         $schemes = Scheme::orderBy('name')->get();
-        $events = Event::orderBy('name')->get();
+        $events = Event::with('sessions')->orderBy('name')->get();
         $tuks = Tuk::active()->orderBy('name')->get();
         $assessors = User::withRole('assessor')->orderBy('name')->get();
 
-        return view('admin.assessments.edit', compact('assessment', 'assessees', 'schemes', 'events', 'tuks', 'assessors'));
+        // Get sessions for current event
+        $sessions = collect([]);
+        if ($assessment->event_id) {
+            $sessions = EventSession::where('event_id', $assessment->event_id)
+                ->where('is_active', true)
+                ->orderBy('session_date')
+                ->orderBy('start_time')
+                ->get();
+        }
+
+        return view('admin.assessments.edit', compact('assessment', 'assessees', 'schemes', 'events', 'tuks', 'assessors', 'sessions'));
     }
 
     /**
@@ -259,6 +300,7 @@ class AssessmentController extends Controller
             'assessee_id' => 'required|exists:assessees,id',
             'scheme_id' => 'required|exists:schemes,id',
             'event_id' => 'nullable|exists:events,id',
+            'event_session_id' => 'nullable|exists:event_sessions,id',
             'lead_assessor_id' => 'required|exists:users,id',
             'assessment_method' => 'required|in:portfolio,observation,interview,demonstration,written_test,mixed',
             'assessment_type' => 'required|in:initial,verification,surveillance,re_assessment',
@@ -271,6 +313,23 @@ class AssessmentController extends Controller
             'preparation_notes' => 'nullable|string',
             'special_requirements' => 'nullable|string',
         ]);
+
+        // Handle session change - update participant counts
+        $oldSessionId = $assessment->event_session_id;
+        $newSessionId = $validated['event_session_id'] ?? null;
+
+        if ($oldSessionId !== $newSessionId) {
+            // Decrement old session
+            if ($oldSessionId) {
+                EventSession::where('id', $oldSessionId)
+                    ->where('current_participants', '>', 0)
+                    ->decrement('current_participants');
+            }
+            // Increment new session
+            if ($newSessionId) {
+                EventSession::where('id', $newSessionId)->increment('current_participants');
+            }
+        }
 
         $validated['updated_by'] = auth()->id();
 
@@ -333,6 +392,12 @@ class AssessmentController extends Controller
      */
     public function generateUnits(Assessment $assessment)
     {
+        // Check if units already exist to prevent duplicates
+        if ($assessment->assessmentUnits()->count() > 0) {
+            return redirect()->back()
+                ->with('error', 'Unit kompetensi sudah di-generate sebelumnya');
+        }
+
         // Get scheme version
         $schemeVersion = DB::table('scheme_versions')
             ->where('scheme_id', $assessment->scheme_id)

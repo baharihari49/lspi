@@ -33,18 +33,28 @@
                             @enderror
                         </div>
 
-                        <!-- Session Type -->
+                        <!-- Status -->
                         <div>
-                            <label for="session_type" class="block text-sm font-semibold text-gray-700 mb-2">Session Type *</label>
-                            <select id="session_type" name="session_type" required
-                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('session_type') border-red-500 @enderror">
-                                <option value="">Select Type</option>
-                                <option value="theory" {{ old('session_type', $session->session_type) == 'theory' ? 'selected' : '' }}>Theory</option>
-                                <option value="practice" {{ old('session_type', $session->session_type) == 'practice' ? 'selected' : '' }}>Practice</option>
-                                <option value="exam" {{ old('session_type', $session->session_type) == 'exam' ? 'selected' : '' }}>Exam</option>
-                                <option value="other" {{ old('session_type', $session->session_type) == 'other' ? 'selected' : '' }}>Other</option>
+                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                            <select id="status" name="status"
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('status') border-red-500 @enderror">
+                                <option value="scheduled" {{ old('status', $session->status) == 'scheduled' ? 'selected' : '' }}>Scheduled</option>
+                                <option value="ongoing" {{ old('status', $session->status) == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+                                <option value="completed" {{ old('status', $session->status) == 'completed' ? 'selected' : '' }}>Completed</option>
+                                <option value="cancelled" {{ old('status', $session->status) == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                             </select>
-                            @error('session_type')
+                            @error('status')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Notes -->
+                        <div>
+                            <label for="notes" class="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
+                            <textarea id="notes" name="notes" rows="3"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('notes') border-red-500 @enderror"
+                                placeholder="Additional notes...">{{ old('notes', $session->notes) }}</textarea>
+                            @error('notes')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -80,8 +90,8 @@
                         <!-- Time -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label for="start_time" class="block text-sm font-semibold text-gray-700 mb-2">Start Time</label>
-                                <input type="time" id="start_time" name="start_time" value="{{ old('start_time', $session->start_time) }}"
+                                <label for="start_time" class="block text-sm font-semibold text-gray-700 mb-2">Start Time *</label>
+                                <input type="time" id="start_time" name="start_time" value="{{ old('start_time', $session->start_time?->format('H:i')) }}" required
                                     class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('start_time') border-red-500 @enderror">
                                 @error('start_time')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -89,8 +99,8 @@
                             </div>
 
                             <div>
-                                <label for="end_time" class="block text-sm font-semibold text-gray-700 mb-2">End Time</label>
-                                <input type="time" id="end_time" name="end_time" value="{{ old('end_time', $session->end_time) }}"
+                                <label for="end_time" class="block text-sm font-semibold text-gray-700 mb-2">End Time *</label>
+                                <input type="time" id="end_time" name="end_time" value="{{ old('end_time', $session->end_time?->format('H:i')) }}" required
                                     class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('end_time') border-red-500 @enderror">
                                 @error('end_time')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -101,18 +111,18 @@
                     </div>
                 </div>
 
-                <!-- Location & Capacity -->
+                <!-- Room & Capacity -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Location & Capacity</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Room & Capacity</h3>
 
                     <div class="space-y-4">
-                        <!-- Location -->
+                        <!-- Room -->
                         <div>
-                            <label for="location" class="block text-sm font-semibold text-gray-700 mb-2">Location</label>
-                            <input type="text" id="location" name="location" value="{{ old('location', $session->location) }}" maxlength="255"
-                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('location') border-red-500 @enderror"
+                            <label for="room" class="block text-sm font-semibold text-gray-700 mb-2">Room</label>
+                            <input type="text" id="room" name="room" value="{{ old('room', $session->room) }}" maxlength="255"
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('room') border-red-500 @enderror"
                                 placeholder="e.g., Room A, Building 1">
-                            @error('location')
+                            @error('room')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -128,14 +138,14 @@
                             @enderror
                         </div>
 
-                        <!-- Is Mandatory -->
+                        <!-- Is Active -->
                         <div>
                             <label class="flex items-center gap-3">
-                                <input type="checkbox" name="is_mandatory" value="1" {{ old('is_mandatory', $session->is_mandatory) ? 'checked' : '' }}
+                                <input type="checkbox" name="is_active" value="1" {{ old('is_active', $session->is_active) ? 'checked' : '' }}
                                     class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500">
-                                <span class="text-sm font-semibold text-gray-700">Mandatory Session</span>
+                                <span class="text-sm font-semibold text-gray-700">Active Session</span>
                             </label>
-                            <p class="mt-1 text-xs text-gray-500 ml-8">All participants must attend this session</p>
+                            <p class="mt-1 text-xs text-gray-500 ml-8">Session is available for scheduling</p>
                         </div>
                     </div>
                 </div>
@@ -189,36 +199,36 @@
                         </div>
                     </div>
 
-                    <!-- Type Guide -->
+                    <!-- Status Guide -->
                     <div class="bg-gray-50 rounded-xl border border-gray-200 p-6">
-                        <h4 class="font-semibold text-gray-900 mb-3">Session Type Guide</h4>
+                        <h4 class="font-semibold text-gray-900 mb-3">Status Guide</h4>
                         <ul class="text-sm text-gray-600 space-y-2">
                             <li class="flex items-start gap-2">
                                 <span class="w-3 h-3 rounded-full bg-blue-500 mt-1 flex-shrink-0"></span>
                                 <div>
-                                    <span class="font-semibold text-gray-900">Theory:</span>
-                                    <span class="block text-xs">Classroom learning session</span>
+                                    <span class="font-semibold text-gray-900">Scheduled:</span>
+                                    <span class="block text-xs">Session is planned</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-3 h-3 rounded-full bg-yellow-500 mt-1 flex-shrink-0"></span>
+                                <div>
+                                    <span class="font-semibold text-gray-900">Ongoing:</span>
+                                    <span class="block text-xs">Session is in progress</span>
                                 </div>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="w-3 h-3 rounded-full bg-green-500 mt-1 flex-shrink-0"></span>
                                 <div>
-                                    <span class="font-semibold text-gray-900">Practice:</span>
-                                    <span class="block text-xs">Hands-on practical session</span>
+                                    <span class="font-semibold text-gray-900">Completed:</span>
+                                    <span class="block text-xs">Session has finished</span>
                                 </div>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="w-3 h-3 rounded-full bg-red-500 mt-1 flex-shrink-0"></span>
                                 <div>
-                                    <span class="font-semibold text-gray-900">Exam:</span>
-                                    <span class="block text-xs">Assessment or test session</span>
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="w-3 h-3 rounded-full bg-gray-500 mt-1 flex-shrink-0"></span>
-                                <div>
-                                    <span class="font-semibold text-gray-900">Other:</span>
-                                    <span class="block text-xs">Other session types</span>
+                                    <span class="font-semibold text-gray-900">Cancelled:</span>
+                                    <span class="block text-xs">Session was cancelled</span>
                                 </div>
                             </li>
                         </ul>

@@ -177,6 +177,111 @@
                     @endif
                 </div>
 
+                <!-- KUK Overview (All Criteria) -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-900">KUK Overview (Kriteria Unjuk Kerja)</h3>
+                        <a href="{{ route('admin.kuk.index', ['scheme_id' => $scheme->id]) }}" class="flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-900 rounded-lg font-semibold transition text-sm">
+                            <span class="material-symbols-outlined text-lg">open_in_new</span>
+                            <span>Lihat Semua KUK</span>
+                        </a>
+                    </div>
+
+                    @php
+                        $allKuk = [];
+                        foreach ($version->units as $unit) {
+                            foreach ($unit->elements as $element) {
+                                foreach ($element->criteria as $criterion) {
+                                    $allKuk[] = [
+                                        'unit' => $unit,
+                                        'element' => $element,
+                                        'criterion' => $criterion,
+                                    ];
+                                }
+                            }
+                        }
+                    @endphp
+
+                    @if(count($allKuk) > 0)
+                        <div class="space-y-4">
+                            @foreach($version->units as $unit)
+                                @if($unit->elements->sum(fn($e) => $e->criteria->count()) > 0)
+                                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                        <button type="button" onclick="toggleKukUnit('kuk-unit-{{ $unit->id }}')" class="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition text-left">
+                                            <div class="flex items-center gap-3">
+                                                <span class="material-symbols-outlined text-blue-900">folder</span>
+                                                <div>
+                                                    <p class="font-mono text-xs text-gray-600">{{ $unit->code }}</p>
+                                                    <p class="font-semibold text-gray-900">{{ Str::limit($unit->title, 50) }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-sm text-gray-500">{{ $unit->elements->sum(fn($e) => $e->criteria->count()) }} KUK</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform kuk-arrow" id="kuk-arrow-{{ $unit->id }}">expand_more</span>
+                                            </div>
+                                        </button>
+                                        <div id="kuk-unit-{{ $unit->id }}" class="hidden">
+                                            @foreach($unit->elements as $element)
+                                                @if($element->criteria->count() > 0)
+                                                    <div class="border-t border-gray-200">
+                                                        <div class="p-3 bg-blue-50 flex items-center justify-between">
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="material-symbols-outlined text-sm text-blue-700">description</span>
+                                                                <span class="text-sm font-semibold text-blue-900">{{ $element->code }} - {{ Str::limit($element->title, 40) }}</span>
+                                                            </div>
+                                                            <a href="{{ route('admin.schemes.versions.units.elements.criteria.index', [$scheme, $version, $unit, $element]) }}" class="text-xs text-blue-700 hover:text-blue-900 flex items-center gap-1">
+                                                                <span>Manage</span>
+                                                                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                                            </a>
+                                                        </div>
+                                                        <div class="divide-y divide-gray-100">
+                                                            @foreach($element->criteria as $criterion)
+                                                                <div class="p-3 pl-8 flex items-start justify-between hover:bg-gray-50 transition">
+                                                                    <div class="flex-1">
+                                                                        <div class="flex items-center gap-2">
+                                                                            @if($criterion->code)
+                                                                                <span class="font-mono text-xs text-gray-600">{{ $criterion->code }}</span>
+                                                                            @endif
+                                                                            @if($criterion->assessment_method)
+                                                                                @php
+                                                                                    $methodColors = [
+                                                                                        'written' => 'bg-blue-100 text-blue-700',
+                                                                                        'practical' => 'bg-green-100 text-green-700',
+                                                                                        'oral' => 'bg-yellow-100 text-yellow-700',
+                                                                                        'portfolio' => 'bg-purple-100 text-purple-700',
+                                                                                        'observation' => 'bg-orange-100 text-orange-700',
+                                                                                    ];
+                                                                                @endphp
+                                                                                <span class="px-2 py-0.5 {{ $methodColors[$criterion->assessment_method] ?? 'bg-gray-100 text-gray-700' }} rounded text-xs">
+                                                                                    {{ ucfirst($criterion->assessment_method) }}
+                                                                                </span>
+                                                                            @endif
+                                                                        </div>
+                                                                        <p class="text-sm text-gray-700 mt-1">{{ Str::limit($criterion->description, 100) }}</p>
+                                                                    </div>
+                                                                    <a href="{{ route('admin.schemes.versions.units.elements.criteria.edit', [$scheme, $version, $unit, $element, $criterion]) }}" class="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition">
+                                                                        <span class="material-symbols-outlined text-lg">edit</span>
+                                                                    </a>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <span class="material-symbols-outlined text-gray-300 text-5xl mb-3">checklist</span>
+                            <p class="text-gray-500">Belum ada KUK</p>
+                            <p class="text-sm text-gray-400 mt-1">Tambahkan elements dan criteria pada unit kompetensi</p>
+                        </div>
+                    @endif
+                </div>
+
                 <!-- Requirements -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-4">
@@ -304,4 +409,19 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function toggleKukUnit(unitId) {
+            const content = document.getElementById(unitId);
+            const arrow = document.getElementById('kuk-arrow-' + unitId.replace('kuk-unit-', ''));
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+    </script>
 @endsection

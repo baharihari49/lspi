@@ -86,6 +86,19 @@
                             <p class="mt-1 text-xs text-gray-500" id="assesseeHint">Daftar asesi yang terdaftar pada event ini</p>
                         </div>
 
+                        <!-- Event Session Selection -->
+                        <div class="md:col-span-2">
+                            <label for="event_session_id" class="block text-sm font-semibold text-gray-700 mb-2">Sesi Assessment</label>
+                            <select id="event_session_id" name="event_session_id"
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('event_session_id') border-red-500 @enderror">
+                                <option value="">-- Pilih Sesi (Opsional) --</option>
+                            </select>
+                            @error('event_session_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1 text-xs text-gray-500" id="sessionHint">Pilih sesi jika ingin menjadwalkan assessment pada sesi tertentu</p>
+                        </div>
+
                         <!-- TUK from Event -->
                         <div class="md:col-span-2">
                             <label for="tuk_id" class="block text-sm font-semibold text-gray-700 mb-2">TUK (Tempat Uji Kompetensi)</label>
@@ -177,6 +190,14 @@
                         <span class="inline-flex items-center justify-center w-6 h-6 bg-blue-900 text-white text-sm rounded-full mr-2">4</span>
                         Jadwal Assessment
                     </h3>
+
+                    <!-- Info when session is selected -->
+                    <div id="session-info-notice" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg hidden">
+                        <p class="text-sm text-blue-700">
+                            <span class="material-symbols-outlined text-sm align-middle">info</span>
+                            Tanggal dan waktu otomatis diambil dari sesi yang dipilih. Ubah sesi untuk mengubah jadwal.
+                        </p>
+                    </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Scheduled Date -->
@@ -323,8 +344,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const leadAssessorDisplay = document.getElementById('leadAssessorDisplay');
     const leadAssessorIdInput = document.getElementById('lead_assessor_id');
     const assesseeSelect = document.getElementById('assessee_id');
+    const sessionSelect = document.getElementById('event_session_id');
     const tukSelect = document.getElementById('tuk_id');
     const scheduledDateInput = document.getElementById('scheduled_date');
+    const scheduledTimeInput = document.getElementById('scheduled_time');
     const venueInput = document.getElementById('venue');
     const titleInput = document.getElementById('title');
 
@@ -356,6 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
         leadAssessorDisplay.textContent = '-';
         leadAssessorIdInput.value = '';
         assesseeSelect.innerHTML = '<option value="">-- Pilih Asesi --</option>';
+        sessionSelect.innerHTML = '<option value="">-- Pilih Sesi (Opsional) --</option>';
         submitBtn.disabled = true;
     }
 
@@ -421,6 +445,23 @@ document.addEventListener('DOMContentLoaded', function() {
                         summaryAssesseeCount.textContent = '0';
                     }
 
+                    // Update sessions dropdown
+                    sessionSelect.innerHTML = '<option value="">-- Pilih Sesi (Opsional) --</option>';
+                    if (data.sessions && data.sessions.length > 0) {
+                        data.sessions.forEach(session => {
+                            const option = document.createElement('option');
+                            option.value = session.id;
+                            option.dataset.date = session.session_date;
+                            option.dataset.startTime = session.start_time;
+                            const availableText = session.available_slots > 0
+                                ? `(${session.available_slots} slot tersedia)`
+                                : '(PENUH)';
+                            option.textContent = `${session.name} - ${session.session_date} ${session.start_time}-${session.end_time} ${availableText}`;
+                            option.disabled = session.available_slots <= 0;
+                            sessionSelect.appendChild(option);
+                        });
+                    }
+
                     // Update TUK dropdown with event TUKs and auto-select first one
                     if (data.tuks && data.tuks.length > 0) {
                         // Reset and add event TUKs first
@@ -480,6 +521,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Listen for assessee selection
     assesseeSelect.addEventListener('change', updateSubmitButton);
+
+    // Get session info notice element
+    const sessionInfoNotice = document.getElementById('session-info-notice');
+
+    // Function to toggle readonly state for date/time fields
+    function toggleScheduleReadonly(hasSession) {
+        if (hasSession) {
+            scheduledDateInput.readOnly = true;
+            scheduledTimeInput.readOnly = true;
+            scheduledDateInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+            scheduledTimeInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+            if (sessionInfoNotice) sessionInfoNotice.classList.remove('hidden');
+        } else {
+            scheduledDateInput.readOnly = false;
+            scheduledTimeInput.readOnly = false;
+            scheduledDateInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+            scheduledTimeInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+            if (sessionInfoNotice) sessionInfoNotice.classList.add('hidden');
+        }
+    }
+
+    // Listen for session selection to auto-fill date and time
+    sessionSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const hasSession = selectedOption.value !== '';
+
+        if (hasSession && selectedOption.dataset.date) {
+            scheduledDateInput.value = selectedOption.dataset.date;
+            if (selectedOption.dataset.startTime) {
+                scheduledTimeInput.value = selectedOption.dataset.startTime;
+            }
+        }
+
+        toggleScheduleReadonly(hasSession);
+    });
 
     // If there's old event_id, trigger change to load data
     @if(old('event_id'))

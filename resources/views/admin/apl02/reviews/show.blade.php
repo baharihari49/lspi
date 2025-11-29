@@ -362,6 +362,16 @@
                         </a>
                     @endif
 
+                    @if(in_array($review->status, ['completed', 'submitted', 'approved']))
+                        <form action="{{ route('admin.apl02.reviews.reopen', $review) }}" method="POST" class="w-full" onsubmit="return confirm('Apakah Anda yakin ingin membuka kembali review ini? Status akan direset ke In Progress.')">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold transition">
+                                <span class="material-symbols-outlined">refresh</span>
+                                <span>Reopen Review</span>
+                            </button>
+                        </form>
+                    @endif
+
                     <a href="{{ route('admin.apl02.reviews.edit', $review) }}" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-semibold transition">
                         <span class="material-symbols-outlined">edit</span>
                         <span>Edit Review</span>

@@ -117,6 +117,40 @@
                             @enderror
                         </div>
 
+                        <!-- Event Session -->
+                        <div>
+                            <label for="event_session_id" class="block text-sm font-semibold text-gray-700 mb-2">Sesi Assessment</label>
+                            <select id="event_session_id" name="event_session_id"
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('event_session_id') border-red-500 @enderror">
+                                <option value="">-- Pilih Sesi (Opsional) --</option>
+                                @if(isset($sessions) && $sessions->count() > 0)
+                                    @foreach($sessions as $session)
+                                        @php
+                                            $availableSlots = $session->max_participants - $session->current_participants;
+                                            // Jika ini adalah session yang sudah dipilih, tambahkan 1 slot karena akan di-decrement saat update
+                                            if ($assessment->event_session_id == $session->id) {
+                                                $availableSlots += 1;
+                                            }
+                                            $isFull = $availableSlots <= 0;
+                                        @endphp
+                                        <option value="{{ $session->id }}"
+                                            {{ old('event_session_id', $assessment->event_session_id) == $session->id ? 'selected' : '' }}
+                                            {{ $isFull ? 'disabled' : '' }}
+                                            data-date="{{ $session->session_date?->format('Y-m-d') }}"
+                                            data-time="{{ $session->start_time?->format('H:i') }}">
+                                            {{ $session->name }} - {{ $session->session_date?->format('d M Y') }}
+                                            {{ $session->start_time?->format('H:i') }}-{{ $session->end_time?->format('H:i') }}
+                                            ({{ $isFull ? 'PENUH' : $availableSlots . ' slot tersedia' }})
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            @error('event_session_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1 text-xs text-gray-500">Pilih sesi untuk menjadwalkan assessment pada waktu tertentu</p>
+                        </div>
+
                         <!-- Assessment Type -->
                         <div>
                             <label for="assessment_type" class="block text-sm font-semibold text-gray-700 mb-2">Assessment Type *</label>
@@ -157,12 +191,21 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 class="text-lg font-bold text-gray-900 mb-4">Schedule Information</h3>
 
+                    <!-- Info when session is selected -->
+                    <div id="session-info-notice" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg {{ $assessment->event_session_id ? '' : 'hidden' }}">
+                        <p class="text-sm text-blue-700">
+                            <span class="material-symbols-outlined text-sm align-middle">info</span>
+                            Tanggal dan waktu otomatis diambil dari sesi yang dipilih. Ubah sesi untuk mengubah jadwal.
+                        </p>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Scheduled Date -->
                         <div>
                             <label for="scheduled_date" class="block text-sm font-semibold text-gray-700 mb-2">Scheduled Date *</label>
                             <input type="date" id="scheduled_date" name="scheduled_date" value="{{ old('scheduled_date', $assessment->scheduled_date?->format('Y-m-d')) }}" required
-                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('scheduled_date') border-red-500 @enderror">
+                                {{ $assessment->event_session_id ? 'readonly' : '' }}
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('scheduled_date') border-red-500 @enderror {{ $assessment->event_session_id ? 'bg-gray-100 cursor-not-allowed' : '' }}">
                             @error('scheduled_date')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -172,7 +215,8 @@
                         <div>
                             <label for="scheduled_time" class="block text-sm font-semibold text-gray-700 mb-2">Scheduled Time</label>
                             <input type="time" id="scheduled_time" name="scheduled_time" value="{{ old('scheduled_time', $assessment->scheduled_time?->format('H:i')) }}"
-                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('scheduled_time') border-red-500 @enderror">
+                                {{ $assessment->event_session_id ? 'readonly' : '' }}
+                                class="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none @error('scheduled_time') border-red-500 @enderror {{ $assessment->event_session_id ? 'bg-gray-100 cursor-not-allowed' : '' }}">
                             @error('scheduled_time')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -285,4 +329,84 @@
             </div>
         </div>
     </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const eventSelect = document.getElementById('event_id');
+            const sessionSelect = document.getElementById('event_session_id');
+            const scheduledDateInput = document.getElementById('scheduled_date');
+            const scheduledTimeInput = document.getElementById('scheduled_time');
+            const sessionInfoNotice = document.getElementById('session-info-notice');
+            const currentSessionId = {{ $assessment->event_session_id ?? 'null' }};
+
+            // Function to toggle readonly state
+            function toggleReadonly(hasSession) {
+                if (hasSession) {
+                    scheduledDateInput.readOnly = true;
+                    scheduledTimeInput.readOnly = true;
+                    scheduledDateInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                    scheduledTimeInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                    sessionInfoNotice.classList.remove('hidden');
+                } else {
+                    scheduledDateInput.readOnly = false;
+                    scheduledTimeInput.readOnly = false;
+                    scheduledDateInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                    scheduledTimeInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                    sessionInfoNotice.classList.add('hidden');
+                }
+            }
+
+            // Handle event change - load sessions
+            eventSelect.addEventListener('change', function() {
+                const eventId = this.value;
+                sessionSelect.innerHTML = '<option value="">-- Pilih Sesi (Opsional) --</option>';
+                toggleReadonly(false); // Reset to editable when event changes
+
+                if (!eventId) return;
+
+                // Fetch sessions for the selected event
+                fetch(`/admin/assessments/event-data/${eventId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.sessions && data.sessions.length > 0) {
+                            data.sessions.forEach(session => {
+                                const option = document.createElement('option');
+                                option.value = session.id;
+
+                                // Calculate available slots
+                                let availableSlots = session.max_participants - session.current_participants;
+                                // If this is the currently selected session, add 1 slot back
+                                if (session.id == currentSessionId) {
+                                    availableSlots += 1;
+                                }
+                                const isFull = availableSlots <= 0;
+
+                                option.textContent = `${session.name} - ${session.session_date} ${session.start_time}-${session.end_time} (${isFull ? 'PENUH' : availableSlots + ' slot tersedia'})`;
+                                option.disabled = isFull;
+                                option.dataset.date = session.session_date;
+                                option.dataset.time = session.start_time;
+
+                                sessionSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error loading sessions:', error));
+            });
+
+            // Handle session change - auto-fill date/time and toggle readonly
+            sessionSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const hasSession = selectedOption.value !== '';
+
+                if (hasSession && selectedOption.dataset.date) {
+                    scheduledDateInput.value = selectedOption.dataset.date;
+                    if (selectedOption.dataset.time) {
+                        scheduledTimeInput.value = selectedOption.dataset.time;
+                    }
+                }
+
+                toggleReadonly(hasSession);
+            });
+        });
+    </script>
 @endsection

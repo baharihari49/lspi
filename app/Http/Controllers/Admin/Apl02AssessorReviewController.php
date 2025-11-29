@@ -293,6 +293,41 @@ class Apl02AssessorReviewController extends Controller
         return back()->with('error', 'Unable to schedule re-assessment.');
     }
 
+    /**
+     * Reopen a completed review to allow re-assessment
+     */
+    public function reopen(Apl02AssessorReview $review)
+    {
+        // Only allow reopening completed reviews
+        if (!in_array($review->status, ['completed', 'submitted', 'approved'])) {
+            return back()->with('error', 'Hanya review yang sudah selesai yang dapat dibuka kembali.');
+        }
+
+        // Reset review status to in_progress
+        $review->update([
+            'status' => 'in_progress',
+            'review_completed_at' => null,
+            'is_final' => false,
+            'verified_at' => null,
+            'verified_by' => null,
+            'verification_notes' => null,
+        ]);
+
+        // Also reset the APL-02 unit status if needed
+        $unit = $review->apl02Unit;
+        if ($unit && in_array($unit->status, ['competent', 'not_yet_competent'])) {
+            $unit->update([
+                'status' => 'under_review',
+                'assessment_result' => 'pending',
+                'completed_at' => null,
+            ]);
+        }
+
+        return redirect()
+            ->route('admin.apl02.reviews.conduct', $review)
+            ->with('success', 'Review berhasil dibuka kembali. Silakan lakukan review ulang.');
+    }
+
     // My reviews (for current assessor)
     public function myReviews(Request $request)
     {

@@ -41,14 +41,27 @@ class EventSessionController extends Controller
         ]);
 
         // Generate session code: EVT-001-S001
-        $sessionCount = $event->sessions()->count() + 1;
-        $validated['session_code'] = $event->code . '-S' . str_pad($sessionCount, 3, '0', STR_PAD_LEFT);
+        // Include soft deleted sessions to avoid duplicate codes
+        $lastSession = EventSession::withTrashed()
+            ->where('event_id', $event->id)
+            ->where('session_code', 'like', $event->code . '-S%')
+            ->orderBy('session_code', 'desc')
+            ->first();
+
+        if ($lastSession) {
+            $lastNumber = (int) substr($lastSession->session_code, -3);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        $validated['session_code'] = $event->code . '-S' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
 
         $validated['event_id'] = $event->id;
-        $validated['is_active'] = $request->has('is_active') ? 1 : 1; // Default active
+        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
         $validated['status'] = $validated['status'] ?? 'scheduled';
         $validated['current_participants'] = 0;
-        $validated['order'] = $sessionCount;
+        $validated['order'] = $newNumber;
 
         EventSession::create($validated);
 

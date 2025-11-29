@@ -40,7 +40,14 @@ class CertificateGeneratorService
      */
     public function hasCertificate(Assessment $assessment): bool
     {
-        return Certificate::where('assessment_result_id', $assessment->id)->exists();
+        // Get the assessment result for this assessment
+        $assessmentResult = AssessmentResult::where('assessment_id', $assessment->id)->first();
+
+        if (!$assessmentResult) {
+            return false;
+        }
+
+        return Certificate::where('assessment_result_id', $assessmentResult->id)->exists();
     }
 
     /**
@@ -52,12 +59,19 @@ class CertificateGeneratorService
             throw new \Exception('Cannot generate certificate: Assessment is not eligible.');
         }
 
+        // Get the assessment result for this assessment
+        $assessmentResult = AssessmentResult::where('assessment_id', $assessment->id)->first();
+
+        if (!$assessmentResult) {
+            throw new \Exception('Cannot generate certificate: Assessment result not found.');
+        }
+
         $apl01 = $assessment->apl01Form;
         $assessee = $assessment->assessee;
         $scheme = $assessment->scheme;
 
         $certificate = Certificate::create([
-            'assessment_result_id' => $assessment->id,
+            'assessment_result_id' => $assessmentResult->id,
             'assessee_id' => $assessment->assessee_id,
             'scheme_id' => $assessment->scheme_id,
             'issued_by' => auth()->id() ?? 1,

@@ -54,9 +54,9 @@
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Session</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date & Time</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Location</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Room</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Capacity</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                             </tr>
@@ -69,32 +69,32 @@
                                         @if($session->description)
                                             <p class="text-xs text-gray-500 mt-1">{{ Str::limit($session->description, 50) }}</p>
                                         @endif
-                                        @if($session->is_mandatory)
-                                            <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">Mandatory</span>
+                                        @if(!$session->is_active)
+                                            <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700">Inactive</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4">
                                         @php
-                                            $typeColors = [
-                                                'theory' => 'bg-blue-100 text-blue-700',
-                                                'practice' => 'bg-green-100 text-green-700',
-                                                'exam' => 'bg-red-100 text-red-700',
-                                                'other' => 'bg-gray-100 text-gray-700',
+                                            $statusColors = [
+                                                'scheduled' => 'bg-blue-100 text-blue-700',
+                                                'ongoing' => 'bg-yellow-100 text-yellow-700',
+                                                'completed' => 'bg-green-100 text-green-700',
+                                                'cancelled' => 'bg-red-100 text-red-700',
                                             ];
                                         @endphp
-                                        <span class="inline-block px-3 py-1 {{ $typeColors[$session->session_type] ?? 'bg-gray-100 text-gray-700' }} rounded-full text-xs font-semibold">
-                                            {{ ucfirst($session->session_type) }}
+                                        <span class="inline-block px-3 py-1 {{ $statusColors[$session->status] ?? 'bg-gray-100 text-gray-700' }} rounded-full text-xs font-semibold">
+                                            {{ ucfirst($session->status ?? 'scheduled') }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4">
                                         <p class="text-sm text-gray-900">{{ $session->session_date->format('d M Y') }}</p>
                                         @if($session->start_time && $session->end_time)
-                                            <p class="text-xs text-gray-500">{{ $session->start_time }} - {{ $session->end_time }}</p>
+                                            <p class="text-xs text-gray-500">{{ $session->start_time->format('H:i') }} - {{ $session->end_time->format('H:i') }}</p>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4">
-                                        @if($session->location)
-                                            <p class="text-sm text-gray-900">{{ $session->location }}</p>
+                                        @if($session->room)
+                                            <p class="text-sm text-gray-900">{{ $session->room }}</p>
                                         @else
                                             <span class="text-sm text-gray-400">-</span>
                                         @endif

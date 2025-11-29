@@ -33,7 +33,9 @@ class MyAssessmentController extends Controller
             return view('assessee.my-assessments.index', compact('assessments', 'stats'));
         }
 
-        $query = Assessment::where('assessee_id', $assesseeId);
+        // Hanya tampilkan assessment yang sudah dikonfirmasi admin (bukan pending_confirmation)
+        $query = Assessment::where('assessee_id', $assesseeId)
+            ->where('status', '!=', 'pending_confirmation');
 
         // Filter by status
         if ($request->filled('status')) {
@@ -50,13 +52,16 @@ class MyAssessmentController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Statistics
+        // Statistics (exclude pending_confirmation)
+        $confirmedQuery = Assessment::where('assessee_id', $assesseeId)
+            ->where('status', '!=', 'pending_confirmation');
+
         $stats = [
-            'total' => Assessment::where('assessee_id', $assesseeId)->count(),
-            'scheduled' => Assessment::where('assessee_id', $assesseeId)->where('status', 'scheduled')->count(),
-            'completed' => Assessment::where('assessee_id', $assesseeId)->where('status', 'completed')->count(),
-            'competent' => Assessment::where('assessee_id', $assesseeId)->where('overall_result', 'competent')->count(),
-            'not_yet_competent' => Assessment::where('assessee_id', $assesseeId)->where('overall_result', 'not_yet_competent')->count(),
+            'total' => (clone $confirmedQuery)->count(),
+            'scheduled' => (clone $confirmedQuery)->where('status', 'scheduled')->count(),
+            'completed' => (clone $confirmedQuery)->where('status', 'completed')->count(),
+            'competent' => (clone $confirmedQuery)->where('overall_result', 'competent')->count(),
+            'not_yet_competent' => (clone $confirmedQuery)->where('overall_result', 'not_yet_competent')->count(),
         ];
 
         return view('assessee.my-assessments.index', compact('assessments', 'stats'));
@@ -71,6 +76,11 @@ class MyAssessmentController extends Controller
 
         if (!$assessee || $assessment->assessee_id !== $assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke asesmen ini.');
+        }
+
+        // Assessee tidak bisa melihat assessment yang masih pending_confirmation
+        if ($assessment->status === 'pending_confirmation') {
+            abort(403, 'Asesmen ini masih menunggu konfirmasi admin.');
         }
 
         $assessment->load([

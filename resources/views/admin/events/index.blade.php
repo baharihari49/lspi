@@ -132,18 +132,23 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4">
-                                @if($event->is_published)
-                                    <span class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                                        Published
+                                @if($event->status)
+                                    @php
+                                        $statusColors = [
+                                            'draft' => 'bg-gray-100 text-gray-700',
+                                            'published' => 'bg-blue-100 text-blue-700',
+                                            'ongoing' => 'bg-yellow-100 text-yellow-700',
+                                            'completed' => 'bg-green-100 text-green-700',
+                                            'cancelled' => 'bg-red-100 text-red-700',
+                                        ];
+                                        $statusColor = $statusColors[$event->status->code ?? ''] ?? 'bg-gray-100 text-gray-700';
+                                    @endphp
+                                    <span class="inline-block px-3 py-1 {{ $statusColor }} rounded-full text-xs font-semibold">
+                                        {{ $event->status->label }}
                                     </span>
                                 @else
                                     <span class="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
-                                        Draft
-                                    </span>
-                                @endif
-                                @if($event->status)
-                                    <span class="inline-block mt-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                                        {{ $event->status->label }}
+                                        -
                                     </span>
                                 @endif
                             </td>

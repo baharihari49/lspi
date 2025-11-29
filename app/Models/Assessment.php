@@ -18,6 +18,7 @@ class Assessment extends Model
         'assessee_id',
         'scheme_id',
         'event_id',
+        'event_session_id',
         'apl01_form_id',
         'lead_assessor_id',
         'assessment_method',
@@ -67,6 +68,11 @@ class Assessment extends Model
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
+    }
+
+    public function eventSession(): BelongsTo
+    {
+        return $this->belongsTo(EventSession::class);
     }
 
     public function apl01Form(): BelongsTo
@@ -163,13 +169,14 @@ class Assessment extends Model
 
     public function canBeModified(): bool
     {
-        return in_array($this->status, ['draft', 'scheduled']);
+        return in_array($this->status, ['draft', 'pending_confirmation', 'scheduled']);
     }
 
     public function getStatusBadgeColor(): string
     {
         return match($this->status) {
             'draft' => 'gray',
+            'pending_confirmation' => 'orange',
             'scheduled' => 'blue',
             'in_progress' => 'yellow',
             'completed' => 'purple',
@@ -179,6 +186,23 @@ class Assessment extends Model
             'rejected' => 'red',
             'cancelled' => 'gray',
             default => 'gray',
+        };
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match($this->status) {
+            'draft' => 'Draft',
+            'pending_confirmation' => 'Menunggu Konfirmasi',
+            'scheduled' => 'Terjadwal',
+            'in_progress' => 'Sedang Berlangsung',
+            'completed' => 'Selesai',
+            'under_review' => 'Dalam Review',
+            'verified' => 'Terverifikasi',
+            'approved' => 'Disetujui',
+            'rejected' => 'Ditolak',
+            'cancelled' => 'Dibatalkan',
+            default => ucfirst($this->status),
         };
     }
 }

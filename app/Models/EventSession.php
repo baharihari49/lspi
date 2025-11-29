@@ -45,4 +45,25 @@ class EventSession extends Model
     {
         return $this->hasMany(EventMaterial::class);
     }
+
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class);
+    }
+
+    /**
+     * Check if session has available capacity.
+     */
+    public function hasAvailableCapacity(): bool
+    {
+        return $this->current_participants < $this->max_participants;
+    }
+
+    /**
+     * Get available slots count.
+     */
+    public function getAvailableSlotsAttribute(): int
+    {
+        return max(0, $this->max_participants - $this->current_participants);
+    }
 }

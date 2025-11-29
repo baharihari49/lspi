@@ -45,10 +45,21 @@ class EventRegistrationController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Event::where('is_published', true)
-            ->where('is_active', true)
+        // Get published status ID
+        $publishedStatus = \App\Models\MasterStatus::where('category', 'event')
+            ->where('code', 'published')
+            ->first();
+
+        $query = Event::where('is_active', true)
             ->where('registration_end', '>=', now())
-            ->where('registration_start', '<=', now());
+            ->where('registration_start', '<=', now())
+            ->where(function ($q) use ($publishedStatus) {
+                // Check either is_published OR status_id is published
+                $q->where('is_published', true);
+                if ($publishedStatus) {
+                    $q->orWhere('status_id', $publishedStatus->id);
+                }
+            });
 
         // Filter by scheme
         if ($request->filled('scheme_id')) {
@@ -89,7 +100,14 @@ class EventRegistrationController extends Controller
      */
     public function show(Event $event)
     {
-        if (!$event->is_published || !$event->is_active) {
+        // Get published status ID
+        $publishedStatus = \App\Models\MasterStatus::where('category', 'event')
+            ->where('code', 'published')
+            ->first();
+
+        $isPublished = $event->is_published || ($publishedStatus && $event->status_id == $publishedStatus->id);
+
+        if (!$isPublished || !$event->is_active) {
             abort(404);
         }
 
@@ -117,7 +135,7 @@ class EventRegistrationController extends Controller
         // Check if registration is open
         $isRegistrationOpen = $event->registration_start <= now()
             && $event->registration_end >= now()
-            && $event->is_published
+            && $isPublished
             && $event->is_active;
 
         // Check available slots
@@ -137,7 +155,13 @@ class EventRegistrationController extends Controller
             return back()->with('error', 'Pendaftaran untuk event ini sudah ditutup.');
         }
 
-        if (!$event->is_published || !$event->is_active) {
+        // Get published status ID
+        $publishedStatus = \App\Models\MasterStatus::where('category', 'event')
+            ->where('code', 'published')
+            ->first();
+        $isPublished = $event->is_published || ($publishedStatus && $event->status_id == $publishedStatus->id);
+
+        if (!$isPublished || !$event->is_active) {
             return back()->with('error', 'Event tidak tersedia.');
         }
 
