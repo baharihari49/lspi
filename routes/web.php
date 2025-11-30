@@ -203,6 +203,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('apl01/{apl01}/accept-review', [App\Http\Controllers\Admin\Apl01FormController::class, 'acceptForReview'])->name('apl01.accept-review');
     Route::post('apl01/{apl01}/declaration', [App\Http\Controllers\Admin\Apl01FormController::class, 'updateDeclaration'])->name('apl01.declaration');
     Route::post('apl01/{apl01}/generate-apl02', [App\Http\Controllers\Admin\Apl01FormController::class, 'generateApl02'])->name('apl01.generate-apl02');
+    Route::post('apl01/{apl01}/generate-assessment', [App\Http\Controllers\Admin\Apl01FormController::class, 'generateAssessment'])->name('apl01.generate-assessment');
     Route::post('apl01/autofill', [App\Http\Controllers\Admin\Apl01FormController::class, 'autofill'])->name('apl01.autofill');
     Route::post('apl01/scheme-fields', [App\Http\Controllers\Admin\Apl01FormController::class, 'getSchemeFields'])->name('apl01.scheme-fields');
 

@@ -382,6 +382,39 @@
                         </div>
                     @endif
 
+                    {{-- Generate Assessment Button (for cPanel without queue) --}}
+                    @if($apl01->status === 'approved' && $apl01->apl02_generated_at)
+                        @php
+                            $schedulerService = app(\App\Services\AssessmentSchedulerService::class);
+                            $allUnitsCompetent = $schedulerService->areAllApl02UnitsComplete($apl01);
+                            $hasScheduledAssessment = $schedulerService->hasScheduledAssessment($apl01);
+                            $unitStats = $schedulerService->getCompletedUnitCount($apl01);
+                        @endphp
+
+                        @if($hasScheduledAssessment)
+                            <div class="w-full h-12 px-4 bg-green-100 text-green-700 font-semibold rounded-lg flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">event_available</span>
+                                Assessment Scheduled
+                            </div>
+                        @elseif($allUnitsCompetent)
+                            <form action="{{ route('admin.apl01.generate-assessment', $apl01) }}" method="POST" onsubmit="return confirm('Generate Assessment untuk form ini?')">
+                                @csrf
+                                <button type="submit" class="w-full h-12 px-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined">assignment</span>
+                                    Generate Assessment
+                                </button>
+                            </form>
+                        @else
+                            <div class="w-full px-4 py-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg text-sm">
+                                <div class="flex items-center gap-2 font-semibold mb-1">
+                                    <span class="material-symbols-outlined text-lg">pending</span>
+                                    Menunggu APL-02 Selesai
+                                </div>
+                                <p class="text-xs">{{ $unitStats['competent'] }}/{{ $unitStats['total'] }} unit competent</p>
+                            </div>
+                        @endif
+                    @endif
+
                     <a href="{{ route('admin.apl01.index') }}" class="block w-full h-12 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 text-center leading-[3rem] transition-all">
                         Back to List
                     </a>

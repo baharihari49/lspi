@@ -9,6 +9,7 @@ use App\Models\Apl01FormField;
 use App\Models\Assessee;
 use App\Models\Scheme;
 use App\Models\Event;
+use App\Services\AssessmentSchedulerService;
 use App\Services\CertificationFlowService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -459,6 +460,44 @@ class Apl01FormController extends Controller
                 ];
             }),
         ]);
+    }
+
+    /**
+     * Generate Assessment manually (for environments without queue workers like cPanel)
+     */
+    public function generateAssessment(Apl01Form $apl01, AssessmentSchedulerService $schedulerService)
+    {
+        // Check if APL-01 is approved
+        if ($apl01->status !== 'approved') {
+            return back()->with('error', 'APL-01 harus disetujui terlebih dahulu.');
+        }
+
+        // Check if APL-02 has been generated
+        if (!$apl01->apl02_generated_at) {
+            return back()->with('error', 'APL-02 harus dibuat terlebih dahulu sebelum generate assessment.');
+        }
+
+        // Check if all APL-02 units are competent
+        if (!$schedulerService->areAllApl02UnitsComplete($apl01)) {
+            $unitStats = $schedulerService->getCompletedUnitCount($apl01);
+            return back()->with('error', "Semua unit APL-02 harus competent. Status saat ini: {$unitStats['competent']}/{$unitStats['total']} unit competent.");
+        }
+
+        // Check if assessment already scheduled
+        if ($schedulerService->hasScheduledAssessment($apl01)) {
+            return back()->with('warning', 'Assessment sudah dijadwalkan sebelumnya untuk APL-01 ini.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $assessment = $schedulerService->scheduleAssessment($apl01);
+            DB::commit();
+
+            return back()->with('success', "Assessment berhasil dibuat dengan nomor {$assessment->assessment_number}. Silakan konfirmasi jadwal assessment.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal membuat assessment: ' . $e->getMessage());
+        }
     }
 
     /**
