@@ -87,7 +87,7 @@ class Apl01ReviewController extends Controller
     public function review(Apl01Review $review)
     {
         // Check if current user is the assigned reviewer
-        if ($review->reviewer_id !== auth()->id() && !auth()->user()->hasRole('admin')) {
+        if ((int)$review->reviewer_id !== (int)auth()->id() && !auth()->user()->hasRole('admin')) {
             return back()->with('error', 'You are not authorized to review this form.');
         }
 
@@ -115,7 +115,7 @@ class Apl01ReviewController extends Controller
      */
     public function start(Apl01Review $review)
     {
-        if ($review->reviewer_id !== auth()->id() && !auth()->user()->hasRole('admin')) {
+        if ((int)$review->reviewer_id !== (int)auth()->id() && !auth()->user()->hasRole('admin')) {
             return back()->with('error', 'You are not authorized to review this form.');
         }
 
@@ -142,7 +142,7 @@ class Apl01ReviewController extends Controller
      */
     public function submitDecision(Request $request, Apl01Review $review)
     {
-        if ($review->reviewer_id !== auth()->id() && !auth()->user()->hasRole('admin')) {
+        if ((int)$review->reviewer_id !== (int)auth()->id() && !auth()->user()->hasRole('admin')) {
             return back()->with('error', 'You are not authorized to review this form.');
         }
 
@@ -204,7 +204,7 @@ class Apl01ReviewController extends Controller
      */
     public function approve(Request $request, Apl01Review $review)
     {
-        if ($review->reviewer_id !== auth()->id() && !auth()->user()->hasRole('admin')) {
+        if ((int)$review->reviewer_id !== (int)auth()->id() && !auth()->user()->hasRole('admin')) {
             return back()->with('error', 'You are not authorized to review this form.');
         }
 
@@ -231,7 +231,7 @@ class Apl01ReviewController extends Controller
      */
     public function reject(Request $request, Apl01Review $review)
     {
-        if ($review->reviewer_id !== auth()->id() && !auth()->user()->hasRole('admin')) {
+        if ((int)$review->reviewer_id !== (int)auth()->id() && !auth()->user()->hasRole('admin')) {
             return back()->with('error', 'You are not authorized to review this form.');
         }
 
@@ -258,7 +258,7 @@ class Apl01ReviewController extends Controller
      */
     public function escalate(Request $request, Apl01Review $review)
     {
-        if ($review->reviewer_id !== auth()->id() && !auth()->user()->hasRole('admin')) {
+        if ((int)$review->reviewer_id !== (int)auth()->id() && !auth()->user()->hasRole('admin')) {
             return back()->with('error', 'You are not authorized to escalate this review.');
         }
 
@@ -329,7 +329,7 @@ class Apl01ReviewController extends Controller
      */
     public function updateDeadline(Request $request, Apl01Review $review)
     {
-        if (!auth()->user()->hasRole('admin') && $review->reviewer_id !== auth()->id()) {
+        if (!auth()->user()->hasRole('admin') && (int)$review->reviewer_id !== (int)auth()->id()) {
             return back()->with('error', 'You are not authorized to update this deadline.');
         }
 
