@@ -2,7 +2,12 @@
 
 @section('title', $event->name)
 
-@php $active = 'available-events'; @endphp
+@php
+    $active = 'available-events';
+    $hasTuk = $event->tuks && $event->tuks->count() > 0;
+    $hasSession = $event->sessions && $event->sessions->count() > 0;
+    $canRegister = $hasTuk && $hasSession;
+@endphp
 
 @section('content')
 <div class="space-y-6">
@@ -16,15 +21,12 @@
             </div>
             <h1 class="text-2xl font-bold text-gray-900">{{ $event->name }}</h1>
         </div>
-        @if(!$existingRegistration && $isRegistrationOpen && ($availableSlots === null || $availableSlots > 0))
-            <form action="{{ route('admin.available-events.register', $event) }}" method="POST">
-                @csrf
-                <button type="submit"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition font-semibold">
-                    <span class="material-symbols-outlined">how_to_reg</span>
-                    Daftar Sekarang
-                </button>
-            </form>
+        @if(!$existingRegistration && $isRegistrationOpen && ($availableSlots === null || $availableSlots > 0) && $canRegister)
+            <a href="#registration-form"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition font-semibold">
+                <span class="material-symbols-outlined">how_to_reg</span>
+                Daftar Sekarang
+            </a>
         @endif
     </div>
 
@@ -141,8 +143,8 @@
                             <div class="space-y-2 max-h-64 overflow-y-auto">
                                 @foreach($event->scheme->units as $unit)
                                     <div class="p-3 bg-gray-50 rounded-lg">
-                                        <p class="font-mono text-xs text-blue-600">{{ $unit->unit_code }}</p>
-                                        <p class="text-sm text-gray-900">{{ $unit->unit_title }}</p>
+                                        <p class="font-mono text-xs text-blue-600">{{ $unit->code }}</p>
+                                        <p class="text-sm text-gray-900">{{ $unit->title }}</p>
                                     </div>
                                 @endforeach
                             </div>
@@ -411,14 +413,79 @@
                                 Kuota Penuh
                             </button>
                         @else
-                            <form action="{{ route('admin.available-events.register', $event) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-800 transition">
-                                    <span class="material-symbols-outlined">how_to_reg</span>
-                                    Daftar Sekarang
-                                </button>
-                            </form>
+                            @if(!$canRegister)
+                                <!-- Warning: TUK or Session not available -->
+                                <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                    <div class="flex items-start gap-3">
+                                        <span class="material-symbols-outlined text-orange-600">warning</span>
+                                        <div>
+                                            <h4 class="font-semibold text-orange-800">Pendaftaran Belum Tersedia</h4>
+                                            <p class="text-sm text-orange-700 mt-1">
+                                                @if(!$hasTuk && !$hasSession)
+                                                    TUK dan Jadwal Sesi belum ditentukan untuk event ini.
+                                                @elseif(!$hasTuk)
+                                                    TUK (Tempat Uji Kompetensi) belum ditentukan untuk event ini.
+                                                @else
+                                                    Jadwal Sesi belum ditentukan untuk event ini.
+                                                @endif
+                                            </p>
+                                            <p class="text-xs text-orange-600 mt-2">Silakan hubungi admin untuk informasi lebih lanjut.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <form id="registration-form" action="{{ route('admin.available-events.register', $event) }}" method="POST" class="space-y-4">
+                                    @csrf
+
+                                    <!-- TUK Selection -->
+                                    <div>
+                                        <label for="tuk_id" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Pilih TUK <span class="text-red-500">*</span>
+                                        </label>
+                                        <select name="tuk_id" id="tuk_id" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('tuk_id') border-red-500 @enderror">
+                                            <option value="">-- Pilih TUK --</option>
+                                            @foreach($event->tuks as $eventTuk)
+                                                @if($eventTuk->tuk)
+                                                    <option value="{{ $eventTuk->tuk->id }}" {{ old('tuk_id') == $eventTuk->tuk->id ? 'selected' : '' }}>
+                                                        {{ $eventTuk->tuk->name }}
+                                                        @if($eventTuk->is_primary) (Utama) @endif
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                        @error('tuk_id')
+                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Session Selection -->
+                                    <div>
+                                        <label for="event_session_id" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Pilih Jadwal/Sesi <span class="text-red-500">*</span>
+                                        </label>
+                                        <select name="event_session_id" id="event_session_id" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('event_session_id') border-red-500 @enderror">
+                                            <option value="">-- Pilih Jadwal --</option>
+                                            @foreach($event->sessions as $session)
+                                                <option value="{{ $session->id }}" {{ old('event_session_id') == $session->id ? 'selected' : '' }}>
+                                                    {{ $session->name }} - {{ \Carbon\Carbon::parse($session->session_date)->format('d M Y') }}
+                                                    ({{ \Carbon\Carbon::parse($session->start_time)->format('H:i') }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('event_session_id')
+                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <button type="submit"
+                                        class="flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-800 transition">
+                                        <span class="material-symbols-outlined">how_to_reg</span>
+                                        Daftar Sekarang
+                                    </button>
+                                </form>
+                            @endif
                         @endif
                     </div>
                 </div>

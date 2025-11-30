@@ -216,6 +216,33 @@
                             </div>
                         </div>
                     @endif
+
+                    @if($apl01->tuk)
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-green-600">apartment</span>
+                            <div>
+                                <p class="text-xs text-gray-600">TUK (Tempat Uji Kompetensi)</p>
+                                <p class="font-semibold text-gray-900">{{ $apl01->tuk->name }}</p>
+                                @if($apl01->tuk->city || $apl01->tuk->province)
+                                    <p class="text-xs text-gray-500">{{ $apl01->tuk->city }}{{ $apl01->tuk->city && $apl01->tuk->province ? ', ' : '' }}{{ $apl01->tuk->province }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($apl01->eventSession)
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-purple-600">calendar_month</span>
+                            <div>
+                                <p class="text-xs text-gray-600">Session</p>
+                                <p class="font-semibold text-gray-900">{{ $apl01->eventSession->name }}</p>
+                                <p class="text-xs text-gray-500">
+                                    {{ \Carbon\Carbon::parse($apl01->eventSession->session_date)->format('d M Y') }}
+                                    • {{ \Carbon\Carbon::parse($apl01->eventSession->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($apl01->eventSession->end_time)->format('H:i') }}
+                                </p>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 @if($apl01->certification_purpose || $apl01->target_competency)
@@ -367,7 +394,8 @@
                         </form>
                     @endif
 
-                    @if($apl01->status === 'approved' && !$apl01->apl02_generated_at)
+                    {{-- HIDDEN: APL-02 per-unit generation temporarily disabled - will be replaced with APL-02 per-scheme --}}
+                    {{-- @if($apl01->status === 'approved' && !$apl01->apl02_generated_at)
                         <form action="{{ route('admin.apl01.generate-apl02', $apl01) }}" method="POST" onsubmit="return confirm('Generate APL-02 untuk form ini?')">
                             @csrf
                             <button type="submit" class="w-full h-12 px-4 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-all flex items-center justify-center gap-2">
@@ -380,6 +408,22 @@
                             <span class="material-symbols-outlined">check_circle</span>
                             APL-02 Generated
                         </div>
+                    @endif --}}
+
+                    {{-- APL-02 Form (per-Scheme) - NEW FLOW --}}
+                    @if($apl01->status === 'approved' && !$apl01->apl02Form)
+                        <form action="{{ route('admin.certification-flow.generate-apl02', $apl01) }}" method="POST" onsubmit="return confirm('Generate APL-02 Form untuk form ini?')">
+                            @csrf
+                            <button type="submit" class="w-full h-12 px-4 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">auto_fix_high</span>
+                                Generate APL-02 Form
+                            </button>
+                        </form>
+                    @elseif($apl01->apl02Form)
+                        <a href="{{ route('admin.apl02-forms.show', $apl01->apl02Form) }}" class="w-full h-12 px-4 bg-purple-100 text-purple-700 font-semibold rounded-lg hover:bg-purple-200 flex items-center justify-center gap-2 transition">
+                            <span class="material-symbols-outlined">assignment</span>
+                            Lihat APL-02 Form
+                        </a>
                     @endif
 
                     <a href="{{ route('admin.apl01.index') }}" class="block w-full h-12 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 text-center leading-[3rem] transition-all">
@@ -444,12 +488,13 @@
                         <span class="text-sm text-gray-600">Answers</span>
                         <span class="font-bold text-gray-900">{{ $apl01->answers->count() }}</span>
                     </div>
-                    @if($apl01->apl02_generated_at)
+                    {{-- HIDDEN: APL-02 per-unit stats temporarily disabled --}}
+                    {{-- @if($apl01->apl02_generated_at)
                         <div class="flex items-center justify-between pt-3 border-t border-gray-200">
                             <span class="text-sm text-gray-600">APL-02 Units</span>
                             <span class="font-bold text-purple-600">{{ $apl01->apl02Units->count() }}</span>
                         </div>
-                    @endif
+                    @endif --}}
                 </div>
             </div>
 
@@ -463,12 +508,13 @@
 
                     {{-- Flow Details --}}
                     <div class="mt-4 space-y-2 text-sm">
-                        @if($apl01->apl02_generated_at)
+                        {{-- HIDDEN: APL-02 per-unit flow details temporarily disabled --}}
+                        {{-- @if($apl01->apl02_generated_at)
                             <div class="flex items-center justify-between text-gray-600">
                                 <span>APL-02 dibuat:</span>
                                 <span class="font-medium">{{ $apl01->apl02_generated_at->format('d M Y H:i') }}</span>
                             </div>
-                        @endif
+                        @endif --}}
                         @if($apl01->assessment_scheduled_at)
                             <div class="flex items-center justify-between text-gray-600">
                                 <span>Asesmen dijadwalkan:</span>
@@ -485,12 +531,13 @@
 
                     {{-- Quick Links --}}
                     <div class="mt-4 space-y-2">
-                        @if($apl01->apl02_generated_at)
+                        {{-- HIDDEN: APL-02 per-unit link temporarily disabled --}}
+                        {{-- @if($apl01->apl02_generated_at)
                             <a href="{{ route('admin.apl02.units.index', ['apl01_form_id' => $apl01->id]) }}"
                                class="block w-full text-center px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition text-sm font-medium">
                                 Lihat Unit APL-02 →
                             </a>
-                        @endif
+                        @endif --}}
                         @if($apl01->flow_status === 'certificate_issued')
                             <a href="{{ route('admin.certificates.index', ['assessee_id' => $apl01->assessee_id]) }}"
                                class="block w-full text-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition text-sm font-medium">

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Apl01Form extends Model
@@ -15,6 +16,8 @@ class Apl01Form extends Model
         'assessee_id',
         'scheme_id',
         'event_id',
+        'tuk_id',
+        'event_session_id',
         'form_number',
         'submission_date',
         'full_name',
@@ -90,6 +93,16 @@ class Apl01Form extends Model
         return $this->belongsTo(Event::class);
     }
 
+    public function tuk(): BelongsTo
+    {
+        return $this->belongsTo(Tuk::class);
+    }
+
+    public function eventSession(): BelongsTo
+    {
+        return $this->belongsTo(EventSession::class);
+    }
+
     public function submittedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by');
@@ -128,6 +141,14 @@ class Apl01Form extends Model
     public function apl02Units(): HasMany
     {
         return $this->hasMany(Apl02Unit::class, 'apl01_form_id');
+    }
+
+    /**
+     * APL-02 Form (per-scheme) - new flow
+     */
+    public function apl02Form(): HasOne
+    {
+        return $this->hasOne(Apl02Form::class, 'apl01_form_id');
     }
 
     public function assessments(): HasMany

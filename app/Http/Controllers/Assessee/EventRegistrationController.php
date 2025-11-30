@@ -150,6 +150,26 @@ class EventRegistrationController extends Controller
      */
     public function register(Request $request, Event $event)
     {
+        // Validate TUK and Session selection
+        $eventTukIds = $event->tuks()->pluck('tuk_id')->toArray();
+        $eventSessionIds = $event->sessions()->where('is_active', true)->pluck('id')->toArray();
+
+        $request->validate([
+            'tuk_id' => ['required', 'exists:tuk,id', function ($attribute, $value, $fail) use ($eventTukIds) {
+                if (!in_array($value, $eventTukIds)) {
+                    $fail('TUK yang dipilih tidak tersedia untuk event ini.');
+                }
+            }],
+            'event_session_id' => ['required', 'exists:event_sessions,id', function ($attribute, $value, $fail) use ($eventSessionIds) {
+                if (!in_array($value, $eventSessionIds)) {
+                    $fail('Session yang dipilih tidak tersedia untuk event ini.');
+                }
+            }],
+        ], [
+            'tuk_id.required' => 'Silakan pilih TUK (Tempat Uji Kompetensi).',
+            'event_session_id.required' => 'Silakan pilih Session/Jadwal.',
+        ]);
+
         // Validate registration is open
         if ($event->registration_start > now() || $event->registration_end < now()) {
             return back()->with('error', 'Pendaftaran untuk event ini sudah ditutup.');
@@ -189,6 +209,8 @@ class EventRegistrationController extends Controller
             'assessee_id' => $assessee->id,
             'event_id' => $event->id,
             'scheme_id' => $event->scheme_id,
+            'tuk_id' => $request->tuk_id,
+            'event_session_id' => $request->event_session_id,
             'form_number' => 'APL01-' . date('Y') . '-' . str_pad(Apl01Form::count() + 1, 5, '0', STR_PAD_LEFT),
             'status' => 'draft',
             'certification_purpose' => $request->certification_purpose ?? 'Sertifikasi Kompetensi',

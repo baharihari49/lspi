@@ -7,6 +7,12 @@
         $flowStatus = $flowService->getFlowStatus($apl01);
     }
 
+    // Check APL-02 Form status (per-Scheme)
+    $apl02Form = $apl01->apl02Form ?? null;
+    $apl02FormExists = $apl02Form !== null;
+    $apl02FormApproved = $apl02Form && $apl02Form->status === 'approved';
+    $apl02FormInProgress = $apl02Form && in_array($apl02Form->status, ['draft', 'submitted', 'under_review', 'revision_required']);
+
     $stages = [
         [
             'key' => 'apl01_approved',
@@ -15,14 +21,25 @@
             'sublabel' => 'Disetujui',
             'completed' => $flowStatus['apl01']['approved'] ?? false,
         ],
+        // HIDDEN: APL-02 per-unit stage temporarily disabled - will be replaced with APL-02 per-scheme
+        // [
+        //     'key' => 'apl02_generated',
+        //     'icon' => 'assignment',
+        //     'label' => 'APL-02',
+        //     'sublabel' => 'Asesmen Mandiri',
+        //     'completed' => $flowStatus['apl02']['all_complete'] ?? false,
+        //     'in_progress' => ($flowStatus['apl02']['generated'] ?? false) && !($flowStatus['apl02']['all_complete'] ?? false),
+        //     'progress' => $flowStatus['apl02']['progress_percentage'] ?? 0,
+        // ],
+        // APL-02 Form (per-Scheme) - NEW FLOW
         [
-            'key' => 'apl02_generated',
+            'key' => 'apl02_form',
             'icon' => 'assignment',
             'label' => 'APL-02',
             'sublabel' => 'Asesmen Mandiri',
-            'completed' => $flowStatus['apl02']['all_complete'] ?? false,
-            'in_progress' => ($flowStatus['apl02']['generated'] ?? false) && !($flowStatus['apl02']['all_complete'] ?? false),
-            'progress' => $flowStatus['apl02']['progress_percentage'] ?? 0,
+            'completed' => $apl02FormApproved,
+            'in_progress' => $apl02FormInProgress,
+            'progress' => $apl02Form->completion_percentage ?? 0,
         ],
         [
             'key' => 'assessment',
@@ -88,8 +105,12 @@
                 $statusText = 'Dalam Proses';
                 $statusColor = 'text-yellow-600';
 
-                // Show progress for APL-02
+                // Show progress for APL-02 (per-unit - old)
                 if ($stage['key'] === 'apl02_generated' && isset($stage['progress'])) {
+                    $statusText = $stage['progress'] . '%';
+                }
+                // Show progress for APL-02 Form (per-scheme - new)
+                if ($stage['key'] === 'apl02_form' && isset($stage['progress'])) {
                     $statusText = $stage['progress'] . '%';
                 }
             }

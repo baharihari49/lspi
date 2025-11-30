@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Apl01Form;
 use App\Models\Assessment;
 use App\Services\CertificationFlowService;
+use App\Services\Apl02GeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 class CertificationFlowController extends Controller
 {
@@ -45,17 +47,22 @@ class CertificationFlowController extends Controller
     }
 
     /**
-     * Manually trigger APL-02 generation.
+     * Manually trigger APL-02 Form generation (per-Scheme - NEW FLOW).
      */
-    public function generateApl02(Apl01Form $apl01): JsonResponse
+    public function generateApl02(Apl01Form $apl01): RedirectResponse
     {
-        $result = $this->flowService->triggerApl02Generation($apl01);
+        try {
+            $generatorService = app(Apl02GeneratorService::class);
+            $apl02Form = $generatorService->generateApl02Form($apl01);
 
-        return response()->json([
-            'success' => $result['success'],
-            'message' => $result['message'],
-            'units_count' => count($result['units'] ?? []),
-        ]);
+            return redirect()
+                ->route('admin.apl02-forms.show', $apl02Form)
+                ->with('success', 'APL-02 Form berhasil dibuat dengan nomor ' . $apl02Form->form_number);
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('admin.apl01.show', $apl01)
+                ->with('error', 'Gagal membuat APL-02 Form: ' . $e->getMessage());
+        }
     }
 
     /**

@@ -82,7 +82,7 @@ class MyApl01Controller extends Controller
             abort(403, 'Anda tidak memiliki akses ke form ini.');
         }
 
-        $apl01->load(['scheme', 'event', 'answers', 'reviews']);
+        $apl01->load(['scheme', 'event', 'tuk', 'eventSession', 'answers', 'reviews']);
 
         return view('assessee.my-apl01.show', compact('apl01'));
     }

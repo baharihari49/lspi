@@ -249,6 +249,28 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('apl02/units/{unit}/calculate-completion', [App\Http\Controllers\Admin\Apl02UnitController::class, 'calculateCompletion'])->name('apl02.units.calculate-completion');
     Route::get('apl02/api/scheme-units', [App\Http\Controllers\Admin\Apl02UnitController::class, 'getSchemeUnits'])->name('apl02.units.get-scheme-units');
 
+    // APL-02 Forms (per-Scheme) - NEW FLOW
+    Route::resource('apl02-forms', App\Http\Controllers\Admin\Apl02FormController::class)->parameters([
+        'apl02-forms' => 'apl02Form'
+    ]);
+    Route::post('apl02-forms/{apl02Form}/assign-assessor', [App\Http\Controllers\Admin\Apl02FormController::class, 'assignAssessor'])->name('apl02-forms.assign-assessor');
+    Route::post('apl02-forms/{apl02Form}/start-review', [App\Http\Controllers\Admin\Apl02FormController::class, 'startReview'])->name('apl02-forms.start-review');
+    Route::post('apl02-forms/{apl02Form}/approve', [App\Http\Controllers\Admin\Apl02FormController::class, 'approve'])->name('apl02-forms.approve');
+    Route::post('apl02-forms/{apl02Form}/reject', [App\Http\Controllers\Admin\Apl02FormController::class, 'reject'])->name('apl02-forms.reject');
+    Route::post('apl02-forms/{apl02Form}/request-revision', [App\Http\Controllers\Admin\Apl02FormController::class, 'requestRevision'])->name('apl02-forms.request-revision');
+
+    // APL-02 Form Reviews (for Assessor only)
+    Route::middleware(['role:assessor,admin,super-admin'])->group(function () {
+        Route::get('apl02-form-reviews/my-reviews', [App\Http\Controllers\Admin\Apl02FormReviewController::class, 'myReviews'])->name('apl02-form-reviews.my-reviews');
+        Route::get('apl02-form-reviews/{apl02Form}', [App\Http\Controllers\Admin\Apl02FormReviewController::class, 'show'])->name('apl02-form-reviews.show');
+        Route::get('apl02-form-reviews/{apl02Form}/review', [App\Http\Controllers\Admin\Apl02FormReviewController::class, 'review'])->name('apl02-form-reviews.review');
+        Route::post('apl02-form-reviews/{apl02Form}/claim', [App\Http\Controllers\Admin\Apl02FormReviewController::class, 'claim'])->name('apl02-form-reviews.claim');
+        Route::post('apl02-form-reviews/{apl02Form}/start-review', [App\Http\Controllers\Admin\Apl02FormReviewController::class, 'startReview'])->name('apl02-form-reviews.start-review');
+        Route::post('apl02-form-reviews/{apl02Form}/approve', [App\Http\Controllers\Admin\Apl02FormReviewController::class, 'approve'])->name('apl02-form-reviews.approve');
+        Route::post('apl02-form-reviews/{apl02Form}/reject', [App\Http\Controllers\Admin\Apl02FormReviewController::class, 'reject'])->name('apl02-form-reviews.reject');
+        Route::post('apl02-form-reviews/{apl02Form}/request-revision', [App\Http\Controllers\Admin\Apl02FormReviewController::class, 'requestRevision'])->name('apl02-form-reviews.request-revision');
+    });
+
     // APL-02 Evidence
     Route::resource('apl02/evidence', App\Http\Controllers\Admin\Apl02EvidenceController::class)
         ->names([
@@ -434,13 +456,23 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::put('my-apl01/{apl01}', [App\Http\Controllers\Assessee\MyApl01Controller::class, 'update'])->name('my-apl01.update');
         Route::post('my-apl01/{apl01}/submit', [App\Http\Controllers\Assessee\MyApl01Controller::class, 'submit'])->name('my-apl01.submit');
 
-        // My APL-02
+        // My APL-02 (per-unit) - OLD FLOW (HIDDEN)
         Route::get('my-apl02', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'index'])->name('my-apl02.index');
         Route::get('my-apl02/{unit}', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'show'])->name('my-apl02.show');
         Route::get('my-apl02/{unit}/upload', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'uploadEvidence'])->name('my-apl02.upload');
         Route::post('my-apl02/{unit}/upload', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'storeEvidence'])->name('my-apl02.store-evidence');
         Route::delete('my-apl02/{unit}/evidence/{evidence}', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'deleteEvidence'])->name('my-apl02.delete-evidence');
         Route::post('my-apl02/{unit}/submit', [App\Http\Controllers\Assessee\MyApl02Controller::class, 'submit'])->name('my-apl02.submit');
+
+        // My APL-02 Forms (per-Scheme) - NEW FLOW
+        Route::get('my-apl02-forms', [App\Http\Controllers\Assessee\MyApl02FormController::class, 'index'])->name('my-apl02-forms.index');
+        Route::get('my-apl02-forms/{apl02Form}', [App\Http\Controllers\Assessee\MyApl02FormController::class, 'show'])->name('my-apl02-forms.show');
+        Route::get('my-apl02-forms/{apl02Form}/edit', [App\Http\Controllers\Assessee\MyApl02FormController::class, 'edit'])->name('my-apl02-forms.edit');
+        Route::put('my-apl02-forms/{apl02Form}', [App\Http\Controllers\Assessee\MyApl02FormController::class, 'update'])->name('my-apl02-forms.update');
+        Route::post('my-apl02-forms/{apl02Form}/upload-evidence', [App\Http\Controllers\Assessee\MyApl02FormController::class, 'uploadEvidence'])->name('my-apl02-forms.upload-evidence');
+        Route::delete('my-apl02-forms/{apl02Form}/delete-evidence', [App\Http\Controllers\Assessee\MyApl02FormController::class, 'deleteEvidence'])->name('my-apl02-forms.delete-evidence');
+        Route::post('my-apl02-forms/{apl02Form}/submit', [App\Http\Controllers\Assessee\MyApl02FormController::class, 'submit'])->name('my-apl02-forms.submit');
+        Route::post('my-apl02-forms/{apl02Form}/resubmit', [App\Http\Controllers\Assessee\MyApl02FormController::class, 'resubmit'])->name('my-apl02-forms.resubmit');
 
         // My Assessments
         Route::get('my-assessments', [App\Http\Controllers\Assessee\MyAssessmentController::class, 'index'])->name('my-assessments.index');

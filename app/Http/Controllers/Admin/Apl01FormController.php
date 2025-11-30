@@ -161,6 +161,8 @@ class Apl01FormController extends Controller
                     ->orderBy('order');
             },
             'event',
+            'tuk',
+            'eventSession',
             'answers.formField',
             'reviews.reviewer',
             'currentReviewer',

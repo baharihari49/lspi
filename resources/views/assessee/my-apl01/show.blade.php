@@ -271,6 +271,33 @@
                             </div>
                         </div>
                     @endif
+
+                    @if($apl01->tuk)
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-green-600">apartment</span>
+                            <div>
+                                <p class="text-xs text-gray-600">TUK (Tempat Uji Kompetensi)</p>
+                                <p class="font-semibold text-gray-900">{{ $apl01->tuk->name }}</p>
+                                @if($apl01->tuk->city || $apl01->tuk->province)
+                                    <p class="text-xs text-gray-500">{{ $apl01->tuk->city }}{{ $apl01->tuk->city && $apl01->tuk->province ? ', ' : '' }}{{ $apl01->tuk->province }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($apl01->eventSession)
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-purple-600">calendar_month</span>
+                            <div>
+                                <p class="text-xs text-gray-600">Jadwal/Sesi</p>
+                                <p class="font-semibold text-gray-900">{{ $apl01->eventSession->name }}</p>
+                                <p class="text-xs text-gray-500">
+                                    {{ \Carbon\Carbon::parse($apl01->eventSession->session_date)->format('d M Y') }}
+                                    • {{ \Carbon\Carbon::parse($apl01->eventSession->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($apl01->eventSession->end_time)->format('H:i') }}
+                                </p>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 @if($apl01->certification_purpose)

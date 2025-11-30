@@ -56,7 +56,9 @@
             'items' => [
                 ['route' => 'admin.available-events.index', 'icon' => 'event_available', 'label' => 'Event Sertifikasi'],
                 ['route' => 'admin.my-apl01.index', 'icon' => 'description', 'label' => 'APL-01 Saya'],
-                ['route' => 'admin.my-apl02.index', 'icon' => 'folder_open', 'label' => 'APL-02 Saya'],
+                // HIDDEN: APL-02 per-unit temporarily disabled - will be replaced with APL-02 per-scheme
+                // ['route' => 'admin.my-apl02.index', 'icon' => 'folder_open', 'label' => 'APL-02 Saya (Unit)'],
+                ['route' => 'admin.my-apl02-forms.index', 'icon' => 'assignment', 'label' => 'APL-02 Saya'],
                 ['route' => 'admin.my-assessments.index', 'icon' => 'assignment', 'label' => 'Asesmen Saya'],
                 ['route' => 'admin.my-certificates.index', 'icon' => 'workspace_premium', 'label' => 'Sertifikat Saya'],
                 ['route' => 'admin.my-payments.index', 'icon' => 'payments', 'label' => 'Pembayaran Saya'],
@@ -71,7 +73,9 @@
             'collapsible' => true,
             'items' => [
                 ['route' => 'admin.apl01-reviews.my-reviews', 'icon' => 'assignment_ind', 'label' => 'Review APL-01'],
-                ['route' => 'admin.apl02.reviews.my-reviews', 'icon' => 'person_check', 'label' => 'Review APL-02'],
+                // HIDDEN: APL-02 per-unit review temporarily disabled - will be replaced with APL-02 per-scheme
+                // ['route' => 'admin.apl02.reviews.my-reviews', 'icon' => 'person_check', 'label' => 'Review APL-02 (Unit)'],
+                ['route' => 'admin.apl02-form-reviews.my-reviews', 'icon' => 'fact_check', 'label' => 'Review APL-02'],
                 ['route' => 'admin.assessments.index', 'icon' => 'assignment', 'label' => 'Assessments', 'permission' => 'assessments.conduct'],
             ],
         ],
@@ -85,8 +89,10 @@
             'items' => [
                 ['route' => 'admin.apl01.index', 'icon' => 'description', 'label' => 'APL-01 Forms'],
                 ['route' => 'admin.apl01-reviews.index', 'icon' => 'rate_review', 'label' => 'APL-01 Reviews'],
-                ['route' => 'admin.apl02.units.index', 'icon' => 'folder_open', 'label' => 'APL-02 Portfolio'],
-                ['route' => 'admin.apl02.reviews.index', 'icon' => 'fact_check', 'label' => 'APL-02 Reviews'],
+                // HIDDEN: APL-02 per-unit temporarily disabled - will be replaced with APL-02 per-scheme
+                // ['route' => 'admin.apl02.units.index', 'icon' => 'folder_open', 'label' => 'APL-02 Portfolio'],
+                // ['route' => 'admin.apl02.reviews.index', 'icon' => 'fact_check', 'label' => 'APL-02 Reviews'],
+                ['route' => 'admin.apl02-forms.index', 'icon' => 'assignment', 'label' => 'APL-02 Forms'],
                 ['route' => 'admin.assessments.index', 'icon' => 'assignment', 'label' => 'Assessments'],
                 ['route' => 'admin.assessment-results.index', 'icon' => 'description', 'label' => 'Results & Approval'],
                 ['route' => 'admin.certificates.index', 'icon' => 'workspace_premium', 'label' => 'Certificates'],
