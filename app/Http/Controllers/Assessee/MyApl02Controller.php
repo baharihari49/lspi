@@ -83,7 +83,7 @@ class MyApl02Controller extends Controller
     {
         $assessee = $this->getAssessee();
 
-        if (!$assessee || $unit->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$unit->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke unit ini.');
         }
 
@@ -99,7 +99,7 @@ class MyApl02Controller extends Controller
     {
         $assessee = $this->getAssessee();
 
-        if (!$assessee || $unit->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$unit->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke unit ini.');
         }
 
@@ -120,7 +120,7 @@ class MyApl02Controller extends Controller
     {
         $assessee = $this->getAssessee();
 
-        if (!$assessee || $unit->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$unit->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke unit ini.');
         }
 
@@ -221,7 +221,7 @@ class MyApl02Controller extends Controller
     {
         $assessee = $this->getAssessee();
 
-        if (!$assessee || $unit->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$unit->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke unit ini.');
         }
 
@@ -257,7 +257,7 @@ class MyApl02Controller extends Controller
     {
         $assessee = $this->getAssessee();
 
-        if (!$assessee || $unit->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$unit->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke unit ini.');
         }
 

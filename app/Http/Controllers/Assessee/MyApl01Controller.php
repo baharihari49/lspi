@@ -78,7 +78,7 @@ class MyApl01Controller extends Controller
         $assessee = $this->getAssessee();
 
         // Ensure user can only view their own forms
-        if (!$assessee || $apl01->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$apl01->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke form ini.');
         }
 
@@ -94,7 +94,7 @@ class MyApl01Controller extends Controller
     {
         $assessee = $this->getAssessee();
 
-        if (!$assessee || $apl01->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$apl01->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke form ini.');
         }
 
@@ -124,7 +124,7 @@ class MyApl01Controller extends Controller
     {
         $assessee = $this->getAssessee();
 
-        if (!$assessee || $apl01->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$apl01->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke form ini.');
         }
 
@@ -204,7 +204,7 @@ class MyApl01Controller extends Controller
     {
         $assessee = $this->getAssessee();
 
-        if (!$assessee || $apl01->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$apl01->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke form ini.');
         }
 

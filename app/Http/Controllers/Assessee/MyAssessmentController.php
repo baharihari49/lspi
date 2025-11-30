@@ -74,7 +74,7 @@ class MyAssessmentController extends Controller
     {
         $assessee = $this->getAssessee();
 
-        if (!$assessee || $assessment->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$assessment->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke asesmen ini.');
         }
 

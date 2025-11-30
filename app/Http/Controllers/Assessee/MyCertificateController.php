@@ -76,7 +76,7 @@ class MyCertificateController extends Controller
         $assessee = $this->getAssessee();
 
         // Ensure user can only view their own certificates
-        if (!$assessee || $certificate->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$certificate->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke sertifikat ini.');
         }
 
@@ -93,7 +93,7 @@ class MyCertificateController extends Controller
         $assessee = $this->getAssessee();
 
         // Ensure user can only download their own certificates
-        if (!$assessee || $certificate->assessee_id !== $assessee->id) {
+        if (!$assessee || (int)$certificate->assessee_id !== (int)$assessee->id) {
             abort(403, 'Anda tidak memiliki akses ke sertifikat ini.');
         }
 
